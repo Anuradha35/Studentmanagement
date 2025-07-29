@@ -1,0 +1,150 @@
+import React, { useState, useEffect } from 'react';
+import Dashboard from './components/Dashboard';
+import CourseBatches from './components/CourseBatches';
+import StudentForm from './components/StudentForm';
+import { AppData, Student, Course, Batch } from './types';
+
+function App() {
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'course-batches' | 'student-form'>('dashboard');
+  const [appData, setAppData] = useState<AppData>({
+    years: {},
+    collegeNames: ['RGPV', 'VIT University', 'Amity University', 'Lovely Professional University'],
+    branches: ['Computer Science', 'Information Technology', 'Electronics', 'Mechanical', 'Civil'],
+    courseDurations: ['15 Days', '30 Days', '45 Days', '60 Days', '90 Days']
+  });
+  const [selectedYear, setSelectedYear] = useState<string>('2025');
+  const [selectedCourse, setSelectedCourse] = useState<string>('');
+  const [selectedBatch, setSelectedBatch] = useState<string>('');
+  const [selectedCourseName, setSelectedCourseName] = useState<string>('');
+
+  useEffect(() => {
+    const savedData = localStorage.getItem('studentManagementData');
+    if (savedData) {
+      setAppData(JSON.parse(savedData));
+    }
+  }, []);
+
+  const saveData = (newData: AppData) => {
+    setAppData(newData);
+    localStorage.setItem('studentManagementData', JSON.stringify(newData));
+  };
+
+  const addCourse = (year: string, courseName: string) => {
+    const newData = { ...appData };
+    if (!newData.years[year]) {
+      newData.years[year] = {};
+    }
+    if (!newData.years[year][courseName]) {
+      newData.years[year][courseName] = {};
+    }
+    saveData(newData);
+  };
+
+  const addBatch = (year: string, courseName: string, batchNumber: number, startDate: string, courseDurations: string[]) => {
+    const newData = { ...appData };
+    const batchName = `B${batchNumber}`;
+    
+    if (!newData.years[year]) {
+      newData.years[year] = {};
+    }
+    if (!newData.years[year][courseName]) {
+      newData.years[year][courseName] = {};
+    }
+    
+    newData.years[year][courseName][batchName] = {
+      batchName,
+      startDate,
+      courseDurations,
+      students: []
+    };
+    
+    saveData(newData);
+  };
+
+  const addStudent = (year: string, courseName: string, batchName: string, student: Student) => {
+    const newData = { ...appData };
+    if (newData.years[year]?.[courseName]?.[batchName]) {
+      newData.years[year][courseName][batchName].students.push(student);
+      saveData(newData);
+    }
+  };
+
+  const addCollegeName = (collegeName: string) => {
+    if (!appData.collegeNames.includes(collegeName)) {
+      const newData = { ...appData };
+      newData.collegeNames.push(collegeName);
+      saveData(newData);
+    }
+  };
+
+  const addBranch = (branchName: string) => {
+    if (!appData.branches.includes(branchName)) {
+      const newData = { ...appData };
+      newData.branches.push(branchName);
+      saveData(newData);
+    }
+  };
+
+  const addCourseDuration = (duration: string) => {
+    if (!appData.courseDurations.includes(duration)) {
+      const newData = { ...appData };
+      newData.courseDurations.push(duration);
+      saveData(newData);
+    }
+  };
+
+  const navigateToCourse = (courseName: string) => {
+    setSelectedCourseName(courseName);
+    setSelectedCourse(courseName);
+    setCurrentPage('course-batches');
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {currentPage === 'dashboard' && (
+        <Dashboard
+          appData={appData}
+          selectedYear={selectedYear}
+          setSelectedYear={setSelectedYear}
+          selectedCourse={selectedCourse}
+          setSelectedCourse={setSelectedCourse}
+          selectedBatch={selectedBatch}
+          setSelectedBatch={setSelectedBatch}
+          onAddCourse={addCourse}
+          onAddBatch={addBatch}
+          onNavigateToCourse={navigateToCourse}
+        />
+      )}
+      
+      {currentPage === 'course-batches' && (
+        <CourseBatches
+          appData={appData}
+          selectedYear={selectedYear}
+          selectedCourse={selectedCourse}
+          selectedCourseName={selectedCourseName}
+          selectedBatch={selectedBatch}
+          setSelectedBatch={setSelectedBatch}
+          onAddBatch={addBatch}
+          onNavigateToForm={() => setCurrentPage('student-form')}
+          onBack={() => setCurrentPage('dashboard')}
+        />
+      )}
+      
+      {currentPage === 'student-form' && (
+        <StudentForm
+          appData={appData}
+          selectedYear={selectedYear}
+          selectedCourse={selectedCourse}
+          selectedBatch={selectedBatch}
+          onAddStudent={addStudent}
+          onAddCollegeName={addCollegeName}
+          onAddBranch={addBranch}
+          onAddCourseDuration={addCourseDuration}
+          onBack={() => setCurrentPage('dashboard')}
+        />
+      )}
+    </div>
+  );
+}
+
+export default App;

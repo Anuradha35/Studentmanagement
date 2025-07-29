@@ -1,0 +1,220 @@
+import React, { useState } from 'react';
+import { ArrowLeft, Plus, Users, Calendar, Clock, GraduationCap, Hash } from 'lucide-react';
+import { AppData } from '../types';
+import BatchDialog from './BatchDialog';
+
+interface CourseBatchesProps {
+  appData: AppData;
+  selectedYear: string;
+  selectedCourse: string;
+  selectedCourseName: string;
+  selectedBatch: string;
+  setSelectedBatch: (batch: string) => void;
+  onAddBatch: (year: string, courseName: string, batchNumber: number, startDate: string, courseDurations: string[]) => void;
+  onNavigateToForm: () => void;
+  onBack: () => void;
+}
+
+const CourseBatches: React.FC<CourseBatchesProps> = ({
+  appData,
+  selectedYear,
+  selectedCourse,
+  selectedCourseName,
+  selectedBatch,
+  setSelectedBatch,
+  onAddBatch,
+  onNavigateToForm,
+  onBack
+}) => {
+  const [showBatchDialog, setShowBatchDialog] = useState(false);
+
+  const currentYearData = appData.years[selectedYear] || {};
+  const currentCourseData = currentYearData[selectedCourse] || {};
+  const availableBatches = Object.keys(currentCourseData);
+
+  const getBatchStudents = (batchName: string) => {
+    const batch = currentCourseData[batchName];
+    return batch ? batch.students.length : 0;
+  };
+
+  const getStudentsByDuration = (batchName: string, duration: string) => {
+    const batch = currentCourseData[batchName];
+    if (!batch) return 0;
+    return batch.students.filter(student => student.courseDuration === duration).length;
+  };
+
+  const getNextBatchNumber = () => {
+    if (!currentCourseData || Object.keys(currentCourseData).length === 0) return 1;
+    
+    const batchNumbers = Object.keys(currentCourseData)
+      .map(batchName => parseInt(batchName.substring(1)))
+      .filter(num => !isNaN(num))
+      .sort((a, b) => b - a);
+    
+    return batchNumbers.length > 0 ? batchNumbers[0] + 1 : 1;
+  };
+
+  const getTotalStudents = () => {
+    return Object.values(currentCourseData).reduce((total, batch) => total + batch.students.length, 0);
+  };
+
+  return (
+    <div className="min-h-screen p-6">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="flex items-center gap-4 mb-4">
+          <button
+            onClick={onBack}
+            className="p-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-200 group"
+          >
+            <ArrowLeft className="w-5 h-5 text-white group-hover:text-blue-300 transition-colors" />
+          </button>
+          <div>
+            <h1 className="text-4xl font-bold text-white mb-2">
+              {selectedCourseName}
+            </h1>
+            <p className="text-gray-300 flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Academic Year {selectedYear} • {availableBatches.length} Batches • {getTotalStudents()} Students
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-300 text-sm">Total Students</p>
+              <p className="text-3xl font-bold text-white">{getTotalStudents()}</p>
+            </div>
+            <Users className="w-8 h-8 text-blue-400" />
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-green-500/20 to-teal-500/20 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-300 text-sm">Active Batches</p>
+              <p className="text-3xl font-bold text-white">{availableBatches.length}</p>
+            </div>
+            <Hash className="w-8 h-8 text-green-400" />
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-300 text-sm">Course</p>
+              <p className="text-2xl font-bold text-white">{selectedCourseName}</p>
+            </div>
+            <GraduationCap className="w-8 h-8 text-orange-400" />
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-gray-300 text-sm">Academic Year</p>
+              <p className="text-3xl font-bold text-white">{selectedYear}</p>
+            </div>
+            <Calendar className="w-8 h-8 text-purple-400" />
+          </div>
+        </div>
+      </div>
+
+      {/* Add Batch Button */}
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-white">Course Batches</h2>
+        <button
+          onClick={() => setShowBatchDialog(true)}
+          className="px-6 py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl hover:from-green-600 hover:to-teal-600 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-green-500/25"
+        >
+          <Plus className="w-5 h-5" />
+          Add New Batch
+        </button>
+      </div>
+
+      {/* Batches Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {availableBatches.map(batchName => {
+          const batch = currentCourseData[batchName];
+          return (
+            <div
+              key={batchName}
+              onClick={() => setSelectedBatch(batchName)}
+              className={`p-6 rounded-xl cursor-pointer transition-all duration-200 border backdrop-blur-sm ${
+                selectedBatch === batchName
+                  ? 'bg-green-500/30 border-green-500 shadow-lg shadow-green-500/25'
+                  : 'bg-white/10 border-white/20 hover:bg-green-500/20 hover:border-green-500/50'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Hash className="w-5 h-5 text-green-400" />
+                  {batchName}
+                </h3>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-white">{getBatchStudents(batchName)}</p>
+                  <p className="text-gray-300 text-xs">Students</p>
+                </div>
+              </div>
+              
+              <div className="space-y-2 mb-4">
+                <p className="text-gray-300 text-sm flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-blue-400" />
+                  Start Date: {batch.startDate}
+                </p>
+                <p className="text-gray-300 text-sm flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-purple-400" />
+                  Durations: {batch.courseDurations.join(', ')}
+                </p>
+              </div>
+
+              {/* Duration Breakdown */}
+              <div className="space-y-1">
+                <p className="text-gray-400 text-xs font-medium">Students by Duration:</p>
+                {batch.courseDurations.map(duration => (
+                  <div key={duration} className="flex justify-between items-center">
+                    <span className="text-gray-300 text-xs">{duration}</span>
+                    <span className="text-white text-xs font-medium bg-white/10 px-2 py-1 rounded">
+                      {getStudentsByDuration(batchName, duration)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Add Student Button */}
+      {selectedBatch && (
+        <div className="fixed bottom-8 right-8">
+          <button
+            onClick={onNavigateToForm}
+            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 flex items-center gap-3 text-lg font-semibold"
+          >
+            <Plus className="w-6 h-6" />
+            Add Student to {selectedBatch}
+          </button>
+        </div>
+      )}
+
+      {/* Batch Dialog */}
+      <BatchDialog
+        isOpen={showBatchDialog}
+        onClose={() => setShowBatchDialog(false)}
+        onAddBatch={(batchNumber, startDate, courseDurations) => {
+          onAddBatch(selectedYear, selectedCourse, batchNumber, startDate, courseDurations);
+          setShowBatchDialog(false);
+        }}
+        nextBatchNumber={getNextBatchNumber()}
+        appData={appData}
+      />
+    </div>
+  );
+};
+
+export default CourseBatches;
