@@ -2,20 +2,23 @@ import React, { useState, useEffect } from 'react';
 import Dashboard from './components/Dashboard';
 import CourseBatches from './components/CourseBatches';
 import StudentForm from './components/StudentForm';
-import { AppData, Student, Course, Batch } from './types';
+import { AppData, Student, Course, Batch, CourseFee, Payment } from './types';
+import CourseFeeManager from './components/CourseFeeManager';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'course-batches' | 'student-form'>('dashboard');
+  const [currentPage, setCurrentPage] = useState<'dashboard' | 'course-batches' | 'student-form' | 'course-fees'>('dashboard');
   const [appData, setAppData] = useState<AppData>({
     years: {},
     collegeNames: ['RGPV', 'VIT University', 'Amity University', 'Lovely Professional University'],
     branches: ['Computer Science', 'Information Technology', 'Electronics', 'Mechanical', 'Civil'],
-    courseDurations: ['15 Days', '30 Days', '45 Days', '60 Days', '90 Days']
+    courseDurations: ['15 Days', '30 Days', '45 Days', '60 Days', '90 Days'],
+    courseFees: []
   });
   const [selectedYear, setSelectedYear] = useState<string>('2025');
   const [selectedCourse, setSelectedCourse] = useState<string>('');
   const [selectedBatch, setSelectedBatch] = useState<string>('');
   const [selectedCourseName, setSelectedCourseName] = useState<string>('');
+  const [preSelectedDuration, setPreSelectedDuration] = useState<string>('');
 
   useEffect(() => {
     const savedData = localStorage.getItem('studentManagementData');
@@ -27,6 +30,40 @@ function App() {
   const saveData = (newData: AppData) => {
     setAppData(newData);
     localStorage.setItem('studentManagementData', JSON.stringify(newData));
+  };
+
+  const addCourseFee = (courseName: string, courseDuration: string, fee: number) => {
+    const newData = { ...appData };
+    const newCourseFee: CourseFee = {
+      id: Date.now().toString(),
+      courseName,
+      courseDuration,
+      fee,
+      createdAt: new Date().toISOString()
+    };
+    newData.courseFees.push(newCourseFee);
+    saveData(newData);
+  };
+
+  const updateCourseFee = (id: string, fee: number) => {
+    const newData = { ...appData };
+    const courseFeeIndex = newData.courseFees.findIndex(cf => cf.id === id);
+    if (courseFeeIndex !== -1) {
+      newData.courseFees[courseFeeIndex].fee = fee;
+      saveData(newData);
+    }
+  };
+
+  const deleteCourseFee = (id: string) => {
+    const newData = { ...appData };
+    newData.courseFees = newData.courseFees.filter(cf => cf.id !== id);
+    saveData(newData);
+  };
+
+  const addPayment = (studentId: string, payment: Omit<Payment, 'id' | 'studentId' | 'createdAt'>) => {
+    // This would typically save to database
+    // For now, we'll just log it
+    console.log('Adding payment:', { studentId, ...payment });
   };
 
   const addCourse = (year: string, courseName: string) => {
@@ -99,6 +136,11 @@ function App() {
     setCurrentPage('course-batches');
   };
 
+  const navigateToForm = (courseDuration?: string) => {
+    setPreSelectedDuration(courseDuration || '');
+    setCurrentPage('student-form');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {currentPage === 'dashboard' && (
@@ -113,6 +155,7 @@ function App() {
           onAddCourse={addCourse}
           onAddBatch={addBatch}
           onNavigateToCourse={navigateToCourse}
+          onNavigateToCourseFees={() => setCurrentPage('course-fees')}
         />
       )}
       
@@ -125,7 +168,7 @@ function App() {
           selectedBatch={selectedBatch}
           setSelectedBatch={setSelectedBatch}
           onAddBatch={addBatch}
-          onNavigateToForm={() => setCurrentPage('student-form')}
+          onNavigateToForm={navigateToForm}
           onBack={() => setCurrentPage('dashboard')}
         />
       )}
@@ -136,10 +179,22 @@ function App() {
           selectedYear={selectedYear}
           selectedCourse={selectedCourse}
           selectedBatch={selectedBatch}
+          preSelectedDuration={preSelectedDuration}
           onAddStudent={addStudent}
           onAddCollegeName={addCollegeName}
           onAddBranch={addBranch}
           onAddCourseDuration={addCourseDuration}
+          onAddPayment={addPayment}
+          onBack={() => setCurrentPage('course-batches')}
+        />
+      )}
+      
+      {currentPage === 'course-fees' && (
+        <CourseFeeManager
+          courseFees={appData.courseFees}
+          onAddCourseFee={addCourseFee}
+          onUpdateCourseFee={updateCourseFee}
+          onDeleteCourseFee={deleteCourseFee}
           onBack={() => setCurrentPage('dashboard')}
         />
       )}

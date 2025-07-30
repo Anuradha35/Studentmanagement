@@ -11,7 +11,7 @@ interface CourseBatchesProps {
   selectedBatch: string;
   setSelectedBatch: (batch: string) => void;
   onAddBatch: (year: string, courseName: string, batchNumber: number, startDate: string, courseDurations: string[]) => void;
-  onNavigateToForm: () => void;
+  onNavigateToForm: (courseDuration?: string) => void;
   onBack: () => void;
 }
 
@@ -184,23 +184,32 @@ const CourseBatches: React.FC<CourseBatchesProps> = ({
                   </div>
                 ))}
               </div>
+
+              {/* Duration-specific Add Student Buttons */}
+              {selectedBatch === batchName && (
+                <div className="mt-4 pt-4 border-t border-white/20">
+                  <p className="text-gray-300 text-xs font-medium mb-2">Add Student to:</p>
+                  <div className="space-y-2">
+                    {batch.courseDurations.map(duration => (
+                      <button
+                        key={duration}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onNavigateToForm(duration);
+                        }}
+                        className="w-full px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Add to {duration}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
       </div>
-
-      {/* Add Student Button */}
-      {selectedBatch && (
-        <div className="fixed bottom-8 right-8">
-          <button
-            onClick={onNavigateToForm}
-            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 flex items-center gap-3 text-lg font-semibold"
-          >
-            <Plus className="w-6 h-6" />
-            Add Student to {selectedBatch}
-          </button>
-        </div>
-      )}
 
       {/* Batch Dialog */}
       <BatchDialog

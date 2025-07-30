@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Users, BookOpen, Plus, TrendingUp, GraduationCap, Building2 } from 'lucide-react';
+import { Calendar, Users, BookOpen, Plus, TrendingUp, GraduationCap, Building2, DollarSign } from 'lucide-react';
 import { AppData } from '../types';
 import BatchDialog from './BatchDialog';
 import CourseDialog from './CourseDialog';
@@ -15,6 +15,7 @@ interface DashboardProps {
   onAddCourse: (year: string, courseName: string) => void;
   onAddBatch: (year: string, courseName: string, batchNumber: number, startDate: string, courseDurations: string[]) => void;
   onNavigateToCourse: (courseName: string) => void;
+  onNavigateToCourseFees: () => void;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
@@ -28,6 +29,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   onAddCourse,
   onAddBatch,
   onNavigateToCourse
+  onNavigateToCourseFees
 }) => {
   const [showCourseDialog, setShowCourseDialog] = useState(false);
 
@@ -155,13 +157,22 @@ const Dashboard: React.FC<DashboardProps> = ({
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-white">Courses for {selectedYear}</h2>
-          <button
-            onClick={() => setShowCourseDialog(true)}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Add Course
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onNavigateToCourseFees}
+              className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2"
+            >
+              <DollarSign className="w-4 h-4" />
+              Manage Course Fees
+            </button>
+            <button
+              onClick={() => setShowCourseDialog(true)}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add Course
+            </button>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

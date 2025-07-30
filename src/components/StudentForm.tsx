@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { ArrowLeft, User, Phone, Mail, GraduationCap, Calendar, Clock, Save } from 'lucide-react';
-import { AppData, Student } from '../types';
+import { ArrowLeft, User, Phone, Mail, GraduationCap, Calendar, Clock, Save, DollarSign } from 'lucide-react';
+import { AppData, Student, Payment } from '../types';
 
 interface StudentFormProps {
   appData: AppData;
   selectedYear: string;
   selectedCourse: string;
   selectedBatch: string;
+  preSelectedDuration?: string;
   onAddStudent: (year: string, courseName: string, batchName: string, student: Student) => void;
   onAddCollegeName: (collegeName: string) => void;
   onAddBranch: (branchName: string) => void;
   onAddCourseDuration: (duration: string) => void;
+  onAddPayment: (studentId: string, payment: Omit<Payment, 'id' | 'studentId' | 'createdAt'>) => void;
   onBack: () => void;
 }
 
@@ -19,10 +21,12 @@ const StudentForm: React.FC<StudentFormProps> = ({
   selectedYear,
   selectedCourse,
   selectedBatch,
+  preSelectedDuration,
   onAddStudent,
   onAddCollegeName,
   onAddBranch,
   onAddCourseDuration,
+  onAddPayment,
   onBack
 }) => {
   const [formData, setFormData] = useState({
@@ -34,7 +38,15 @@ const StudentForm: React.FC<StudentFormProps> = ({
     hostler: 'No' as Student['hostler'],
     collegeName: '',
     branch: '',
-    courseDuration: ''
+    courseDuration: preSelectedDuration || ''
+  });
+
+  const [payments, setPayments] = useState<{
+    online: { amount: string; transactionId: string; utrId: string }[];
+    offline: { amount: string; receiptNo: string }[];
+  }>({
+    online: [{ amount: '', transactionId: '', utrId: '' }],
+    offline: [{ amount: '', receiptNo: '' }]
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -45,6 +57,29 @@ const StudentForm: React.FC<StudentFormProps> = ({
 
   const batchData = appData.years[selectedYear]?.[selectedCourse]?.[selectedBatch];
   const batchStartDate = batchData?.startDate || '';
+
+  // Get course fee based on selected course and duration
+  const getCourseFee = (): number => {
+    const courseFee = appData.courseFees?.find(
+      fee => fee.courseName === selectedCourse && fee.courseDuration === formData.courseDuration
+    );
+    return courseFee?.fee || 0;
+  };
+
+  // Calculate total payments
+  const getTotalPayments = (): number => {
+    const onlineTotal = payments.online.reduce((sum, payment) => {
+      const amount = parseInt(payment.amount) || 0;
+      return sum + amount;
+    }, 0);
+    
+    const offlineTotal = payments.offline.reduce((sum, payment) => {
+      const amount = parseInt(payment.amount) || 0;
+      return sum + amount;
+    }, 0);
+    
+    return onlineTotal + offlineTotal;
+  };
 
   const calculateEndDate = (startDate: string, duration: string): string => {
     if (!startDate || !duration) return '';
@@ -57,6 +92,27 @@ const StudentForm: React.FC<StudentFormProps> = ({
     start.setDate(start.getDate() + durationDays - 1);
     
     return `${start.getDate().toString().padStart(2, '0')}.${(start.getMonth() + 1).toString().padStart(2, '0')}.${start.getFullYear()}`;
+  };
+
+  // Add payment row
+  const addPaymentRow = (type: 'online' | 'offline') => {
+    setPayments(prev => ({
+      ...prev,
+      [type]: [
+        ...prev[type],
+        type === 'online' 
+          ? { amount: '', transactionId: '', utrId: '' }
+          : { amount: '', receiptNo: '' }
+      ]
+    }));
+  };
+
+  // Remove payment row
+  const removePaymentRow = (type: 'online' | 'offline', index: number) => {
+    setPayments(prev => ({
+      ...prev,
+      [type]: prev[type].filter((_, i) => i !== index)
+    }));
   };
 
   const validateForm = (): boolean => {
@@ -90,12 +146,15 @@ const StudentForm: React.FC<StudentFormProps> = ({
     
     if (!validateForm()) return;
 
+    const courseFee = getCourseFee();
+    const totalPaid = getTotalPayments();
+
     const student: Student = {
       id: Date.now().toString(),
       studentName: formData.studentName.toUpperCase(),
       fatherName: formData.fatherName.toUpperCase(),
       mobileNo: formData.mobileNo,
-      email: formData.email, // Keep original case for email
+      email: formData.email, // Keep original case
       category: formData.category,
       hostler: formData.hostler,
       collegeName: formData.collegeName.toUpperCase(),
@@ -103,6 +162,9 @@ const StudentForm: React.FC<StudentFormProps> = ({
       courseDuration: formData.courseDuration,
       startDate: batchStartDate,
       endDate: calculateEndDate(batchStartDate, formData.courseDuration),
+      courseFee,
+      totalPaid,
+      remainingFee: courseFee - totalPaid,
       createdAt: new Date().toISOString()
     };
 
@@ -119,6 +181,30 @@ const StudentForm: React.FC<StudentFormProps> = ({
 
     onAddStudent(selectedYear, selectedCourse, selectedBatch, student);
     
+    // Add payments
+    payments.online.forEach(payment => {
+      if (payment.amount && (payment.transactionId || payment.utrId)) {
+        onAddPayment(student.id, {
+          paymentMode: 'online',
+          amount: parseInt(payment.amount),
+          transactionId: payment.transactionId || undefined,
+          utrId: payment.utrId || undefined,
+          paymentDate: new Date().toISOString()
+        });
+      }
+    });
+
+    payments.offline.forEach(payment => {
+      if (payment.amount && payment.receiptNo) {
+        onAddPayment(student.id, {
+          paymentMode: 'offline',
+          amount: parseInt(payment.amount),
+          receiptNo: payment.receiptNo,
+          paymentDate: new Date().toISOString()
+        });
+      }
+    });
+
     // Reset form
     setFormData({
       studentName: '',
@@ -129,7 +215,11 @@ const StudentForm: React.FC<StudentFormProps> = ({
       hostler: 'No',
       collegeName: '',
       branch: '',
-      courseDuration: ''
+      courseDuration: preSelectedDuration || ''
+    });
+    setPayments({
+      online: [{ amount: '', transactionId: '', utrId: '' }],
+      offline: [{ amount: '', receiptNo: '' }]
     });
     setErrors({});
     alert('Student added successfully!');
@@ -198,6 +288,12 @@ const StudentForm: React.FC<StudentFormProps> = ({
               <Calendar className="w-4 h-4 inline mr-2" />
               Batch Start Date: {batchStartDate}
             </p>
+            {preSelectedDuration && (
+              <p className="text-green-300 mt-2">
+                <Clock className="w-4 h-4 inline mr-2" />
+                Pre-selected Duration: {preSelectedDuration}
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -282,7 +378,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value as Student['category'] })}
-                  className="w-full p-3 bg-white/10 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="GEN">General (GEN)</option>
                   <option value="SC">Scheduled Caste (SC)</option>
@@ -301,7 +397,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                 <select
                   value={formData.hostler}
                   onChange={(e) => setFormData({ ...formData, hostler: e.target.value as Student['hostler'] })}
-                  className="w-full p-3 bg-white/10 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="No">No</option>
                   <option value="Yes">Yes</option>
@@ -326,7 +422,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                   <select
                     value={formData.collegeName}
                     onChange={(e) => handleCollegeChange(e.target.value)}
-                    className="w-full p-3 bg-white/10 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select College</option>
                     {appData.collegeNames.map(college => (
@@ -363,7 +459,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                   <select
                     value={formData.branch}
                     onChange={(e) => handleBranchChange(e.target.value)}
-                    className="w-full p-3 bg-white/10 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select Branch</option>
                     {appData.branches.map(branch => (
@@ -401,13 +497,14 @@ const StudentForm: React.FC<StudentFormProps> = ({
                   <select
                     value={formData.courseDuration}
                     onChange={(e) => handleDurationChange(e.target.value)}
-                    className="w-full p-3 bg-white/10 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    disabled={!!preSelectedDuration}
                   >
                     <option value="">Select Duration</option>
                     {appData.courseDurations.map(duration => (
                       <option key={duration} value={duration}>{duration}</option>
                     ))}
-                    <option value="custom">+ Add Custom Duration</option>
+                    {!preSelectedDuration && <option value="custom">+ Add Custom Duration</option>}
                   </select>
                 ) : (
                   <div className="space-y-2">
@@ -459,6 +556,145 @@ const StudentForm: React.FC<StudentFormProps> = ({
               )}
             </div>
           </div>
+
+          {/* Course Fee & Payment Information */}
+          {formData.courseDuration && (
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                <DollarSign className="w-5 h-5" />
+                Course Fee & Payment Information
+              </h2>
+              
+              {/* Course Fee Display */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
+                  <p className="text-blue-300 text-sm">Course Fee</p>
+                  <p className="text-2xl font-bold text-white">₹{getCourseFee().toLocaleString()}</p>
+                </div>
+                <div className="p-4 bg-green-500/20 border border-green-500/30 rounded-lg">
+                  <p className="text-green-300 text-sm">Total Paid</p>
+                  <p className="text-2xl font-bold text-white">₹{getTotalPayments().toLocaleString()}</p>
+                </div>
+                <div className="p-4 bg-orange-500/20 border border-orange-500/30 rounded-lg">
+                  <p className="text-orange-300 text-sm">Remaining</p>
+                  <p className="text-2xl font-bold text-white">₹{(getCourseFee() - getTotalPayments()).toLocaleString()}</p>
+                </div>
+              </div>
+
+              {/* Online Payments */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold text-white">Online Payments</h3>
+                  <button
+                    type="button"
+                    onClick={() => addPaymentRow('online')}
+                    className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors"
+                  >
+                    + Add Online Payment
+                  </button>
+                </div>
+                
+                {payments.online.map((payment, index) => (
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                    <input
+                      type="text"
+                      value={payment.amount}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '');
+                        const newPayments = [...payments.online];
+                        newPayments[index].amount = value;
+                        setPayments({ ...payments, online: newPayments });
+                      }}
+                      className="p-2 bg-white/10 border border-white/30 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      placeholder="Amount"
+                    />
+                    <input
+                      type="text"
+                      value={payment.transactionId}
+                      onChange={(e) => {
+                        const newPayments = [...payments.online];
+                        newPayments[index].transactionId = e.target.value;
+                        setPayments({ ...payments, online: newPayments });
+                      }}
+                      className="p-2 bg-white/10 border border-white/30 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      placeholder="Transaction ID"
+                    />
+                    <input
+                      type="text"
+                      value={payment.utrId}
+                      onChange={(e) => {
+                        const newPayments = [...payments.online];
+                        newPayments[index].utrId = e.target.value;
+                        setPayments({ ...payments, online: newPayments });
+                      }}
+                      className="p-2 bg-white/10 border border-white/30 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      placeholder="UTR/UPI ID"
+                    />
+                    {payments.online.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removePaymentRow('online', index)}
+                        className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Offline Payments */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold text-white">Offline Payments</h3>
+                  <button
+                    type="button"
+                    onClick={() => addPaymentRow('offline')}
+                    className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600 transition-colors"
+                  >
+                    + Add Offline Payment
+                  </button>
+                </div>
+                
+                {payments.offline.map((payment, index) => (
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                    <input
+                      type="text"
+                      value={payment.amount}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '');
+                        const newPayments = [...payments.offline];
+                        newPayments[index].amount = value;
+                        setPayments({ ...payments, offline: newPayments });
+                      }}
+                      className="p-2 bg-white/10 border border-white/30 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500"
+                      placeholder="Amount"
+                    />
+                    <input
+                      type="text"
+                      value={payment.receiptNo}
+                      onChange={(e) => {
+                        const newPayments = [...payments.offline];
+                        newPayments[index].receiptNo = e.target.value;
+                        setPayments({ ...payments, offline: newPayments });
+                      }}
+                      className="p-2 bg-white/10 border border-white/30 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500"
+                      placeholder="Receipt Number"
+                    />
+                    {payments.offline.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removePaymentRow('offline', index)}
+                        className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Submit Button */}
           <div className="flex justify-end">

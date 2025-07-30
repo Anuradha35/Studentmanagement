@@ -11,6 +11,29 @@ export interface Student {
   courseDuration: string;
   startDate: string;
   endDate: string;
+  courseFee: number;
+  totalPaid: number;
+  remainingFee: number;
+  createdAt: string;
+}
+
+export interface Payment {
+  id: string;
+  studentId: string;
+  paymentMode: 'online' | 'offline';
+  amount: number;
+  receiptNo?: string;
+  transactionId?: string;
+  utrId?: string;
+  paymentDate: string;
+  createdAt: string;
+}
+
+export interface CourseFee {
+  id: string;
+  courseName: string;
+  courseDuration: string;
+  fee: number;
   createdAt: string;
 }
 
@@ -36,4 +59,5 @@ export interface AppData {
   collegeNames: string[];
   branches: string[];
   courseDurations: string[];
+  courseFees: CourseFee[];
 }
