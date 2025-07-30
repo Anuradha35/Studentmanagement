@@ -28,7 +28,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   setSelectedBatch,
   onAddCourse,
   onAddBatch,
-  onNavigateToCourse
+  onNavigateToCourse,
   onNavigateToCourseFees
 }) => {
   const [showCourseDialog, setShowCourseDialog] = useState(false);
