@@ -11,7 +11,7 @@ interface CourseFeeManagerProps {
 }
 
 const CourseFeeManager: React.FC<CourseFeeManagerProps> = ({
-  courseFees,
+  courseFees = [],
   onAddCourseFee,
   onUpdateCourseFee,
   onDeleteCourseFee,
@@ -61,7 +61,7 @@ const CourseFeeManager: React.FC<CourseFeeManagerProps> = ({
     setEditFee('');
   };
 
-  const groupedFees = courseFees.reduce((acc, fee) => {
+  const groupedFees = (courseFees || []).reduce((acc, fee) => {
     if (!acc[fee.courseName]) {
       acc[fee.courseName] = [];
     }
@@ -260,5 +260,11 @@ const CourseFeeManager: React.FC<CourseFeeManagerProps> = ({
     </div>
   );
 };
+
+
+
+
+
+
 
 export default CourseFeeManager;
