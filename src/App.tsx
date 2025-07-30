@@ -34,6 +34,10 @@ function App() {
 
   const addCourseFee = (courseName: string, courseDuration: string, fee: number) => {
     const newData = { ...appData };
+     // ✅ Fix: Ensure courseFees is initialized
+  if (!newData.courseFees) {
+    newData.courseFees = [];
+  }
     const newCourseFee: CourseFee = {
       id: Date.now().toString(),
       courseName,
