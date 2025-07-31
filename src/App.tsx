@@ -20,6 +20,8 @@ function App() {
   const [selectedCourseName, setSelectedCourseName] = useState<string>('');
   const [preSelectedDuration, setPreSelectedDuration] = useState<string>('');
 
+  const navigateToCourseFees = () => setCurrentPage('course-fees');
+
   useEffect(() => {
     const savedData = localStorage.getItem('studentManagementData');
     if (savedData) {
@@ -174,6 +176,7 @@ function App() {
           onAddBatch={addBatch}
           onNavigateToForm={navigateToForm}
           onBack={() => setCurrentPage('dashboard')}
+          onNavigateToCourseFees={navigateToCourseFees}
         />
       )}
       

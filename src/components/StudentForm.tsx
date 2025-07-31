@@ -32,6 +32,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const [formData, setFormData] = useState({
     studentName: '',
     fatherName: '',
+    gender: 'Male' as Student['gender'],
     mobileNo: '',
     email: '',
     category: 'GEN' as Student['category'],
@@ -54,7 +55,8 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const [isCustomBranch, setIsCustomBranch] = useState(false);
   const [isCustomDuration, setIsCustomDuration] = useState(false);
   const [customDurationNumber, setCustomDurationNumber] = useState('');
-  const [paymentErrors, setPaymentErrors] = useState<{ [key: string]: string }>({});
+  const [paymentType, setPaymentType] = useState<'single' | 'group'>('single');
+  const [groupStudents, setGroupStudents] = useState<Array<{name: string, course: string}>>([{name: '', course: ''}]);
 
   const batchData = appData.years[selectedYear]?.[selectedCourse]?.[selectedBatch];
   const batchStartDate = batchData?.startDate || '';
@@ -110,11 +112,11 @@ const StudentForm: React.FC<StudentFormProps> = ({
   // Validate payment amounts to prevent negative remaining balance
   const validatePaymentAmount = (newAmount: number): boolean => {
     const courseFee = getCourseFee();
-    const currentTotal = getTotalPayments();
-    const newTotal = currentTotal - (newAmount > 0 ? 0 : newAmount) + newAmount;
+    const currentTotal = getTotalPayments() - newAmount; // Subtract the amount being changed
+    const newTotal = currentTotal + newAmount;
     
     if (newTotal > courseFee) {
-      alert(`Payment amount exceeds course fee! Maximum allowed: ₹${(courseFee - currentTotal).toLocaleString()}`);
+      alert(`Payment amount exceeds course fee of ₹${courseFee.toLocaleString()}! Current total would be ₹${newTotal.toLocaleString()}`);
       return false;
     }
     return true;
@@ -180,6 +182,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
       id: Date.now().toString(),
       studentName: formData.studentName.toUpperCase(),
       fatherName: formData.fatherName.toUpperCase(),
+      gender: formData.gender,
       mobileNo: formData.mobileNo,
       email: formData.email, // Keep original case
       category: formData.category,
@@ -236,6 +239,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
     setFormData({
       studentName: '',
       fatherName: '',
+      gender: 'Male',
       mobileNo: '',
       email: '',
       category: 'GEN',
@@ -366,6 +370,20 @@ const StudentForm: React.FC<StudentFormProps> = ({
 
               <div>
                 <label className="block text-gray-300 text-sm font-medium mb-2">
+                  Gender *
+                </label>
+                <select
+                  value={formData.gender}
+                  onChange={(e) => setFormData({ ...formData, gender: e.target.value as Student['gender'] })}
+                  className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-gray-300 text-sm font-medium mb-2">
                   <Phone className="w-4 h-4 inline mr-1" />
                   Mobile Number *
                 </label>
@@ -452,7 +470,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                     className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select College</option>
-                    {appData.collegeNames.sort().map(college => (
+                    {appData.collegeNames.sort((a, b) => a.localeCompare(b)).map(college => (
                       <option key={college} value={college}>{college}</option>
                     ))}
                     <option value="custom">+ Add New College</option>
@@ -488,7 +506,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                     className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select Branch</option>
-                    {appData.branches.sort().map(branch => (
+                    {appData.branches.sort((a, b) => a.localeCompare(b)).map(branch => (
                       <option key={branch} value={branch}>{branch}</option>
                     ))}
                     <option value="custom">+ Add New Branch</option>
@@ -618,15 +636,26 @@ const StudentForm: React.FC<StudentFormProps> = ({
                     + Add Online Payment
                   </button>
                 </div>
+            {paymentType === 'single' && (
                 
                 {payments.online.map((payment, index) => (
-                  <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
                     <input
                       type="text"
                       value={payment.amount}
                       onChange={(e) => {
                         const value = e.target.value.replace(/\D/g, '');
-                        if (value && !validatePaymentAmount(parseInt(value))) return;
+                        const currentAmount = parseInt(payments.online[index].amount) || 0;
+                        const newAmount = parseInt(value) || 0;
+                        const difference = newAmount - currentAmount;
+                        const currentTotal = getTotalPayments();
+                        const newTotal = currentTotal + difference;
+                        
+                        if (newTotal > getCourseFee()) {
+                          alert(`Payment amount exceeds course fee of ₹${getCourseFee().toLocaleString()}!`);
+                          return;
+                        }
+                        
                         const newPayments = [...payments.online];
                         newPayments[index].amount = value;
                         setPayments({ ...payments, online: newPayments });
@@ -636,24 +665,12 @@ const StudentForm: React.FC<StudentFormProps> = ({
                     />
                     <input
                       type="text"
-                      value={payment.transactionId || payment.utrId}
-                      onChange={(e) => {
-                        const newPayments = [...payments.online];
-                        newPayments[index].transactionId = e.target.value;
-                        newPayments[index].utrId = e.target.value; // Same value for both
-                        setPayments({ ...payments, online: newPayments });
-                      }}
-                      className="p-2 bg-white/10 border border-white/30 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      placeholder="Transaction ID / UTR / UPI ID"
-                    />
-                    <input
-                      type="text"
                       value={payment.utrId}
                       onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '').slice(0, 12); // 12 digits only
+                        const value = e.target.value.replace(/\D/g, '').slice(0, 12);
                         const newPayments = [...payments.online];
                         newPayments[index].utrId = value;
-                        newPayments[index].transactionId = value; // Same value for both
+                        newPayments[index].transactionId = value;
                         setPayments({ ...payments, online: newPayments });
                       }}
                       className="p-2 bg-white/10 border border-white/30 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -706,7 +723,17 @@ const StudentForm: React.FC<StudentFormProps> = ({
                       value={payment.amount}
                       onChange={(e) => {
                         const value = e.target.value.replace(/\D/g, '');
-                        if (value && !validatePaymentAmount(parseInt(value))) return;
+                        const currentAmount = parseInt(payments.offline[index].amount) || 0;
+                        const newAmount = parseInt(value) || 0;
+                        const difference = newAmount - currentAmount;
+                        const currentTotal = getTotalPayments();
+                        const newTotal = currentTotal + difference;
+                        
+                        if (newTotal > getCourseFee()) {
+                          alert(`Payment amount exceeds course fee of ₹${getCourseFee().toLocaleString()}!`);
+                          return;
+                        }
+                        
                         const newPayments = [...payments.offline];
                         newPayments[index].amount = value;
                         setPayments({ ...payments, offline: newPayments });
@@ -750,6 +777,90 @@ const StudentForm: React.FC<StudentFormProps> = ({
                   </div>
                 ))}
               </div>
+            )}
+
+            {paymentType === 'group' && (
+              <div className="space-y-6">
+                <div className="p-4 bg-purple-500/20 border border-purple-500/30 rounded-lg">
+                  <h3 className="text-lg font-semibold text-white mb-4">Group Payment Information</h3>
+                  <p className="text-purple-200 text-sm mb-4">
+                    Multiple students sharing the same payment receipt/transaction
+                  </p>
+                  
+                  {/* Group Students List */}
+                  <div className="space-y-3 mb-4">
+                    {groupStudents.map((student, index) => (
+                      <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-3 p-3 bg-purple-500/10 rounded-lg">
+                        <input
+                          type="text"
+                          value={student.name}
+                          onChange={(e) => {
+                            const newStudents = [...groupStudents];
+                            newStudents[index].name = e.target.value;
+                            setGroupStudents(newStudents);
+                          }}
+                          className="p-2 bg-white/10 border border-white/30 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                          placeholder="Student Name"
+                        />
+                        <input
+                          type="text"
+                          value={student.course}
+                          onChange={(e) => {
+                            const newStudents = [...groupStudents];
+                            newStudents[index].course = e.target.value;
+                            setGroupStudents(newStudents);
+                          }}
+                          className="p-2 bg-white/10 border border-white/30 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                          placeholder="Course Name"
+                        />
+                        {groupStudents.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newStudents = groupStudents.filter((_, i) => i !== index);
+                              setGroupStudents(newStudents);
+                            }}
+                            className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setGroupStudents([...groupStudents, {name: '', course: ''}])}
+                      className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors"
+                    >
+                      + Add Student
+                    </button>
+                  </div>
+                  
+                  {/* Group Payment Details */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-purple-200 text-sm font-medium mb-2">
+                        Payment Mode
+                      </label>
+                      <select className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="online">Online</option>
+                        <option value="offline">Offline</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-purple-200 text-sm font-medium mb-2">
+                        Total Amount
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full p-3 bg-white/10 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="Total group payment amount"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             </div>
           )}
 

@@ -2,6 +2,7 @@ export interface Student {
   id: string;
   studentName: string;
   fatherName: string;
+  gender: 'Male' | 'Female';
   mobileNo: string;
   email: string;
   category: 'GEN' | 'SC' | 'ST' | 'PH' | 'MINORITY' | 'W' | 'OBC';

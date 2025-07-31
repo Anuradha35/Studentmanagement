@@ -13,6 +13,7 @@ interface CourseBatchesProps {
   onAddBatch: (year: string, courseName: string, batchNumber: number, startDate: string, courseDurations: string[]) => void;
   onNavigateToForm: (courseDuration?: string) => void;
   onBack: () => void;
+  onNavigateToCourseFees: () => void;
 }
 
 const CourseBatches: React.FC<CourseBatchesProps> = ({
@@ -24,9 +25,11 @@ const CourseBatches: React.FC<CourseBatchesProps> = ({
   setSelectedBatch,
   onAddBatch,
   onNavigateToForm,
-  onBack
+  onBack,
+  onNavigateToCourseFees
 }) => {
   const [showBatchDialog, setShowBatchDialog] = useState(false);
+  const [editingBatch, setEditingBatch] = useState<string | null>(null);
 
   const currentYearData = appData.years[selectedYear] || {};
   const currentCourseData = currentYearData[selectedCourse] || {};
@@ -52,6 +55,31 @@ const CourseBatches: React.FC<CourseBatchesProps> = ({
       .sort((a, b) => b - a);
     
     return batchNumbers.length > 0 ? batchNumbers[0] + 1 : 1;
+  };
+
+  const getCourseFees = () => {
+    return appData.courseFees?.filter(fee => fee.courseName === selectedCourse) || [];
+  };
+
+  const handleAddBatch = () => {
+    const courseFees = getCourseFees();
+    if (courseFees.length === 0) {
+      alert(`No course fees set for ${selectedCourse}! Please set course fees first.`);
+      onNavigateToCourseFees();
+      return;
+    }
+    setShowBatchDialog(true);
+  };
+
+  const handleEditBatch = (batchName: string) => {
+    const courseFees = getCourseFees();
+    if (courseFees.length === 0) {
+      alert(`No course fees set for ${selectedCourse}! Please set course fees first.`);
+      onNavigateToCourseFees();
+      return;
+    }
+    setEditingBatch(batchName);
+    setShowBatchDialog(true);
   };
 
   const getTotalStudents = () => {
@@ -128,7 +156,7 @@ const CourseBatches: React.FC<CourseBatchesProps> = ({
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-white">Course Batches</h2>
         <button
-          onClick={() => setShowBatchDialog(true)}
+          onClick={handleAddBatch}
           className="px-6 py-3 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl hover:from-green-600 hover:to-teal-600 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-green-500/25"
         >
           <Plus className="w-5 h-5" />
@@ -188,7 +216,18 @@ const CourseBatches: React.FC<CourseBatchesProps> = ({
               {/* Duration-specific Add Student Buttons */}
               {selectedBatch === batchName && (
                 <div className="mt-4 pt-4 border-t border-white/20">
-                  <p className="text-gray-300 text-xs font-medium mb-2">Add Student to:</p>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-gray-300 text-xs font-medium">Add Student to:</p>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditBatch(batchName);
+                      }}
+                      className="px-2 py-1 bg-blue-500/20 text-blue-300 rounded text-xs hover:bg-blue-500/30 transition-colors"
+                    >
+                      Edit Batch
+                    </button>
+                  </div>
                   <div className="space-y-2">
                     {batch.courseDurations.map(duration => (
                       <button
@@ -214,14 +253,29 @@ const CourseBatches: React.FC<CourseBatchesProps> = ({
       {/* Batch Dialog */}
       <BatchDialog
         isOpen={showBatchDialog}
-        onClose={() => setShowBatchDialog(false)}
-        onAddBatch={(batchNumber, startDate, courseDurations) => {
-          onAddBatch(selectedYear, selectedCourse, batchNumber, startDate, courseDurations);
+        onClose={() => {
           setShowBatchDialog(false);
+          setEditingBatch(null);
+        }}
+        onAddBatch={(batchNumber, startDate, courseDurations) => {
+          if (editingBatch) {
+            // Handle batch edit
+            const newData = { ...appData };
+            if (newData.years[selectedYear]?.[selectedCourse]?.[editingBatch]) {
+              newData.years[selectedYear][selectedCourse][editingBatch].courseDurations = courseDurations;
+              // Update app data through parent component
+            }
+          } else {
+            onAddBatch(selectedYear, selectedCourse, batchNumber, startDate, courseDurations);
+          }
+          setShowBatchDialog(false);
+          setEditingBatch(null);
         }}
         nextBatchNumber={getNextBatchNumber()}
         appData={appData}
         selectedCourse={selectedCourse}
+        editingBatch={editingBatch}
+        onNavigateToCourseFees={onNavigateToCourseFees}
       />
     </div>
   );

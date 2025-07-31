@@ -9,6 +9,8 @@ interface BatchDialogProps {
   nextBatchNumber: number;
   appData: AppData;
   selectedCourse: string;
+  editingBatch?: string | null;
+  onNavigateToCourseFees: () => void;
 }
 
 const BatchDialog: React.FC<BatchDialogProps> = ({ 
@@ -17,7 +19,9 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
   onAddBatch, 
   nextBatchNumber,
   appData,
-  selectedCourse
+  selectedCourse,
+  editingBatch,
+  onNavigateToCourseFees
 }) => {
   const [batchNumber, setBatchNumber] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -25,23 +29,31 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
   const [customDuration, setCustomDuration] = useState('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isFirstBatch, setIsFirstBatch] = useState(nextBatchNumber === 1);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      setIsFirstBatch(nextBatchNumber === 1);
+      setIsEditing(!!editingBatch);
+      setIsFirstBatch(!editingBatch && nextBatchNumber === 1);
+      
       if (nextBatchNumber > 1) {
         setBatchNumber(nextBatchNumber.toString());
       }
-      setSelectedDurations([]);
-      setCustomDuration('');
-      setTimeout(() => {
-        if (isFirstBatch) {
-          inputRef.current?.focus();
+      
+      // If editing, load existing batch data
+      if (editingBatch) {
+        const batchData = appData.years[Object.keys(appData.years)[0]]?.[selectedCourse]?.[editingBatch];
+        if (batchData) {
+          setSelectedDurations(batchData.courseDurations || []);
+          setStartDate(batchData.startDate || '');
         }
-      }, 100);
+      } else {
+        setSelectedDurations([]);
+      }
+      
+      setCustomDuration('');
     }
-  }, [isOpen, nextBatchNumber]);
+  }, [isOpen, nextBatchNumber, editingBatch, appData, selectedCourse]);
 
   const formatDate = (value: string): string => {
     // Remove all non-digits
@@ -154,14 +166,57 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
 
   // Get available durations for the selected course from course fees
   const getAvailableDurations = () => {
-    if (!appData.courseFees) return appData.courseDurations;
+    if (!appData.courseFees) return [];
     
     const courseDurations = appData.courseFees
       .filter(fee => fee.courseName === selectedCourse)
       .map(fee => fee.courseDuration);
+      .sort((a, b) => {
+        const aDays = parseInt(a.replace(' Days', ''));
+        const bDays = parseInt(b.replace(' Days', ''));
+        return aDays - bDays;
+      });
     
-    return courseDurations.length > 0 ? courseDurations : appData.courseDurations;
+    return courseDurations;
   };
+
+  const availableDurations = getAvailableDurations();
+
+  // Check if course has fees set
+  if (isOpen && availableDurations.length === 0) {
+    return (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-6 w-full max-w-md border border-white/20">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Hash className="w-8 h-8 text-orange-400" />
+            </div>
+            <h2 className="text-xl font-semibold text-white mb-2">No Course Fees Set</h2>
+            <p className="text-gray-300 mb-6">
+              Please set course fees for <strong>{selectedCourse}</strong> before creating batches.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={onClose}
+                className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  onClose();
+                  onNavigateToCourseFees();
+                }}
+                className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Set Course Fees
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!isOpen) return null;
 
@@ -172,7 +227,7 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
           <div className="flex items-center gap-2">
             <Hash className="w-5 h-5 text-green-400" />
             <h2 className="text-xl font-semibold text-white">
-              {isFirstBatch ? 'Create First Batch' : `Create Batch B${nextBatchNumber}`}
+              {isEditing ? `Edit Batch ${editingBatch}` : isFirstBatch ? 'Create First Batch' : `Create Batch B${nextBatchNumber}`}
             </h2>
           </div>
           <button
@@ -184,7 +239,7 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {isFirstBatch && (
+          {isFirstBatch && !isEditing && (
             <div>
               <label className="block text-gray-300 text-sm font-medium mb-2">
                 Starting Batch Number *
@@ -204,7 +259,7 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
             </div>
           )}
 
-          {!isFirstBatch && (
+          {!isFirstBatch && !isEditing && (
             <div className="p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
               <p className="text-green-300 font-medium">
                 🔢 Creating Batch: B{nextBatchNumber}
@@ -215,6 +270,18 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
             </div>
           )}
 
+          {isEditing && (
+            <div className="p-3 bg-blue-500/20 border border-blue-500/30 rounded-lg">
+              <p className="text-blue-300 font-medium">
+                ✏️ Editing Batch: {editingBatch}
+              </p>
+              <p className="text-blue-200 text-sm">
+                Modify course durations for this batch
+              </p>
+            </div>
+          )}
+
+          {!isEditing && (
           <div>
             <label className="block text-gray-300 text-sm font-medium mb-2">
               <Calendar className="w-4 h-4 inline mr-1" />
@@ -233,6 +300,7 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
               Format: DD.MM.YYYY
             </p>
           </div>
+          )}
 
           {/* Course Duration Selection */}
           <div>
@@ -243,7 +311,7 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
             
             {/* Available Durations */}
             <div className="grid grid-cols-2 gap-2 mb-3">
-              {getAvailableDurations().map(duration => (
+              {availableDurations.map(duration => (
                 <button
                   key={duration}
                   type="button"
@@ -259,36 +327,6 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
               ))}
             </div>
             
-            {getAvailableDurations().length === 0 && (
-              <div className="p-3 bg-orange-500/20 border border-orange-500/30 rounded-lg mb-3">
-                <p className="text-orange-300 text-sm">
-                  ⚠️ No course fees set for {selectedCourse}. Please add course fees first.
-                </p>
-              </div>
-            )}
-
-            {/* Custom Duration Input */}
-            <div className="flex gap-2 mb-2">
-              <input
-                type="text"
-                value={customDuration}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, '');
-                  setCustomDuration(value);
-                }}
-                className="flex-1 p-2 bg-white/10 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
-                placeholder="Enter custom days (e.g., 60)"
-              />
-              <button
-                type="button"
-                onClick={handleCustomDurationAdd}
-                disabled={!customDuration || !/^\d+$/.test(customDuration)}
-                className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-              >
-                Add
-              </button>
-            </div>
-
             {/* Selected Durations Display */}
             {selectedDurations.length > 0 && (
               <div className="p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
@@ -330,7 +368,7 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
               type="submit"
               className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
             >
-              Create Batch
+              {isEditing ? 'Update Batch' : 'Create Batch'}
             </button>
           </div>
         </form>
