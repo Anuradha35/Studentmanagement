@@ -42,11 +42,11 @@ const StudentForm: React.FC<StudentFormProps> = ({
   });
 
   const [payments, setPayments] = useState<{
-    online: { amount: string; transactionId: string; utrId: string }[];
-    offline: { amount: string; receiptNo: string }[];
+    online: { amount: string; transactionId: string; utrId: string; paymentDate: string }[];
+    offline: { amount: string; receiptNo: string; paymentDate: string }[];
   }>({
-    online: [{ amount: '', transactionId: '', utrId: '' }],
-    offline: [{ amount: '', receiptNo: '' }]
+    online: [{ amount: '', transactionId: '', utrId: '', paymentDate: '' }],
+    offline: [{ amount: '', receiptNo: '', paymentDate: '' }]
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -54,6 +54,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const [isCustomBranch, setIsCustomBranch] = useState(false);
   const [isCustomDuration, setIsCustomDuration] = useState(false);
   const [customDurationNumber, setCustomDurationNumber] = useState('');
+  const [paymentErrors, setPaymentErrors] = useState<{ [key: string]: string }>({});
 
   const batchData = appData.years[selectedYear]?.[selectedCourse]?.[selectedBatch];
   const batchStartDate = batchData?.startDate || '';
@@ -94,6 +95,31 @@ const StudentForm: React.FC<StudentFormProps> = ({
     return `${start.getDate().toString().padStart(2, '0')}.${(start.getMonth() + 1).toString().padStart(2, '0')}.${start.getFullYear()}`;
   };
 
+  // Format date for input (DD.MM.YYYY)
+  const formatDateForInput = (value: string): string => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 2) {
+      return numbers;
+    } else if (numbers.length <= 4) {
+      return `${numbers.slice(0, 2)}.${numbers.slice(2)}`;
+    } else {
+      return `${numbers.slice(0, 2)}.${numbers.slice(2, 4)}.${numbers.slice(4, 8)}`;
+    }
+  };
+
+  // Validate payment amounts to prevent negative remaining balance
+  const validatePaymentAmount = (newAmount: number): boolean => {
+    const courseFee = getCourseFee();
+    const currentTotal = getTotalPayments();
+    const newTotal = currentTotal - (newAmount > 0 ? 0 : newAmount) + newAmount;
+    
+    if (newTotal > courseFee) {
+      alert(`Payment amount exceeds course fee! Maximum allowed: ₹${(courseFee - currentTotal).toLocaleString()}`);
+      return false;
+    }
+    return true;
+  };
+
   // Add payment row
   const addPaymentRow = (type: 'online' | 'offline') => {
     setPayments(prev => ({
@@ -101,8 +127,8 @@ const StudentForm: React.FC<StudentFormProps> = ({
       [type]: [
         ...prev[type],
         type === 'online' 
-          ? { amount: '', transactionId: '', utrId: '' }
-          : { amount: '', receiptNo: '' }
+          ? { amount: '', transactionId: '', utrId: '', paymentDate: '' }
+          : { amount: '', receiptNo: '', paymentDate: '' }
       ]
     }));
   };
@@ -133,8 +159,9 @@ const StudentForm: React.FC<StudentFormProps> = ({
       newErrors.email = 'Please enter a valid email address';
     }
     
-    if (!formData.collegeName.trim()) newErrors.collegeName = 'College name is required';
-    if (!formData.branch.trim()) newErrors.branch = 'Branch is required';
+    // College name and branch can be blank - removing validation
+    // if (!formData.collegeName.trim()) newErrors.collegeName = 'College name is required';
+    // if (!formData.branch.trim()) newErrors.branch = 'Branch is required';
     if (!formData.courseDuration.trim()) newErrors.courseDuration = 'Course duration is required';
 
     setErrors(newErrors);
@@ -218,8 +245,8 @@ const StudentForm: React.FC<StudentFormProps> = ({
       courseDuration: preSelectedDuration || ''
     });
     setPayments({
-      online: [{ amount: '', transactionId: '', utrId: '' }],
-      offline: [{ amount: '', receiptNo: '' }]
+      online: [{ amount: '', transactionId: '', utrId: '', paymentDate: '' }],
+      offline: [{ amount: '', receiptNo: '', paymentDate: '' }]
     });
     setErrors({});
     alert('Student added successfully!');
@@ -425,7 +452,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                     className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select College</option>
-                    {appData.collegeNames.map(college => (
+                    {appData.collegeNames.sort().map(college => (
                       <option key={college} value={college}>{college}</option>
                     ))}
                     <option value="custom">+ Add New College</option>
@@ -448,7 +475,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
                     </button>
                   </div>
                 )}
-                {errors.collegeName && <p className="text-red-400 text-sm mt-1">{errors.collegeName}</p>}
               </div>
 
               <div>
@@ -462,7 +488,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                     className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select Branch</option>
-                    {appData.branches.map(branch => (
+                    {appData.branches.sort().map(branch => (
                       <option key={branch} value={branch}>{branch}</option>
                     ))}
                     <option value="custom">+ Add New Branch</option>
@@ -485,7 +511,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
                     </button>
                   </div>
                 )}
-                {errors.branch && <p className="text-red-400 text-sm mt-1">{errors.branch}</p>}
               </div>
 
               <div>
@@ -595,12 +620,13 @@ const StudentForm: React.FC<StudentFormProps> = ({
                 </div>
                 
                 {payments.online.map((payment, index) => (
-                  <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
                     <input
                       type="text"
                       value={payment.amount}
                       onChange={(e) => {
                         const value = e.target.value.replace(/\D/g, '');
+                        if (value && !validatePaymentAmount(parseInt(value))) return;
                         const newPayments = [...payments.online];
                         newPayments[index].amount = value;
                         setPayments({ ...payments, online: newPayments });
@@ -610,25 +636,42 @@ const StudentForm: React.FC<StudentFormProps> = ({
                     />
                     <input
                       type="text"
-                      value={payment.transactionId}
+                      value={payment.transactionId || payment.utrId}
                       onChange={(e) => {
                         const newPayments = [...payments.online];
                         newPayments[index].transactionId = e.target.value;
+                        newPayments[index].utrId = e.target.value; // Same value for both
                         setPayments({ ...payments, online: newPayments });
                       }}
                       className="p-2 bg-white/10 border border-white/30 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      placeholder="Transaction ID"
+                      placeholder="Transaction ID / UTR / UPI ID"
                     />
                     <input
                       type="text"
                       value={payment.utrId}
                       onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '').slice(0, 12); // 12 digits only
                         const newPayments = [...payments.online];
-                        newPayments[index].utrId = e.target.value;
+                        newPayments[index].utrId = value;
+                        newPayments[index].transactionId = value; // Same value for both
                         setPayments({ ...payments, online: newPayments });
                       }}
                       className="p-2 bg-white/10 border border-white/30 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      placeholder="UTR/UPI ID"
+                      placeholder="UTR/UPI (12 digits)"
+                      maxLength={12}
+                    />
+                    <input
+                      type="text"
+                      value={payment.paymentDate}
+                      onChange={(e) => {
+                        const formatted = formatDateForInput(e.target.value);
+                        const newPayments = [...payments.online];
+                        newPayments[index].paymentDate = formatted;
+                        setPayments({ ...payments, online: newPayments });
+                      }}
+                      className="p-2 bg-white/10 border border-white/30 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      placeholder="DD.MM.YYYY"
+                      maxLength={10}
                     />
                     {payments.online.length > 1 && (
                       <button
@@ -657,12 +700,13 @@ const StudentForm: React.FC<StudentFormProps> = ({
                 </div>
                 
                 {payments.offline.map((payment, index) => (
-                  <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                  <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
                     <input
                       type="text"
                       value={payment.amount}
                       onChange={(e) => {
                         const value = e.target.value.replace(/\D/g, '');
+                        if (value && !validatePaymentAmount(parseInt(value))) return;
                         const newPayments = [...payments.offline];
                         newPayments[index].amount = value;
                         setPayments({ ...payments, offline: newPayments });
@@ -680,6 +724,19 @@ const StudentForm: React.FC<StudentFormProps> = ({
                       }}
                       className="p-2 bg-white/10 border border-white/30 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500"
                       placeholder="Receipt Number"
+                    />
+                    <input
+                      type="text"
+                      value={payment.paymentDate}
+                      onChange={(e) => {
+                        const formatted = formatDateForInput(e.target.value);
+                        const newPayments = [...payments.offline];
+                        newPayments[index].paymentDate = formatted;
+                        setPayments({ ...payments, offline: newPayments });
+                      }}
+                      className="p-2 bg-white/10 border border-white/30 rounded text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500"
+                      placeholder="DD.MM.YYYY"
+                      maxLength={10}
                     />
                     {payments.offline.length > 1 && (
                       <button

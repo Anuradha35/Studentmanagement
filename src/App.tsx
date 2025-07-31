@@ -195,6 +195,7 @@ function App() {
       
       {currentPage === 'course-fees' && (
         <CourseFeeManager
+          appData={appData}
           courseFees={appData.courseFees}
           onAddCourseFee={addCourseFee}
           onUpdateCourseFee={updateCourseFee}
