@@ -221,6 +221,7 @@ const CourseBatches: React.FC<CourseBatchesProps> = ({
         }}
         nextBatchNumber={getNextBatchNumber()}
         appData={appData}
+        selectedCourse={selectedCourse}
       />
     </div>
   );

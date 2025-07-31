@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { ArrowLeft, DollarSign, Plus, Edit2, Trash2, BookOpen, Clock } from 'lucide-react';
-import { CourseFee } from '../types';
+import { CourseFee, AppData } from '../types';
 
 interface CourseFeeManagerProps {
+  appData: AppData;
   courseFees: CourseFee[];
   onAddCourseFee: (courseName: string, courseDuration: string, fee: number) => void;
   onUpdateCourseFee: (id: string, fee: number) => void;
@@ -11,6 +12,7 @@ interface CourseFeeManagerProps {
 }
 
 const CourseFeeManager: React.FC<CourseFeeManagerProps> = ({
+  appData,
   courseFees = [],
   onAddCourseFee,
   onUpdateCourseFee,
@@ -25,23 +27,48 @@ const CourseFeeManager: React.FC<CourseFeeManagerProps> = ({
     fee: ''
   });
   const [editFee, setEditFee] = useState('');
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    const newErrors: { [key: string]: string } = {};
+    
     if (!formData.courseName.trim() || !formData.courseDuration.trim() || !formData.fee.trim()) {
-      alert('Please fill all fields');
+      newErrors.courseName = 'Course name is required';
+    }
+    if (!formData.courseDuration.trim()) {
+      newErrors.courseDuration = 'Course duration is required';
+    }
+    if (!formData.fee.trim()) {
+      newErrors.fee = 'Fee amount is required';
+    }
+    
+    // Check for duplicate course name + duration combination
+    const isDuplicate = courseFees.some(fee => 
+      fee.courseName === formData.courseName && 
+      fee.courseDuration === formData.courseDuration
+    );
+    
+    if (isDuplicate) {
+      newErrors.duplicate = `Fee for ${formData.courseName} - ${formData.courseDuration} already exists!`;
+    }
+    
+    setErrors(newErrors);
+    
+    if (Object.keys(newErrors).length > 0) {
       return;
     }
 
     const fee = parseInt(formData.fee);
     if (isNaN(fee) || fee <= 0) {
-      alert('Please enter a valid fee amount');
+      setErrors({ fee: 'Please enter a valid fee amount' });
       return;
     }
 
     onAddCourseFee(formData.courseName.toUpperCase(), formData.courseDuration, fee);
     setFormData({ courseName: '', courseDuration: '', fee: '' });
+    setErrors({});
     setShowAddForm(false);
   };
 
@@ -61,6 +88,15 @@ const CourseFeeManager: React.FC<CourseFeeManagerProps> = ({
     setEditFee('');
   };
 
+  // Get all unique course names from appData
+  const getAllCourseNames = () => {
+    const courseNames = new Set<string>();
+    Object.values(appData.years).forEach(year => {
+      Object.keys(year).forEach(courseName => courseNames.add(courseName));
+    });
+    return Array.from(courseNames).sort();
+  };
+
   const groupedFees = (courseFees || []).reduce((acc, fee) => {
     if (!acc[fee.courseName]) {
       acc[fee.courseName] = [];
@@ -68,6 +104,8 @@ const CourseFeeManager: React.FC<CourseFeeManagerProps> = ({
     acc[fee.courseName].push(fee);
     return acc;
   }, {} as { [courseName: string]: CourseFee[] });
+
+  const availableCourseNames = getAllCourseNames();
 
   return (
     <div className="min-h-screen p-6">
@@ -108,18 +146,31 @@ const CourseFeeManager: React.FC<CourseFeeManagerProps> = ({
             Add New Course Fee
           </h2>
           
+          {errors.duplicate && (
+            <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-lg">
+              <p className="text-red-300 text-sm">{errors.duplicate}</p>
+            </div>
+          )}
+          
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="block text-gray-300 text-sm font-medium mb-2">
                 Course Name *
               </label>
-              <input
-                type="text"
+              <select
                 value={formData.courseName}
-                onChange={(e) => setFormData({ ...formData, courseName: e.target.value })}
-                className="w-full p-3 bg-white/10 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="e.g., WEB DESIGNING"
-              />
+                onChange={(e) => {
+                  setFormData({ ...formData, courseName: e.target.value });
+                  setErrors({ ...errors, courseName: '', duplicate: '' });
+                }}
+                className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                <option value="">Select Course</option>
+                {availableCourseNames.map(courseName => (
+                  <option key={courseName} value={courseName}>{courseName}</option>
+                ))}
+              </select>
+              {errors.courseName && <p className="text-red-400 text-sm mt-1">{errors.courseName}</p>}
             </div>
             
             <div>
@@ -132,10 +183,12 @@ const CourseFeeManager: React.FC<CourseFeeManagerProps> = ({
                 onChange={(e) => {
                   const value = e.target.value.replace(/\D/g, '');
                   setFormData({ ...formData, courseDuration: value ? `${value} Days` : '' });
+                  setErrors({ ...errors, courseDuration: '', duplicate: '' });
                 }}
                 className="w-full p-3 bg-white/10 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="Enter days (e.g., 30)"
               />
+              {errors.courseDuration && <p className="text-red-400 text-sm mt-1">{errors.courseDuration}</p>}
             </div>
             
             <div>
@@ -148,10 +201,12 @@ const CourseFeeManager: React.FC<CourseFeeManagerProps> = ({
                 onChange={(e) => {
                   const value = e.target.value.replace(/\D/g, '');
                   setFormData({ ...formData, fee: value });
+                  setErrors({ ...errors, fee: '' });
                 }}
                 className="w-full p-3 bg-white/10 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
                 placeholder="Enter fee amount"
               />
+              {errors.fee && <p className="text-red-400 text-sm mt-1">{errors.fee}</p>}
             </div>
             
             <div className="flex items-end gap-2">

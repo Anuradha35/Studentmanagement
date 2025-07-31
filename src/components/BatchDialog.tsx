@@ -8,6 +8,7 @@ interface BatchDialogProps {
   onAddBatch: (batchNumber: number, startDate: string, courseDurations: string[]) => void;
   nextBatchNumber: number;
   appData: AppData;
+  selectedCourse: string;
 }
 
 const BatchDialog: React.FC<BatchDialogProps> = ({ 
@@ -15,7 +16,8 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
   onClose, 
   onAddBatch, 
   nextBatchNumber,
-  appData
+  appData,
+  selectedCourse
 }) => {
   const [batchNumber, setBatchNumber] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -150,6 +152,17 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
     }
   };
 
+  // Get available durations for the selected course from course fees
+  const getAvailableDurations = () => {
+    if (!appData.courseFees) return appData.courseDurations;
+    
+    const courseDurations = appData.courseFees
+      .filter(fee => fee.courseName === selectedCourse)
+      .map(fee => fee.courseDuration);
+    
+    return courseDurations.length > 0 ? courseDurations : appData.courseDurations;
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -225,12 +238,12 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
           <div>
             <label className="block text-gray-300 text-sm font-medium mb-3">
               <Clock className="w-4 h-4 inline mr-1" />
-              Course Durations for this Batch *
+              Available Course Durations for {selectedCourse} *
             </label>
             
             {/* Available Durations */}
             <div className="grid grid-cols-2 gap-2 mb-3">
-              {appData.courseDurations.map(duration => (
+              {getAvailableDurations().map(duration => (
                 <button
                   key={duration}
                   type="button"
@@ -245,6 +258,14 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
                 </button>
               ))}
             </div>
+            
+            {getAvailableDurations().length === 0 && (
+              <div className="p-3 bg-orange-500/20 border border-orange-500/30 rounded-lg mb-3">
+                <p className="text-orange-300 text-sm">
+                  ⚠️ No course fees set for {selectedCourse}. Please add course fees first.
+                </p>
+              </div>
+            )}
 
             {/* Custom Duration Input */}
             <div className="flex gap-2 mb-2">
