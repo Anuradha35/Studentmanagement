@@ -170,7 +170,7 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
     
     const courseDurations = appData.courseFees
       .filter(fee => fee.courseName === selectedCourse)
-      .map(fee => fee.courseDuration);
+      .map(fee => fee.courseDuration)
       .sort((a, b) => {
         const aDays = parseInt(a.replace(' Days', ''));
         const bDays = parseInt(b.replace(' Days', ''));
