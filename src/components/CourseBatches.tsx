@@ -13,7 +13,6 @@ interface CourseBatchesProps {
   onAddBatch: (year: string, courseName: string, batchNumber: number, startDate: string, courseDurations: string[]) => void;
   //onNavigateToForm: (courseDuration?: string) => void;
   onNavigateToForm: (courseDuration?: string, startDate?: string) => void;
-
   onBack: () => void;
   onNavigateToCourseFees: () => void;
 }
