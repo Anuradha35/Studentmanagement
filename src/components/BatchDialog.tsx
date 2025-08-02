@@ -23,6 +23,7 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
   editingBatch,
   onNavigateToCourseFees
 }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [batchNumber, setBatchNumber] = useState('');
   const [startDate, setStartDate] = useState('');
   const [selectedDurations, setSelectedDurations] = useState<string[]>([]);
@@ -35,80 +36,68 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
     if (isOpen) {
       setIsEditing(!!editingBatch);
       setIsFirstBatch(!editingBatch && nextBatchNumber === 1);
-      
+
       if (nextBatchNumber > 1) {
         setBatchNumber(nextBatchNumber.toString());
       }
-      
-      // If editing, load existing batch data
-      if (editingBatch) {
-        const batchData = appData.years[Object.keys(appData.years)[0]]?.[selectedCourse]?.[editingBatch];
-        if (batchData) {
-          setSelectedDurations(batchData.courseDurations || []);
-          setStartDate(batchData.startDate || '');
-        }
+
+      // Safe data extraction for editing
+      let batchData = null;
+
+      if (
+        appData?.years &&
+        Object.keys(appData.years).length > 0 &&
+        selectedCourse &&
+        editingBatch
+      ) {
+        const firstYear = Object.keys(appData.years)[0];
+        const courseBatches = appData.years[firstYear]?.[selectedCourse];
+        batchData = courseBatches?.[editingBatch] || null;
+      }
+
+      if (batchData) {
+        setSelectedDurations(batchData.courseDurations || []);
+        setStartDate(batchData.startDate || '');
       } else {
         setSelectedDurations([]);
       }
-      
+
       setCustomDuration('');
     }
   }, [isOpen, nextBatchNumber, editingBatch, appData, selectedCourse]);
 
   const formatDate = (value: string): string => {
-    // Remove all non-digits
     const numbers = value.replace(/\D/g, '');
-    
-    // Format as DD.MM.YYYY
-    if (numbers.length <= 2) {
-      return numbers;
-    } else if (numbers.length <= 4) {
-      return `${numbers.slice(0, 2)}.${numbers.slice(2)}`;
-    } else {
-      return `${numbers.slice(0, 2)}.${numbers.slice(2, 4)}.${numbers.slice(4, 8)}`;
-    }
+    if (numbers.length <= 2) return numbers;
+    else if (numbers.length <= 4) return `${numbers.slice(0, 2)}.${numbers.slice(2)}`;
+    else return `${numbers.slice(0, 2)}.${numbers.slice(2, 4)}.${numbers.slice(4, 8)}`;
   };
 
   const validateDate = (dateStr: string): boolean => {
     const [day, month, year] = dateStr.split('.').map(num => parseInt(num));
-    
     if (!day || !month || !year) return false;
     if (day < 1 || day > 31) return false;
     if (month < 1 || month > 12) return false;
     if (year < 2020 || year > 2030) return false;
-    
     return true;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
     const newErrors: { [key: string]: string } = {};
 
-    // Validate batch number
     if (isFirstBatch) {
-      if (!batchNumber.trim()) {
-        newErrors.batchNumber = 'Batch number is required';
-      } else if (!/^\d+$/.test(batchNumber)) {
-        newErrors.batchNumber = 'Only numbers are allowed';
-      } else if (parseInt(batchNumber) <= 0) {
-        newErrors.batchNumber = 'Please enter a positive number';
-      }
+      if (!batchNumber.trim()) newErrors.batchNumber = 'Batch number is required';
+      else if (!/^\d+$/.test(batchNumber)) newErrors.batchNumber = 'Only numbers are allowed';
+      else if (parseInt(batchNumber) <= 0) newErrors.batchNumber = 'Please enter a positive number';
     }
 
-    // Validate start date
-    if (!startDate.trim()) {
-      newErrors.startDate = 'Start date is required';
-    } else if (startDate.length !== 10) {
-      newErrors.startDate = 'Please enter complete date (DD.MM.YYYY)';
-    } else if (!validateDate(startDate)) {
-      newErrors.startDate = 'Please enter a valid date';
-    }
+    if (!startDate.trim()) newErrors.startDate = 'Start date is required';
+    else if (startDate.length !== 10) newErrors.startDate = 'Please enter complete date (DD.MM.YYYY)';
+    else if (!validateDate(startDate)) newErrors.startDate = 'Please enter a valid date';
 
-    // Validate course durations
-    if (selectedDurations.length === 0) {
-      newErrors.courseDurations = 'Please select at least one course duration';
-    }
+    if (selectedDurations.length === 0) newErrors.courseDurations = 'Please select at least one course duration';
+
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
@@ -128,7 +117,7 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
   };
 
   const handleBatchNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, ''); // Only allow numbers
+    const value = e.target.value.replace(/\D/g, '');
     setBatchNumber(value);
     if (errors.batchNumber) {
       setErrors({ ...errors, batchNumber: '' });
@@ -144,8 +133,8 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
   };
 
   const handleDurationToggle = (duration: string) => {
-    setSelectedDurations(prev => 
-      prev.includes(duration) 
+    setSelectedDurations(prev =>
+      prev.includes(duration)
         ? prev.filter(d => d !== duration)
         : [...prev, duration]
     );
@@ -164,27 +153,24 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
     }
   };
 
-  // Get available durations for the selected course from course fees
   const getAvailableDurations = () => {
-  if (!Array.isArray(appData.courseFees)) return [];
+    if (!Array.isArray(appData.courseFees)) return [];
 
-  const courseDurations = appData.courseFees
-    .filter(fee => fee.courseName === selectedCourse)
-    .map(fee => fee.courseDuration)
-    .filter(Boolean)
-    .sort((a, b) => {
-      const aDays = parseInt(a.replace(' Days', ''));
-      const bDays = parseInt(b.replace(' Days', ''));
-      return aDays - bDays;
-    });
+    const courseDurations = appData.courseFees
+      .filter(fee => fee.courseName === selectedCourse)
+      .map(fee => fee.courseDuration)
+      .filter(Boolean)
+      .sort((a, b) => {
+        const aDays = parseInt(a.replace(' Days', ''));
+        const bDays = parseInt(b.replace(' Days', ''));
+        return aDays - bDays;
+      });
 
-  return courseDurations;
-};
-
+    return courseDurations;
+  };
 
   const availableDurations = getAvailableDurations();
 
-  // Check if course has fees set
   if (isOpen && availableDurations.length === 0) {
     return (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
@@ -219,6 +205,17 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
       </div>
     );
   }
+
+
+
+
+
+
+
+
+
+
+
 
   if (!isOpen) return null;
 
