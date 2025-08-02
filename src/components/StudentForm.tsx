@@ -288,6 +288,12 @@ const StudentForm: React.FC<StudentFormProps> = ({
     });
 
     setPayments([]);
+    setPaymentMode('offline');
+    setPaymentAmount('');
+    setPaymentDate('');
+    setReceiptNo('');
+    setUtrId('');
+    setPaymentType('single');
     alert('Student added successfully!');
   }
 };
@@ -790,6 +796,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                       </label>
                       <input
                         type="text"
+                        autoComplete="off" // 👈 disable browser autofill
                         value={receiptNo}
                         onChange={(e) => {
                           setReceiptNo(e.target.value);
@@ -808,6 +815,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                       </label>
                       <input
                         type="text"
+                        autoComplete="off" // 👈 disable browser autofill
                         value={utrId}
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, '').slice(0, 12);
