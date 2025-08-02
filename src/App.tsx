@@ -146,7 +146,14 @@ function App() {
     setPreSelectedDuration(courseDuration || '');
     setCurrentPage('student-form');
   };
-
+// ✅ Add this safety check here:
+  if (!appData || !Array.isArray(appData.courseFees) || !appData.years) {
+    return (
+      <div className="text-white p-6">
+        ⚠️ App data is not ready or is incomplete. Please reload or check local storage.
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {currentPage === 'dashboard' && (
