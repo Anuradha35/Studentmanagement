@@ -261,13 +261,17 @@ const StudentForm: React.FC<StudentFormProps> = ({
         collegeName: '',
         branch: '',
         courseDuration: preSelectedDuration || '',
-        startDate: '',
+        startDate: preSelectedStartDate || '',
         endDate: '',
-        courseFee: 0,
+        courseFee: getCourseFee(),
         totalPaid: 0,
-        remainingFee: 0
+        remainingFee: getCourseFee()
       });
       setPayments([]);
+      setPaymentAmount('');
+      setReceiptNo('');
+      setUtrId('');
+      setPaymentDate('');
       
       alert('Student added successfully!');
     }
