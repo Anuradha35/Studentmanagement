@@ -261,17 +261,13 @@ const StudentForm: React.FC<StudentFormProps> = ({
         collegeName: '',
         branch: '',
         courseDuration: preSelectedDuration || '',
-        startDate: preSelectedStartDate || '',
+        startDate: '',
         endDate: '',
-        courseFee: getCourseFee(),
+        courseFee: 0,
         totalPaid: 0,
-        remainingFee: getCourseFee()
+        remainingFee: 0
       });
       setPayments([]);
-      setPaymentAmount('');
-      setReceiptNo('');
-      setUtrId('');
-      setPaymentDate('');
       
       alert('Student added successfully!');
     }
@@ -776,11 +772,12 @@ const StudentForm: React.FC<StudentFormProps> = ({
                         type="text"
                         value={receiptNo}
                         onChange={(e) => {
-                          setReceiptNo(e.target.value);
+                          const value = e.target.value.replace(/\D/g, '');
+                          setReceiptNo(value);
                           if (errors.receiptNo) setErrors({ ...errors, receiptNo: '' });
                         }}
                         className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter receipt number"
+                        placeholder="Enter receipt number (numbers only)"
                       />
                       {errors.receiptNo && <p className="text-red-400 text-sm mt-1">{errors.receiptNo}</p>}
                     </div>
