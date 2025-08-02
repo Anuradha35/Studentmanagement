@@ -212,68 +212,86 @@ const StudentForm: React.FC<StudentFormProps> = ({
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    const newErrors: { [key: string]: string } = {};
-    
-    // Validate required fields
-    if (!formData.studentName.trim()) newErrors.studentName = 'Student name is required';
-    if (!formData.fatherName.trim()) newErrors.fatherName = 'Father name is required';
-    if (!formData.mobileNo.trim()) {
-      newErrors.mobileNo = 'Mobile number is required';
-    } else if (formData.mobileNo.length !== 10) {
-      newErrors.mobileNo = 'Mobile number must be exactly 10 digits';
-    }
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    if (!formData.courseDuration) newErrors.courseDuration = 'Course duration is required';
-    if (!formData.startDate.trim()) {
-      newErrors.startDate = 'Start date is required';
-    } else if (formData.startDate.length !== 10 || !validateDate(formData.startDate)) {
-      newErrors.startDate = 'Please enter a valid date (DD.MM.YYYY)';
-    }
-    
-    setErrors(newErrors);
-    
-    if (Object.keys(newErrors).length === 0) {
-      const student: Student = {
-        id: Date.now().toString(),
-        ...formData,
-        createdAt: new Date().toISOString()
-      };
-      
-      onAddStudent(selectedYear, selectedCourse, selectedBatch, student);
-      
-      // Add payments
-      payments.forEach(payment => {
-        onAddPayment(student.id, {
-          ...payment,
-          paymentDate: payment.paymentDate
-        });
+  e.preventDefault();
+
+  const newErrors: { [key: string]: string } = {};
+
+  // Validate required fields
+  if (!formData.studentName.trim()) newErrors.studentName = 'Student name is required';
+  if (!formData.fatherName.trim()) newErrors.fatherName = 'Father name is required';
+  if (!formData.mobileNo.trim()) {
+    newErrors.mobileNo = 'Mobile number is required';
+  } else if (formData.mobileNo.length !== 10) {
+    newErrors.mobileNo = 'Mobile number must be exactly 10 digits';
+  }
+  if (!formData.email.trim()) newErrors.email = 'Email is required';
+  if (!formData.courseDuration) newErrors.courseDuration = 'Course duration is required';
+  if (!formData.startDate.trim()) {
+    newErrors.startDate = 'Start date is required';
+  } else if (formData.startDate.length !== 10 || !validateDate(formData.startDate)) {
+    newErrors.startDate = 'Please enter a valid date (DD.MM.YYYY)';
+  }
+
+  setErrors(newErrors);
+
+  if (Object.keys(newErrors).length === 0) {
+    const student: Student = {
+      id: Date.now().toString(),
+      ...formData,
+      createdAt: new Date().toISOString()
+    };
+
+    onAddStudent(selectedYear, selectedCourse, selectedBatch, student);
+
+    // Add payments
+    payments.forEach(payment => {
+      onAddPayment(student.id, {
+        ...payment,
+        paymentDate: payment.paymentDate
       });
-      
-      // Reset form
-      setFormData({
-        studentName: '',
-        fatherName: '',
-        gender: 'Male',
-        mobileNo: '',
-        email: '',
-        category: 'GEN',
-        hostler: 'No',
-        collegeName: '',
-        branch: '',
-        courseDuration: preSelectedDuration || '',  // ✅ re-use preselected
-        startDate: preSelectedStartDate || '',      // ✅ FIX HERE
-        endDate: '',
-        courseFee: getCourseFee(),                  // ✅ set course fee again
-        totalPaid: 0,
-        remainingFee: getCourseFee()
-      });
-      setPayments([]);
-      
-      alert('Student added successfully!');
+    });
+
+    // ✅ Calculate end date manually after reset
+    let calculatedEndDate = '';
+    if (preSelectedStartDate && preSelectedDuration) {
+      const [day, month, year] = preSelectedStartDate.split('.');
+      const startDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      const durationDays = parseInt(preSelectedDuration.replace(' Days', ''));
+
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + durationDays);
+
+      const endDay = endDate.getDate().toString().padStart(2, '0');
+      const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
+      const endYear = endDate.getFullYear();
+      calculatedEndDate = `${endDay}.${endMonth}.${endYear}`;
     }
-  };
+
+    // ✅ Reset form
+    const fee = getCourseFee();
+    setFormData({
+      studentName: '',
+      fatherName: '',
+      gender: 'Male',
+      mobileNo: '',
+      email: '',
+      category: 'GEN',
+      hostler: 'No',
+      collegeName: '',
+      branch: '',
+      courseDuration: preSelectedDuration || '',
+      startDate: preSelectedStartDate || '',
+      endDate: calculatedEndDate,
+      courseFee: fee,
+      totalPaid: 0,
+      remainingFee: fee
+    });
+
+    setPayments([]);
+    alert('Student added successfully!');
+  }
+};
+
 
   const handleAddNewCollege = () => {
     if (newCollegeName.trim()) {
