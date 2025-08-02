@@ -8,6 +8,7 @@ interface StudentFormProps {
   selectedCourse: string;
   selectedBatch: string;
   preSelectedDuration: string;
+  preSelectedStartDate: string; // ✅ Add this line
   onAddStudent: (year: string, courseName: string, batchName: string, student: Student) => void;
   onAddCollegeName: (collegeName: string) => void;
   onAddBranch: (branchName: string) => void;
@@ -40,7 +41,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
     collegeName: '',
     branch: '',
     courseDuration: preSelectedDuration || '',
-    startDate: '',
+    startDate: preSelectedStartDate || '',  // ✅ Fix: add this line
     endDate: '',
     courseFee: 0,
     totalPaid: 0,
