@@ -19,6 +19,8 @@ function App() {
   const [selectedBatch, setSelectedBatch] = useState<string>('');
   const [selectedCourseName, setSelectedCourseName] = useState<string>('');
   const [preSelectedDuration, setPreSelectedDuration] = useState<string>('');
+  const [preSelectedStartDate, setPreSelectedStartDate] = useState<string>(''); // ✅ Add this
+
 
   const navigateToCourseFees = () => setCurrentPage('course-fees');
 
