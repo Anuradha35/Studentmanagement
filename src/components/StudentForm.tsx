@@ -253,21 +253,21 @@ const StudentForm: React.FC<StudentFormProps> = ({
       
       // Reset form
       setFormData({
-        studentName: '',
-        fatherName: '',
-        gender: 'Male',
-        mobileNo: '',
-        email: '',
-        category: 'GEN',
-        hostler: 'No',
-        collegeName: '',
-        branch: '',
-        courseDuration: preSelectedDuration || '',
-        startDate: '',
-        endDate: '',
-        courseFee: 0,
-        totalPaid: 0,
-        remainingFee: 0
+       studentName: '',
+  fatherName: '',
+  gender: 'Male',
+  mobileNo: '',
+  email: '',
+  category: 'GEN',
+  hostler: 'No',
+  collegeName: '',
+  branch: '',
+  courseDuration: preSelectedDuration || '',  // ✅ re-use preselected
+  startDate: preSelectedStartDate || '',      // ✅ FIX HERE
+  endDate: '',
+  courseFee: getCourseFee(),                  // ✅ set course fee again
+  totalPaid: 0,
+  remainingFee: getCourseFee()
       });
       setPayments([]);
       
