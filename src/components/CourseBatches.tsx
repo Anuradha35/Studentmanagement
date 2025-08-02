@@ -241,7 +241,11 @@ const CourseBatches: React.FC<CourseBatchesProps> = ({
                         <Plus className="w-4 h-4" />
                         Add to {duration}
                       </button>
-                    ))}
+                    )).sort((a, b) => {
+                      const aDays = parseInt(a.key.replace(' Days', ''));
+                      const bDays = parseInt(b.key.replace(' Days', ''));
+                      return aDays - bDays;
+                    })}
                   </div>
                 </div>
               )}

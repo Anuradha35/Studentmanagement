@@ -187,6 +187,7 @@ function App() {
           selectedCourse={selectedCourse}
           selectedBatch={selectedBatch}
           preSelectedDuration={preSelectedDuration}
+          preSelectedStartDate={preSelectedStartDate}
           onAddStudent={addStudent}
           onAddCollegeName={addCollegeName}
           onAddBranch={addBranch}

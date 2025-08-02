@@ -772,12 +772,11 @@ const StudentForm: React.FC<StudentFormProps> = ({
                         type="text"
                         value={receiptNo}
                         onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, '');
-                          setReceiptNo(value);
+                          setReceiptNo(e.target.value);
                           if (errors.receiptNo) setErrors({ ...errors, receiptNo: '' });
                         }}
                         className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter receipt number (numbers only)"
+                        placeholder="Enter receipt number"
                       />
                       {errors.receiptNo && <p className="text-red-400 text-sm mt-1">{errors.receiptNo}</p>}
                     </div>
@@ -855,11 +854,42 @@ const StudentForm: React.FC<StudentFormProps> = ({
                 <Users className="w-5 h-5" />
                 Group Payment
               </h3>
-              <p className="text-gray-300 mb-4">
-                This feature allows multiple students to share the same receipt/transaction number for group payments.
-              </p>
-              <div className="text-center py-8">
-                <p className="text-gray-400">Group payment functionality will be implemented here</p>
+              
+              {/* Add Group Payment Form */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    Student Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={groupStudentName}
+                    onChange={(e) => {
+                      setGroupStudentName(e.target.value.toUpperCase());
+                      if (errors.groupStudentName) setErrors({ ...errors, groupStudentName: '' });
+                    }}
+                    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter student name"
+                  />
+                  {errors.groupStudentName && <p className="text-red-400 text-sm mt-1">{errors.groupStudentName}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    Course Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={groupCourseName}
+                    onChange={(e) => {
+                      setGroupCourseName(e.target.value.toUpperCase());
+                      if (errors.groupCourseName) setErrors({ ...errors, groupCourseName: '' });
+                    }}
+                    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter course name"
+                  />
+                  {errors.groupCourseName && <p className="text-red-400 text-sm mt-1">{errors.groupCourseName}</p>}
+                </div>
               </div>
             </div>
           )}
