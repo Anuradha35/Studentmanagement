@@ -144,10 +144,16 @@ function App() {
     setCurrentPage('course-batches');
   };
 
-  const navigateToForm = (courseDuration?: string) => {
-    setPreSelectedDuration(courseDuration || '');
-    setCurrentPage('student-form');
-  };
+//  const navigateToForm = (courseDuration?: string) => {
+//    setPreSelectedDuration(courseDuration || '');
+//    setCurrentPage('student-form');
+//  };
+  const navigateToForm = (courseDuration?: string, startDate?: string) => {
+  setPreSelectedDuration(courseDuration || '');
+  setPreSelectedStartDate(startDate || '');
+  setCurrentPage('student-form');
+};
+
 // ✅ Add this safety check here:
   if (!appData || !Array.isArray(appData.courseFees) || !appData.years) {
     return (
