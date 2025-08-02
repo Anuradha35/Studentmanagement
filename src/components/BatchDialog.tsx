@@ -166,19 +166,21 @@ const BatchDialog: React.FC<BatchDialogProps> = ({
 
   // Get available durations for the selected course from course fees
   const getAvailableDurations = () => {
-    if (!appData.courseFees) return [];
-    
-    const courseDurations = appData.courseFees
-      .filter(fee => fee.courseName === selectedCourse)
-      .map(fee => fee.courseDuration)
-      .sort((a, b) => {
-        const aDays = parseInt(a.replace(' Days', ''));
-        const bDays = parseInt(b.replace(' Days', ''));
-        return aDays - bDays;
-      });
-    
-    return courseDurations;
-  };
+  if (!Array.isArray(appData.courseFees)) return [];
+
+  const courseDurations = appData.courseFees
+    .filter(fee => fee.courseName === selectedCourse)
+    .map(fee => fee.courseDuration)
+    .filter(Boolean)
+    .sort((a, b) => {
+      const aDays = parseInt(a.replace(' Days', ''));
+      const bDays = parseInt(b.replace(' Days', ''));
+      return aDays - bDays;
+    });
+
+  return courseDurations;
+};
+
 
   const availableDurations = getAvailableDurations();
 
