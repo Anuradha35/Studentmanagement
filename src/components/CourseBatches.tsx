@@ -235,7 +235,9 @@ const CourseBatches: React.FC<CourseBatchesProps> = ({
                         key={duration}
                         onClick={(e) => {
                           e.stopPropagation();
-                          onNavigateToForm(duration);
+                          //onNavigateToForm(duration);
+                          onNavigateToForm(duration, batch.startDate);
+
                         }}
                         className="w-full px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2"
                       >
