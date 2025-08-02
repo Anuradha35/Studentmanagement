@@ -23,6 +23,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
   selectedCourse,
   selectedBatch,
   preSelectedDuration,
+  preSelectedStartDate,
   onAddStudent,
   onAddCollegeName,
   onAddBranch,
