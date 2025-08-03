@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, User, Phone, Mail, GraduationCap, Calendar, DollarSign, CreditCard, Receipt, Users } from 'lucide-react';
+import { ArrowLeft, User, Phone, Mail, GraduationCap, Calendar, DollarSign, CreditCard, Receipt, Users, Plus, X } from 'lucide-react';
 import { AppData, Student, Payment } from '../types';
 
 interface StudentFormProps {
@@ -8,7 +8,7 @@ interface StudentFormProps {
   selectedCourse: string;
   selectedBatch: string;
   preSelectedDuration: string;
-  preSelectedStartDate: string; // ✅ Add this line
+  preSelectedStartDate: string;
   onAddStudent: (year: string, courseName: string, batchName: string, student: Student) => void;
   onAddCollegeName: (collegeName: string) => void;
   onAddBranch: (branchName: string) => void;
@@ -42,7 +42,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
     collegeName: '',
     branch: '',
     courseDuration: preSelectedDuration || '',
-    startDate: preSelectedStartDate || '',  // ✅ Fix: add this line
+    startDate: preSelectedStartDate || '',
     endDate: '',
     courseFee: 0,
     totalPaid: 0,
@@ -67,11 +67,26 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const [utrId, setUtrId] = useState('');
   const [paymentDate, setPaymentDate] = useState('');
   const [paymentType, setPaymentType] = useState<'single' | 'group'>('single');
-  const [groupStudents, setGroupStudents] = useState<Array<{
+  
+  // Group payment states
+  const [groupPayments, setGroupPayments] = useState<Array<{
     studentName: string;
     courseName: string;
-    amount: number;
+    courseDuration: string;
+    onlineAmount: number;
+    offlineAmount: number;
+    utrId?: string;
+    receiptNo?: string;
+    paymentDate: string;
   }>>([]);
+  const [groupStudentName, setGroupStudentName] = useState('');
+  const [groupCourseName, setGroupCourseName] = useState('');
+  const [groupCourseDuration, setGroupCourseDuration] = useState('');
+  const [groupOnlineAmount, setGroupOnlineAmount] = useState('');
+  const [groupOfflineAmount, setGroupOfflineAmount] = useState('');
+  const [groupUtrId, setGroupUtrId] = useState('');
+  const [groupReceiptNo, setGroupReceiptNo] = useState('');
+  const [groupPaymentDate, setGroupPaymentDate] = useState('');
 
   // Get course fee based on selected course and duration
   const getCourseFee = () => {
@@ -127,17 +142,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
   }, [payments]);
 
   const formatDate = (value: string): string => {
-    const numbers = value.replace(/\D/g, '');
-    if (numbers.length <= 2) {
-      return numbers;
-    } else if (numbers.length <= 4) {
-      return `${numbers.slice(0, 2)}.${numbers.slice(2)}`;
-    } else {
-      return `${numbers.slice(0, 2)}.${numbers.slice(2, 4)}.${numbers.slice(4, 8)}`;
-    }
-  };
-
-  const formatPaymentDate = (value: string): string => {
     const numbers = value.replace(/\D/g, '');
     if (numbers.length <= 2) {
       return numbers;
@@ -211,93 +215,152 @@ const StudentForm: React.FC<StudentFormProps> = ({
     }
   };
 
+  const handleAddGroupPayment = () => {
+    const newErrors: { [key: string]: string } = {};
+    
+    if (!groupStudentName.trim()) newErrors.groupStudentName = 'Student name is required';
+    if (!groupCourseName.trim()) newErrors.groupCourseName = 'Course name is required';
+    if (!groupCourseDuration.trim()) newErrors.groupCourseDuration = 'Course duration is required';
+    if (!groupPaymentDate.trim()) {
+      newErrors.groupPaymentDate = 'Payment date is required';
+    } else if (groupPaymentDate.length !== 10 || !validateDate(groupPaymentDate)) {
+      newErrors.groupPaymentDate = 'Please enter a valid date (DD.MM.YYYY)';
+    }
+    
+    const onlineAmount = parseInt(groupOnlineAmount) || 0;
+    const offlineAmount = parseInt(groupOfflineAmount) || 0;
+    
+    if (onlineAmount === 0 && offlineAmount === 0) {
+      newErrors.groupAmount = 'At least one payment amount is required';
+    }
+    
+    if (onlineAmount > 0 && !groupUtrId.trim()) {
+      newErrors.groupUtrId = 'UTR/UPI ID is required for online payment';
+    }
+    
+    if (onlineAmount > 0 && groupUtrId.length !== 12) {
+      newErrors.groupUtrId = 'UTR/UPI ID must be exactly 12 digits';
+    }
+    
+    if (offlineAmount > 0 && !groupReceiptNo.trim()) {
+      newErrors.groupReceiptNo = 'Receipt number is required for offline payment';
+    }
+    
+    setErrors(newErrors);
+    
+    if (Object.keys(newErrors).length === 0) {
+      const newGroupPayment = {
+        studentName: groupStudentName,
+        courseName: groupCourseName,
+        courseDuration: groupCourseDuration,
+        onlineAmount,
+        offlineAmount,
+        utrId: onlineAmount > 0 ? groupUtrId : undefined,
+        receiptNo: offlineAmount > 0 ? groupReceiptNo : undefined,
+        paymentDate: groupPaymentDate
+      };
+      
+      setGroupPayments([...groupPayments, newGroupPayment]);
+      
+      // Clear form
+      setGroupStudentName('');
+      setGroupCourseName('');
+      setGroupCourseDuration('');
+      setGroupOnlineAmount('');
+      setGroupOfflineAmount('');
+      setGroupUtrId('');
+      setGroupReceiptNo('');
+      setGroupPaymentDate('');
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const newErrors: { [key: string]: string } = {};
+    const newErrors: { [key: string]: string } = {};
 
-  // Validate required fields
-  if (!formData.studentName.trim()) newErrors.studentName = 'Student name is required';
-  if (!formData.fatherName.trim()) newErrors.fatherName = 'Father name is required';
-  if (!formData.mobileNo.trim()) {
-    newErrors.mobileNo = 'Mobile number is required';
-  } else if (formData.mobileNo.length !== 10) {
-    newErrors.mobileNo = 'Mobile number must be exactly 10 digits';
-  }
-  if (!formData.email.trim()) newErrors.email = 'Email is required';
-  if (!formData.courseDuration) newErrors.courseDuration = 'Course duration is required';
-  if (!formData.startDate.trim()) {
-    newErrors.startDate = 'Start date is required';
-  } else if (formData.startDate.length !== 10 || !validateDate(formData.startDate)) {
-    newErrors.startDate = 'Please enter a valid date (DD.MM.YYYY)';
-  }
-
-  setErrors(newErrors);
-
-  if (Object.keys(newErrors).length === 0) {
-    const student: Student = {
-      id: Date.now().toString(),
-      ...formData,
-      createdAt: new Date().toISOString()
-    };
-
-    onAddStudent(selectedYear, selectedCourse, selectedBatch, student);
-
-    // Add payments
-    payments.forEach(payment => {
-      onAddPayment(student.id, {
-        ...payment,
-        paymentDate: payment.paymentDate
-      });
-    });
-
-    // ✅ Calculate end date manually after reset
-    let calculatedEndDate = '';
-    if (preSelectedStartDate && preSelectedDuration) {
-      const [day, month, year] = preSelectedStartDate.split('.');
-      const startDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-      const durationDays = parseInt(preSelectedDuration.replace(' Days', ''));
-
-      const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + durationDays);
-
-      const endDay = endDate.getDate().toString().padStart(2, '0');
-      const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
-      const endYear = endDate.getFullYear();
-      calculatedEndDate = `${endDay}.${endMonth}.${endYear}`;
+    // Validate required fields
+    if (!formData.studentName.trim()) newErrors.studentName = 'Student name is required';
+    if (!formData.fatherName.trim()) newErrors.fatherName = 'Father name is required';
+    if (!formData.mobileNo.trim()) {
+      newErrors.mobileNo = 'Mobile number is required';
+    } else if (formData.mobileNo.length !== 10) {
+      newErrors.mobileNo = 'Mobile number must be exactly 10 digits';
+    }
+    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    if (!formData.courseDuration) newErrors.courseDuration = 'Course duration is required';
+    if (!formData.startDate.trim()) {
+      newErrors.startDate = 'Start date is required';
+    } else if (formData.startDate.length !== 10 || !validateDate(formData.startDate)) {
+      newErrors.startDate = 'Please enter a valid date (DD.MM.YYYY)';
     }
 
-    // ✅ Reset form
-    const fee = getCourseFee();
-    setFormData({
-      studentName: '',
-      fatherName: '',
-      gender: 'Male',
-      mobileNo: '',
-      email: '',
-      category: 'GEN',
-      hostler: 'No',
-      collegeName: '',
-      branch: '',
-      courseDuration: preSelectedDuration || '',
-      startDate: preSelectedStartDate || '',
-      endDate: calculatedEndDate,
-      courseFee: fee,
-      totalPaid: 0,
-      remainingFee: fee
-    });
+    setErrors(newErrors);
 
-    setPayments([]);
-    setPaymentMode('offline');
-    setPaymentAmount('');
-    setPaymentDate('');
-    setReceiptNo('');
-    setUtrId('');
-    setPaymentType('single');
-    alert('Student added successfully!');
-  }
-};
+    if (Object.keys(newErrors).length === 0) {
+      const student: Student = {
+        id: Date.now().toString(),
+        ...formData,
+        createdAt: new Date().toISOString()
+      };
 
+      onAddStudent(selectedYear, selectedCourse, selectedBatch, student);
+
+      // Add payments
+      payments.forEach(payment => {
+        onAddPayment(student.id, {
+          ...payment,
+          paymentDate: payment.paymentDate
+        });
+      });
+
+      // Calculate end date manually after reset
+      let calculatedEndDate = '';
+      if (preSelectedStartDate && preSelectedDuration) {
+        const [day, month, year] = preSelectedStartDate.split('.');
+        const startDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        const durationDays = parseInt(preSelectedDuration.replace(' Days', ''));
+
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + durationDays);
+
+        const endDay = endDate.getDate().toString().padStart(2, '0');
+        const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
+        const endYear = endDate.getFullYear();
+        calculatedEndDate = `${endDay}.${endMonth}.${endYear}`;
+      }
+
+      // Reset form with pre-selected values
+      const fee = getCourseFee();
+      setFormData({
+        studentName: '',
+        fatherName: '',
+        gender: 'Male',
+        mobileNo: '',
+        email: '',
+        category: 'GEN',
+        hostler: 'No',
+        collegeName: '',
+        branch: '',
+        courseDuration: preSelectedDuration || '',
+        startDate: preSelectedStartDate || '',
+        endDate: calculatedEndDate,
+        courseFee: fee,
+        totalPaid: 0,
+        remainingFee: fee
+      });
+
+      setPayments([]);
+      setPaymentMode('offline');
+      setPaymentAmount('');
+      setPaymentDate('');
+      setReceiptNo('');
+      setUtrId('');
+      setPaymentType('single');
+      setGroupPayments([]);
+      alert('Student added successfully!');
+    }
+  };
 
   const handleAddNewCollege = () => {
     if (newCollegeName.trim()) {
@@ -662,11 +725,17 @@ const StudentForm: React.FC<StudentFormProps> = ({
                   setFormData({ ...formData, startDate: formatted });
                   if (errors.startDate) setErrors({ ...errors, startDate: '' });
                 }}
-                className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={!!preSelectedStartDate}
+                className={`w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  preSelectedStartDate ? 'opacity-75 cursor-not-allowed' : ''
+                }`}
                 placeholder="DD.MM.YYYY (e.g., 01.07.2025)"
                 maxLength={10}
               />
               {errors.startDate && <p className="text-red-400 text-sm mt-1">{errors.startDate}</p>}
+              {preSelectedStartDate && (
+                <p className="text-blue-400 text-sm mt-1">Pre-selected start date from batch</p>
+              )}
             </div>
 
             <div>
@@ -777,7 +846,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                       type="text"
                       value={paymentDate}
                       onChange={(e) => {
-                        const formatted = formatPaymentDate(e.target.value);
+                        const formatted = formatDate(e.target.value);
                         setPaymentDate(formatted);
                         if (errors.paymentDate) setErrors({ ...errors, paymentDate: '' });
                       }}
@@ -796,10 +865,10 @@ const StudentForm: React.FC<StudentFormProps> = ({
                       </label>
                       <input
                         type="text"
-                        autoComplete="off" // 👈 disable browser autofill
                         value={receiptNo}
                         onChange={(e) => {
-                          setReceiptNo(e.target.value);
+                          const value = e.target.value.replace(/\D/g, '');
+                          setReceiptNo(value);
                           if (errors.receiptNo) setErrors({ ...errors, receiptNo: '' });
                         }}
                         className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -815,7 +884,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
                       </label>
                       <input
                         type="text"
-                        autoComplete="off" // 👈 disable browser autofill
                         value={utrId}
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, '').slice(0, 12);
@@ -918,7 +986,159 @@ const StudentForm: React.FC<StudentFormProps> = ({
                   />
                   {errors.groupCourseName && <p className="text-red-400 text-sm mt-1">{errors.groupCourseName}</p>}
                 </div>
+
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    Course Duration *
+                  </label>
+                  <input
+                    type="text"
+                    value={groupCourseDuration}
+                    onChange={(e) => {
+                      setGroupCourseDuration(e.target.value);
+                      if (errors.groupCourseDuration) setErrors({ ...errors, groupCourseDuration: '' });
+                    }}
+                    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="e.g., 30 Days"
+                  />
+                  {errors.groupCourseDuration && <p className="text-red-400 text-sm mt-1">{errors.groupCourseDuration}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    Payment Date *
+                  </label>
+                  <input
+                    type="text"
+                    value={groupPaymentDate}
+                    onChange={(e) => {
+                      const formatted = formatDate(e.target.value);
+                      setGroupPaymentDate(formatted);
+                      if (errors.groupPaymentDate) setErrors({ ...errors, groupPaymentDate: '' });
+                    }}
+                    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="DD.MM.YYYY"
+                    maxLength={10}
+                  />
+                  {errors.groupPaymentDate && <p className="text-red-400 text-sm mt-1">{errors.groupPaymentDate}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    Online Amount
+                  </label>
+                  <input
+                    type="text"
+                    value={groupOnlineAmount}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      setGroupOnlineAmount(value);
+                    }}
+                    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter online amount"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    Offline Amount
+                  </label>
+                  <input
+                    type="text"
+                    value={groupOfflineAmount}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      setGroupOfflineAmount(value);
+                    }}
+                    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter offline amount"
+                  />
+                </div>
+
+                {parseInt(groupOnlineAmount) > 0 && (
+                  <div>
+                    <label className="block text-gray-300 text-sm font-medium mb-2">
+                      UTR/UPI ID
+                    </label>
+                    <input
+                      type="text"
+                      value={groupUtrId}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+                        setGroupUtrId(value);
+                        if (errors.groupUtrId) setErrors({ ...errors, groupUtrId: '' });
+                      }}
+                      className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter 12-digit UTR/UPI ID"
+                      maxLength={12}
+                    />
+                    {errors.groupUtrId && <p className="text-red-400 text-sm mt-1">{errors.groupUtrId}</p>}
+                  </div>
+                )}
+
+                {parseInt(groupOfflineAmount) > 0 && (
+                  <div>
+                    <label className="block text-gray-300 text-sm font-medium mb-2">
+                      Receipt Number
+                    </label>
+                    <input
+                      type="text"
+                      value={groupReceiptNo}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '');
+                        setGroupReceiptNo(value);
+                        if (errors.groupReceiptNo) setErrors({ ...errors, groupReceiptNo: '' });
+                      }}
+                      className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter receipt number"
+                    />
+                    {errors.groupReceiptNo && <p className="text-red-400 text-sm mt-1">{errors.groupReceiptNo}</p>}
+                  </div>
+                )}
               </div>
+
+              {errors.groupAmount && <p className="text-red-400 text-sm mb-4">{errors.groupAmount}</p>}
+
+              <button
+                type="button"
+                onClick={handleAddGroupPayment}
+                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors mb-4"
+              >
+                Add Group Payment
+              </button>
+
+              {/* Group Payment List */}
+              {groupPayments.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-white font-medium">Group Payment Entries:</h4>
+                  {groupPayments.map((payment, index) => (
+                    <div key={index} className="p-3 bg-slate-700 rounded-lg">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-white font-medium">{payment.studentName}</p>
+                          <p className="text-gray-400 text-sm">{payment.courseName} - {payment.courseDuration}</p>
+                          <p className="text-gray-400 text-sm">
+                            {payment.onlineAmount > 0 && `Online: ₹${payment.onlineAmount} (UTR: ${payment.utrId})`}
+                            {payment.onlineAmount > 0 && payment.offlineAmount > 0 && ' | '}
+                            {payment.offlineAmount > 0 && `Offline: ₹${payment.offlineAmount} (Receipt: ${payment.receiptNo})`}
+                          </p>
+                          <p className="text-gray-400 text-sm">Date: {payment.paymentDate}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newGroupPayments = groupPayments.filter((_, i) => i !== index);
+                            setGroupPayments(newGroupPayments);
+                          }}
+                          className="text-red-400 hover:text-red-300 transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
