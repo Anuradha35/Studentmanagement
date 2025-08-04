@@ -76,9 +76,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
     utrId?: string;
     receiptNo?: string;
     paymentDate: string;
-    courseFee: number;
-    courseName: string;
-    courseDuration: string;
   }>>([]);
   const [groupStudentName, setGroupStudentName] = useState('');
   const [groupOnlineAmount, setGroupOnlineAmount] = useState('');
@@ -330,10 +327,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
         offlineAmount,
         utrId: onlineAmount > 0 ? groupUtrId : undefined,
         receiptNo: offlineAmount > 0 ? groupReceiptNo : undefined,
-        paymentDate: groupPaymentDate,
-        courseFee: formData.courseFee,
-        courseName: selectedCourse,
-        courseDuration: formData.courseDuration
+        paymentDate: groupPaymentDate
       };
       
       setGroupPayments([...groupPayments, newGroupPayment]);
@@ -448,6 +442,8 @@ const StudentForm: React.FC<StudentFormProps> = ({
       // Clear group payment fields
       setGroupPayments([]);
       setGroupStudentName('');
+      setGroupCourseName('');
+      setGroupCourseDuration('');
       setGroupOnlineAmount('');
       setGroupOfflineAmount('');
       setGroupUtrId('');
@@ -1054,6 +1050,24 @@ const StudentForm: React.FC<StudentFormProps> = ({
                   <div className="text-right mb-2">
                     <span className="text-2xl font-bold text-white">
                       Total: ₹{groupPayments.reduce((sum, p) => sum + p.onlineAmount + p.offlineAmount, 0).toLocaleString()}
+                  <div className="mt-2 space-y-1">
+                    {groupPayments.map((payment, index) => {
+                      const status = getPaymentStatus(payment);
+                      return (
+                        <div key={index} className="flex justify-between items-center text-sm">
+                          <span className="text-gray-300">{payment.studentName}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-white">₹{(payment.onlineAmount + payment.offlineAmount).toLocaleString()}</span>
+                            <span className={`text-xs ${status.color}`}>
+                              {status.status === 'full' && '✓ Full'}
+                              {status.status === 'partial' && `₹${status.remaining} pending`}
+                              {status.status === 'overpaid' && `₹${status.remaining} excess`}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                     </span>
                   </div>
                   <div className="space-y-1 text-sm">
@@ -1068,7 +1082,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
               )}
               
               {/* Simplified Group Payment Form */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">
                     Student Name *
@@ -1083,6 +1097,53 @@ const StudentForm: React.FC<StudentFormProps> = ({
                     className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Enter student name"
                   />
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    Course Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={groupPaymentForm.courseName}
+                    onChange={(e) => setGroupPaymentForm({ ...groupPaymentForm, courseName: e.target.value })}
+                    className="w-full p-3 bg-white/10 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="e.g., WEB DESIGNING"
+                  />
+                  {groupPaymentErrors.courseName && <p className="text-red-400 text-sm mt-1">{groupPaymentErrors.courseName}</p>}
+                </div>
+                
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    Course Duration *
+                  </label>
+                  <input
+                    type="text"
+                    value={groupPaymentForm.courseDuration}
+                    onChange={(e) => setGroupPaymentForm({ ...groupPaymentForm, courseDuration: e.target.value })}
+                    className="w-full p-3 bg-white/10 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="e.g., 30 Days"
+                  />
+                  {groupPaymentErrors.courseDuration && <p className="text-red-400 text-sm mt-1">{groupPaymentErrors.courseDuration}</p>}
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    Course Fee *
+                  </label>
+                  <input
+                    type="text"
+                    value={groupPaymentForm.courseFee}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      setGroupPaymentForm({ ...groupPaymentForm, courseFee: value });
+                    }}
+                    className="w-full p-3 bg-white/10 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="Enter course fee"
+                  />
+                  {groupPaymentErrors.courseFee && <p className="text-red-400 text-sm mt-1">{groupPaymentErrors.courseFee}</p>}
+                </div>
+                
                   {errors.groupStudentName && <p className="text-red-400 text-sm mt-1">{errors.groupStudentName}</p>}
                 </div>
 
