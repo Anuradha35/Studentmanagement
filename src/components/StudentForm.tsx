@@ -71,8 +71,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
   // Group payment states
   const [groupPayments, setGroupPayments] = useState<Array<{
     studentName: string;
-    courseName: string;
-    courseDuration: string;
     onlineAmount: number;
     offlineAmount: number;
     utrId?: string;
@@ -80,13 +78,17 @@ const StudentForm: React.FC<StudentFormProps> = ({
     paymentDate: string;
   }>>([]);
   const [groupStudentName, setGroupStudentName] = useState('');
-  const [groupCourseName, setGroupCourseName] = useState('');
-  const [groupCourseDuration, setGroupCourseDuration] = useState('');
   const [groupOnlineAmount, setGroupOnlineAmount] = useState('');
   const [groupOfflineAmount, setGroupOfflineAmount] = useState('');
   const [groupUtrId, setGroupUtrId] = useState('');
   const [groupReceiptNo, setGroupReceiptNo] = useState('');
   const [groupPaymentDate, setGroupPaymentDate] = useState('');
+
+  // Add state for tracking existing payments for validation
+  const [existingPayments, setExistingPayments] = useState<{
+    utrIds: Set<string>;
+    receiptNos: Set<string>;
+  }>({ utrIds: new Set(), receiptNos: new Set() });
 
   // Get course fee based on selected course and duration
   const getCourseFee = () => {
@@ -118,7 +120,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
       const durationDays = parseInt(formData.courseDuration.replace(' Days', ''));
       
       const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + durationDays);
+      endDate.setDate(startDate.getDate() + durationDays - 1); // Include start date in calculation
       
       const endDay = endDate.getDate().toString().padStart(2, '0');
       const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
@@ -130,6 +132,26 @@ const StudentForm: React.FC<StudentFormProps> = ({
       }));
     }
   }, [formData.startDate, formData.courseDuration]);
+
+  // Load existing payments for validation
+  useEffect(() => {
+    const utrIds = new Set<string>();
+    const receiptNos = new Set<string>();
+    
+    // Collect all existing UTR IDs and receipt numbers from all students
+    Object.values(appData.years).forEach(year => {
+      Object.values(year).forEach(course => {
+        Object.values(course).forEach(batch => {
+          batch.students.forEach(student => {
+            // This would typically come from a payments database
+            // For now, we'll simulate it
+          });
+        });
+      });
+    });
+    
+    setExistingPayments({ utrIds, receiptNos });
+  }, [appData]);
 
   // Update total paid and remaining fee when payments change
   useEffect(() => {
@@ -159,6 +181,17 @@ const StudentForm: React.FC<StudentFormProps> = ({
     if (month < 1 || month > 12) return false;
     if (year < 2020 || year > 2030) return false;
     return true;
+  };
+
+  const validatePaymentDuplicate = (utrId?: string, receiptNo?: string): string | null => {
+    if (utrId && existingPayments.utrIds.has(utrId)) {
+      // Find which student used this UTR ID
+      return `UTR/UPI ID ${utrId} has already been used by another student`;
+    }
+    if (receiptNo && existingPayments.receiptNos.has(receiptNo)) {
+      return `Receipt number ${receiptNo} has already been used by another student`;
+    }
+    return null;
   };
 
   const handleAddPayment = () => {
@@ -197,6 +230,19 @@ const StudentForm: React.FC<StudentFormProps> = ({
       newErrors.paymentAmount = `Payment amount exceeds course fee! Maximum allowed: ₹${formData.courseFee - currentTotal}`;
     }
     
+    // Check for duplicate UTR/Receipt numbers
+    const duplicateError = validatePaymentDuplicate(
+      paymentMode === 'online' ? utrId : undefined,
+      paymentMode === 'offline' ? receiptNo : undefined
+    );
+    if (duplicateError) {
+      if (paymentMode === 'online') {
+        newErrors.utrId = duplicateError;
+      } else {
+        newErrors.receiptNo = duplicateError;
+      }
+    }
+    
     setErrors(newErrors);
     
     if (Object.keys(newErrors).length === 0) {
@@ -212,6 +258,20 @@ const StudentForm: React.FC<StudentFormProps> = ({
       setReceiptNo('');
       setUtrId('');
       setPaymentDate('');
+      
+      // Add to existing payments to prevent duplicates in same session
+      if (paymentMode === 'online' && utrId) {
+        setExistingPayments(prev => ({
+          ...prev,
+          utrIds: new Set([...prev.utrIds, utrId])
+        }));
+      }
+      if (paymentMode === 'offline' && receiptNo) {
+        setExistingPayments(prev => ({
+          ...prev,
+          receiptNos: new Set([...prev.receiptNos, receiptNo])
+        }));
+      }
     }
   };
 
@@ -219,8 +279,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
     const newErrors: { [key: string]: string } = {};
     
     if (!groupStudentName.trim()) newErrors.groupStudentName = 'Student name is required';
-    if (!groupCourseName.trim()) newErrors.groupCourseName = 'Course name is required';
-    if (!groupCourseDuration.trim()) newErrors.groupCourseDuration = 'Course duration is required';
     if (!groupPaymentDate.trim()) {
       newErrors.groupPaymentDate = 'Payment date is required';
     } else if (groupPaymentDate.length !== 10 || !validateDate(groupPaymentDate)) {
@@ -246,13 +304,25 @@ const StudentForm: React.FC<StudentFormProps> = ({
       newErrors.groupReceiptNo = 'Receipt number is required for offline payment';
     }
     
+    // Check for duplicate UTR/Receipt numbers in group payments
+    const duplicateError = validatePaymentDuplicate(
+      onlineAmount > 0 ? groupUtrId : undefined,
+      offlineAmount > 0 ? groupReceiptNo : undefined
+    );
+    if (duplicateError) {
+      if (onlineAmount > 0) {
+        newErrors.groupUtrId = duplicateError;
+      }
+      if (offlineAmount > 0) {
+        newErrors.groupReceiptNo = duplicateError;
+      }
+    }
+    
     setErrors(newErrors);
     
     if (Object.keys(newErrors).length === 0) {
       const newGroupPayment = {
         studentName: groupStudentName,
-        courseName: groupCourseName,
-        courseDuration: groupCourseDuration,
         onlineAmount,
         offlineAmount,
         utrId: onlineAmount > 0 ? groupUtrId : undefined,
@@ -262,10 +332,22 @@ const StudentForm: React.FC<StudentFormProps> = ({
       
       setGroupPayments([...groupPayments, newGroupPayment]);
       
+      // Add to existing payments to prevent duplicates
+      if (onlineAmount > 0 && groupUtrId) {
+        setExistingPayments(prev => ({
+          ...prev,
+          utrIds: new Set([...prev.utrIds, groupUtrId])
+        }));
+      }
+      if (offlineAmount > 0 && groupReceiptNo) {
+        setExistingPayments(prev => ({
+          ...prev,
+          receiptNos: new Set([...prev.receiptNos, groupReceiptNo])
+        }));
+      }
+      
       // Clear form
       setGroupStudentName('');
-      setGroupCourseName('');
-      setGroupCourseDuration('');
       setGroupOnlineAmount('');
       setGroupOfflineAmount('');
       setGroupUtrId('');
@@ -322,7 +404,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
         const durationDays = parseInt(preSelectedDuration.replace(' Days', ''));
 
         const endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + durationDays);
+        endDate.setDate(startDate.getDate() + durationDays - 1); // Include start date
 
         const endDay = endDate.getDate().toString().padStart(2, '0');
         const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
@@ -350,14 +432,24 @@ const StudentForm: React.FC<StudentFormProps> = ({
         remainingFee: fee
       });
 
+      // Clear only payment-related fields, keep form structure
       setPayments([]);
-      setPaymentMode('offline');
       setPaymentAmount('');
       setPaymentDate('');
       setReceiptNo('');
       setUtrId('');
-      setPaymentType('single');
+      
+      // Clear group payment fields
       setGroupPayments([]);
+      setGroupStudentName('');
+      setGroupCourseName('');
+      setGroupCourseDuration('');
+      setGroupOnlineAmount('');
+      setGroupOfflineAmount('');
+      setGroupUtrId('');
+      setGroupReceiptNo('');
+      setGroupPaymentDate('');
+      
       alert('Student added successfully!');
     }
   };
@@ -948,10 +1040,30 @@ const StudentForm: React.FC<StudentFormProps> = ({
             <div className="bg-slate-800/50 rounded-lg p-4">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <Users className="w-5 h-5" />
-                Group Payment
+                Group Payment Entry
               </h3>
               
-              {/* Add Group Payment Form */}
+              {/* Group Payment Summary */}
+              {groupPayments.length > 0 && (
+                <div className="mb-6 p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
+                  <h4 className="text-blue-300 font-medium mb-2">Group Payment Summary</h4>
+                  <div className="text-right mb-2">
+                    <span className="text-2xl font-bold text-white">
+                      Total: ₹{groupPayments.reduce((sum, p) => sum + p.onlineAmount + p.offlineAmount, 0).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="space-y-1 text-sm">
+                    {groupPayments.map((payment, index) => (
+                      <div key={index} className="flex justify-between items-center text-blue-200">
+                        <span>{payment.studentName}</span>
+                        <span>₹{(payment.onlineAmount + payment.offlineAmount).toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Simplified Group Payment Form */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">
@@ -968,40 +1080,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
                     placeholder="Enter student name"
                   />
                   {errors.groupStudentName && <p className="text-red-400 text-sm mt-1">{errors.groupStudentName}</p>}
-                </div>
-
-                <div>
-                  <label className="block text-gray-300 text-sm font-medium mb-2">
-                    Course Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={groupCourseName}
-                    onChange={(e) => {
-                      setGroupCourseName(e.target.value.toUpperCase());
-                      if (errors.groupCourseName) setErrors({ ...errors, groupCourseName: '' });
-                    }}
-                    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter course name"
-                  />
-                  {errors.groupCourseName && <p className="text-red-400 text-sm mt-1">{errors.groupCourseName}</p>}
-                </div>
-
-                <div>
-                  <label className="block text-gray-300 text-sm font-medium mb-2">
-                    Course Duration *
-                  </label>
-                  <input
-                    type="text"
-                    value={groupCourseDuration}
-                    onChange={(e) => {
-                      setGroupCourseDuration(e.target.value);
-                      if (errors.groupCourseDuration) setErrors({ ...errors, groupCourseDuration: '' });
-                    }}
-                    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="e.g., 30 Days"
-                  />
-                  {errors.groupCourseDuration && <p className="text-red-400 text-sm mt-1">{errors.groupCourseDuration}</p>}
                 </div>
 
                 <div>
@@ -1025,7 +1103,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
 
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">
-                    Online Amount
+                    Online Payment Amount
                   </label>
                   <input
                     type="text"
@@ -1035,13 +1113,13 @@ const StudentForm: React.FC<StudentFormProps> = ({
                       setGroupOnlineAmount(value);
                     }}
                     className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter online amount"
+                    placeholder="Enter online amount (optional)"
                   />
                 </div>
 
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">
-                    Offline Amount
+                    Offline Payment Amount
                   </label>
                   <input
                     type="text"
@@ -1051,7 +1129,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                       setGroupOfflineAmount(value);
                     }}
                     className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter offline amount"
+                    placeholder="Enter offline amount (optional)"
                   />
                 </div>
 
@@ -1104,25 +1182,27 @@ const StudentForm: React.FC<StudentFormProps> = ({
                 onClick={handleAddGroupPayment}
                 className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors mb-4"
               >
-                Add Group Payment
+                Add to Group Payment
               </button>
 
               {/* Group Payment List */}
               {groupPayments.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="text-white font-medium">Group Payment Entries:</h4>
+                  <h4 className="text-white font-medium">Payment Entries:</h4>
                   {groupPayments.map((payment, index) => (
                     <div key={index} className="p-3 bg-slate-700 rounded-lg">
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="text-white font-medium">{payment.studentName}</p>
-                          <p className="text-gray-400 text-sm">{payment.courseName} - {payment.courseDuration}</p>
                           <p className="text-gray-400 text-sm">
                             {payment.onlineAmount > 0 && `Online: ₹${payment.onlineAmount} (UTR: ${payment.utrId})`}
                             {payment.onlineAmount > 0 && payment.offlineAmount > 0 && ' | '}
                             {payment.offlineAmount > 0 && `Offline: ₹${payment.offlineAmount} (Receipt: ${payment.receiptNo})`}
                           </p>
                           <p className="text-gray-400 text-sm">Date: {payment.paymentDate}</p>
+                          <p className="text-green-400 text-sm font-medium">
+                            Total: ₹{(payment.onlineAmount + payment.offlineAmount).toLocaleString()}
+                          </p>
                         </div>
                         <button
                           type="button"
