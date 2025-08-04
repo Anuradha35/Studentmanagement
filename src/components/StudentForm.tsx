@@ -76,6 +76,9 @@ const StudentForm: React.FC<StudentFormProps> = ({
     utrId?: string;
     receiptNo?: string;
     paymentDate: string;
+    courseFee: number;
+    courseName: string;
+    courseDuration: string;
   }>>([]);
   const [groupStudentName, setGroupStudentName] = useState('');
   const [groupOnlineAmount, setGroupOnlineAmount] = useState('');
@@ -327,7 +330,10 @@ const StudentForm: React.FC<StudentFormProps> = ({
         offlineAmount,
         utrId: onlineAmount > 0 ? groupUtrId : undefined,
         receiptNo: offlineAmount > 0 ? groupReceiptNo : undefined,
-        paymentDate: groupPaymentDate
+        paymentDate: groupPaymentDate,
+        courseFee: formData.courseFee,
+        courseName: selectedCourse,
+        courseDuration: formData.courseDuration
       };
       
       setGroupPayments([...groupPayments, newGroupPayment]);
@@ -442,8 +448,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
       // Clear group payment fields
       setGroupPayments([]);
       setGroupStudentName('');
-      setGroupCourseName('');
-      setGroupCourseDuration('');
       setGroupOnlineAmount('');
       setGroupOfflineAmount('');
       setGroupUtrId('');
