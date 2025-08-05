@@ -1040,212 +1040,12 @@ const StudentForm: React.FC<StudentFormProps> = ({
             </>
           )}
 
-          {/* Student Count Modal */}
-          {showStudentCountModal && (
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-              <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-6 w-full max-w-md border border-white/20">
-                <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-green-400" />
-                  Group Payment Setup
-                </h3>
-                
-                <div className="mb-4">
-                  <label className="block text-gray-300 text-sm font-medium mb-2">
-                    How many students in this group payment? *
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={studentCount}
-                    onChange={(e) => setStudentCount(e.target.value)}
-                    className="w-full p-3 bg-white/10 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="Enter number (1-10)"
-                    autoFocus
-                  />
-                  <p className="text-gray-400 text-xs mt-1">Maximum 10 students allowed</p>
-                </div>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => {
-                      setShowStudentCountModal(false);
-                      setStudentCount('');
-                      setPaymentMode('single'); // Reset to single payment
-                    }}
-                    className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleStudentCountSubmit}
-                    disabled={!studentCount || parseInt(studentCount) <= 0 || parseInt(studentCount) > 10}
-                    className="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed"
-                  >
-                    Create Forms
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
           {paymentType === 'group' && (
             <div className="bg-slate-800/50 rounded-lg p-4">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <Users className="w-5 h-5" />
                 Group Payment Entry
               </h3>
-
-              {/* Dynamic Group Forms */}
-              {dynamicGroupForms.length > 0 && (
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-medium text-white">
-                      Enter Details for {dynamicGroupForms.length} Students
-                    </h4>
-                    <button
-                      onClick={addAllDynamicFormsToGroup}
-                      className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm"
-                    >
-                      Add All to Group
-                    </button>
-                  </div>
-
-                  <div className="space-y-4 max-h-96 overflow-y-auto">
-                    {dynamicGroupForms.map((form, index) => (
-                      <div key={form.id} className="bg-white/5 rounded-lg p-4 border border-white/10">
-                        <h5 className="text-white font-medium mb-3 flex items-center gap-2">
-                          <span className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm">
-                            {index + 1}
-                          </span>
-                          Student {index + 1}
-                        </h5>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-gray-300 text-sm mb-1">Student Name *</label>
-                            <input
-                              type="text"
-                              value={form.studentName}
-                              onChange={(e) => handleDynamicFormChange(index, 'studentName', e.target.value)}
-                              className="w-full p-2 bg-white/10 border border-white/30 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                              placeholder="Enter student name"
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-gray-300 text-sm mb-1">Course Name *</label>
-                            <input
-                              type="text"
-                              value={form.courseName}
-                              onChange={(e) => handleDynamicFormChange(index, 'courseName', e.target.value)}
-                              className="w-full p-2 bg-white/10 border border-white/30 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                              placeholder="e.g., WEB DESIGNING"
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-gray-300 text-sm mb-1">Course Duration *</label>
-                            <input
-                              type="text"
-                              value={form.courseDuration}
-                              onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, '');
-                                handleDynamicFormChange(index, 'courseDuration', value ? `${value} Days` : '');
-                              }}
-                              className="w-full p-2 bg-white/10 border border-white/30 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                              placeholder="Enter days (e.g., 30)"
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-gray-300 text-sm mb-1">Course Fee *</label>
-                            <input
-                              type="text"
-                              value={form.courseFee}
-                              onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, '');
-                                handleDynamicFormChange(index, 'courseFee', value);
-                              }}
-                              className="w-full p-2 bg-white/10 border border-white/30 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                              placeholder="Enter fee amount"
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-gray-300 text-sm mb-1">Payment Date *</label>
-                            <input
-                              type="text"
-                              value={form.paymentDate}
-                              onChange={(e) => {
-                                const formatted = formatDate(e.target.value);
-                                handleDynamicFormChange(index, 'paymentDate', formatted);
-                              }}
-                              maxLength={10}
-                              className="w-full p-2 bg-white/10 border border-white/30 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                              placeholder="DD.MM.YYYY"
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-gray-300 text-sm mb-1">Online Amount</label>
-                            <input
-                              type="text"
-                              value={form.onlineAmount}
-                              onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, '');
-                                handleDynamicFormChange(index, 'onlineAmount', value);
-                              }}
-                              className="w-full p-2 bg-white/10 border border-white/30 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                              placeholder="Online payment amount"
-                            />
-                          </div>
-                          
-                          <div>
-                            <label className="block text-gray-300 text-sm mb-1">Offline Amount</label>
-                            <input
-                              type="text"
-                              value={form.offlineAmount}
-                              onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, '');
-                                handleDynamicFormChange(index, 'offlineAmount', value);
-                              }}
-                              className="w-full p-2 bg-white/10 border border-white/30 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                              placeholder="Offline payment amount"
-                            />
-                          </div>
-                          
-                          {form.onlineAmount && (
-                            <div>
-                              <label className="block text-gray-300 text-sm mb-1">UTR/UPI ID</label>
-                              <input
-                                type="text"
-                                value={form.utrId}
-                                onChange={(e) => handleDynamicFormChange(index, 'utrId', e.target.value)}
-                                className="w-full p-2 bg-white/10 border border-white/30 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="Enter UTR/UPI ID"
-                              />
-                            </div>
-                          )}
-                          
-                          {form.offlineAmount && (
-                            <div>
-                              <label className="block text-gray-300 text-sm mb-1">Receipt No.</label>
-                              <input
-                                type="text"
-                                value={form.receiptNo}
-                                onChange={(e) => handleDynamicFormChange(index, 'receiptNo', e.target.value)}
-                                className="w-full p-2 bg-white/10 border border-white/30 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="Enter receipt number"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
               
               {/* Group Payment Summary */}
               {groupPayments.length > 0 && (
@@ -1267,8 +1067,24 @@ const StudentForm: React.FC<StudentFormProps> = ({
                 </div>
               )}
               
-              {/* Simplified Group Payment Form */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              {/* Show button to create new group if no dynamic forms and no existing group */}
+              {dynamicGroupForms.length === 0 && groupPayments.length === 0 && (
+                <div className="text-center py-8">
+                  <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-300 mb-4">No group payment created yet</p>
+                  <button
+                    onClick={() => setShowStudentCountModal(true)}
+                    className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 mx-auto"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Create New Group Payment
+                  </button>
+                </div>
+              )}
+
+              {/* Payment Entries Display */}
+              {groupPayments.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">
                     Student Name *
@@ -1422,6 +1238,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                     </div>
                   ))}
                 </div>
+              )}
               )}
             </div>
           )}
