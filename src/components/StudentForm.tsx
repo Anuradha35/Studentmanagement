@@ -198,6 +198,18 @@ const StudentForm: React.FC<StudentFormProps> = ({
     return null;
   };
 
+  const handlePaymentModeChange = (mode: 'single' | 'group') => {
+    setPaymentMode(mode);
+    if (mode === 'group') {
+      setShowStudentCountModal(true);
+    } else {
+      // Reset group payment data when switching to single
+      setGroupPayments([]);
+      setDynamicGroupForms([]);
+      setStudentCount('');
+    }
+  };
+
   const handleAddPayment = () => {
     const newErrors: { [key: string]: string } = {};
     
