@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, User, Phone, Mail, GraduationCap, Calendar, DollarSign, CreditCard, Receipt, Users, Plus, X } from 'lucide-react';
 import { AppData, Student, Payment } from '../types';
+import React, { useState } from 'react';
 
 interface StudentFormProps {
   appData: AppData;
@@ -48,6 +49,9 @@ const StudentForm: React.FC<StudentFormProps> = ({
     totalPaid: 0,
     remainingFee: 0
   });
+  const [showStudentCountModal, setShowStudentCountModal] = useState(false);
+  const [studentCount, setStudentCount] = useState('');
+  const [dynamicGroupForms, setDynamicGroupForms] = useState<any[]>([]);
 
   const [newCollegeName, setNewCollegeName] = useState('');
   const [newBranch, setNewBranch] = useState('');
