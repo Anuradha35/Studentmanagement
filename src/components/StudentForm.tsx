@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, User, Phone, Mail, GraduationCap, Calendar, DollarSign, CreditCard, Receipt, Users, Plus, X } from 'lucide-react';
 import { AppData, Student, Payment } from '../types';
-import React, { useState } from 'react';
 
 interface StudentFormProps {
   appData: AppData;
@@ -198,16 +197,76 @@ const StudentForm: React.FC<StudentFormProps> = ({
     return null;
   };
 
-  const handlePaymentModeChange = (mode: 'single' | 'group') => {
-    setPaymentMode(mode);
-    if (mode === 'group') {
-      setShowStudentCountModal(true);
-    } else {
-      // Reset group payment data when switching to single
-      setGroupPayments([]);
-      setDynamicGroupForms([]);
-      setStudentCount('');
+  const handleStudentCountSubmit = () => {
+    const count = parseInt(studentCount);
+    if (count > 0 && count <= 10) { // Limit to 10 students max
+      const forms = Array.from({ length: count }, (_, index) => ({
+        id: index + 1,
+        studentName: '',
+        courseName: '',
+        courseDuration: '',
+        courseFee: '',
+        paymentDate: '',
+        onlineAmount: '',
+        offlineAmount: '',
+        utrId: '',
+        receiptNo: ''
+      }));
+      setDynamicGroupForms(forms);
+      setShowStudentCountModal(false);
     }
+  };
+
+  const handleDynamicFormChange = (index: number, field: string, value: string) => {
+    const updatedForms = [...dynamicGroupForms];
+    updatedForms[index] = { ...updatedForms[index], [field]: value };
+    setDynamicGroupForms(updatedForms);
+  };
+
+  const addAllDynamicFormsToGroup = () => {
+    const validForms = dynamicGroupForms.filter(form => 
+      form.studentName.trim() && 
+      form.courseName.trim() && 
+      form.courseDuration.trim() &&
+      form.courseFee.trim() &&
+      (form.onlineAmount.trim() || form.offlineAmount.trim())
+    );
+
+    if (validForms.length === 0) {
+      alert('Please fill at least one complete student form');
+      return;
+    }
+
+    const newGroupPayments: GroupPaymentEntry[] = validForms.map(form => {
+      const onlineAmount = parseInt(form.onlineAmount) || 0;
+      const offlineAmount = parseInt(form.offlineAmount) || 0;
+      const totalAmount = onlineAmount + offlineAmount;
+      const courseFee = parseInt(form.courseFee) || 0;
+      
+      let paymentStatus: 'full' | 'pending' | 'excess' = 'full';
+      if (totalAmount < courseFee) paymentStatus = 'pending';
+      else if (totalAmount > courseFee) paymentStatus = 'excess';
+
+      return {
+        id: Date.now() + Math.random(),
+        studentName: form.studentName,
+        courseName: form.courseName,
+        courseDuration: form.courseDuration,
+        courseFee: courseFee,
+        paymentDate: form.paymentDate,
+        onlineAmount,
+        offlineAmount,
+        totalAmount,
+        utrId: form.utrId,
+        receiptNo: form.receiptNo,
+        paymentStatus
+      };
+    });
+
+    setGroupPayments(newGroupPayments);
+    // Clear dynamic forms after adding
+    setDynamicGroupForms([]);
+    setStudentCount('');
   };
 
   const handleAddPayment = () => {
