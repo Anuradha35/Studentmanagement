@@ -1229,8 +1229,9 @@ const StudentForm: React.FC<StudentFormProps> = ({
               </div>
                ))}
               
-              {errors.groupAmount && <p className="text-red-400 text-sm mb-4">{errors.groupAmount}</p>}
-
+               {errors.groupAmount && (
+        <p className="text-red-400 text-sm mb-4">{errors.groupAmount}</p>
+      )}
               <button
                 type="button"
                 onClick={handleAddGroupPayment}
