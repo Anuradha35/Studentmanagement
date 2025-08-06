@@ -1227,12 +1227,9 @@ const StudentForm: React.FC<StudentFormProps> = ({
                   </div>
                 )}
               </div>
-              ))}
-             {/* ✅ this is now valid */}
-{errors.groupAmount && (
-  <p className="text-red-400 text-sm mb-4">{errors.groupAmount}</p>
-)}
-
+               ))}
+              
+              {errors.groupAmount && <p className="text-red-400 text-sm mb-4">{errors.groupAmount}</p>}
 
               <button
                 type="button"
