@@ -1274,7 +1274,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                   ))}
                 </div>
               )}
-              )}
+              
             </div>
           )}
         </div>
