@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, User, Phone, Mail, GraduationCap, Calendar, DollarSign, CreditCard, Receipt, Users, Plus, X } from 'lucide-react';
 import { AppData, Student, Payment } from '../types';
-import { Dialog } from '@headlessui/react';
 
 
 interface StudentFormProps {
@@ -72,38 +71,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const [utrId, setUtrId] = useState('');
   const [paymentDate, setPaymentDate] = useState('');
   const [paymentType, setPaymentType] = useState<'single' | 'group'>('single');
-   const [showGroupModal, setShowGroupModal] = useState(false);
-  const [groupCount, setGroupCount] = useState(0);
-  const [dynamicGroupEntries, setDynamicGroupEntries] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (paymentType === 'group') {
-      setShowGroupModal(true);
-    }
-  }, [paymentType]);
-
-  const handleGroupCountConfirm = () => {
-    const entries = [];
-    for (let i = 0; i < groupCount; i++) {
-      entries.push({
-        studentName: '',
-        onlineAmount: '',
-        offlineAmount: '',
-        utrId: '',
-        receiptNo: '',
-        paymentDate: ''
-      });
-    }
-    setDynamicGroupEntries(entries);
-    setShowGroupModal(false);
-  };
-
-  const handleDynamicGroupChange = (index: number, field: string, value: string) => {
-    const updated = [...dynamicGroupEntries];
-    updated[index][field] = value;
-    setDynamicGroupEntries(updated);
-  };
-
   
   // Group payment states
   const [groupPayments, setGroupPayments] = useState<Array<{
@@ -1227,12 +1194,10 @@ const StudentForm: React.FC<StudentFormProps> = ({
                   </div>
                 )}
               </div>
-               )}
-              
-               {errors.groupAmount && (<p className="text-red-400 text-sm mb-4">{errors.groupAmount}</p> )}
-             
- 
-        <button
+
+              {errors.groupAmount && <p className="text-red-400 text-sm mb-4">{errors.groupAmount}</p>}
+
+              <button
                 type="button"
                 onClick={handleAddGroupPayment}
                 className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors mb-4"
@@ -1274,7 +1239,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                   ))}
                 </div>
               )}
-              
+              )}
             </div>
           )}
         </div>
