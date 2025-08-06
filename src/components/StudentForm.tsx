@@ -49,9 +49,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
     totalPaid: 0,
     remainingFee: 0
   });
-  const [showStudentCountModal, setShowStudentCountModal] = useState(false);
-  const [studentCount, setStudentCount] = useState('');
-  const [dynamicGroupForms, setDynamicGroupForms] = useState<any[]>([]);
 
   const [newCollegeName, setNewCollegeName] = useState('');
   const [newBranch, setNewBranch] = useState('');
@@ -1067,24 +1064,8 @@ const StudentForm: React.FC<StudentFormProps> = ({
                 </div>
               )}
               
-              {/* Show button to create new group if no dynamic forms and no existing group */}
-              {dynamicGroupForms.length === 0 && groupPayments.length === 0 && (
-                <div className="text-center py-8">
-                  <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-300 mb-4">No group payment created yet</p>
-                  <button
-                    onClick={() => setShowStudentCountModal(true)}
-                    className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 mx-auto"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Create New Group Payment
-                  </button>
-                </div>
-              )}
-
-              {/* Payment Entries Display */}
-              {groupPayments.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              {/* Simplified Group Payment Form */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">
                     Student Name *
@@ -1194,7 +1175,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                   </div>
                 )}
               </div>
-)}
+
               {errors.groupAmount && <p className="text-red-400 text-sm mb-4">{errors.groupAmount}</p>}
 
               <button
@@ -1239,7 +1220,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
                   ))}
                 </div>
               )}
-              
             </div>
           )}
         </div>
