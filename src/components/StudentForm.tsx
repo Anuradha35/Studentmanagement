@@ -1232,8 +1232,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
                {errors.groupAmount && (<p className="text-red-400 text-sm mb-4">{errors.groupAmount}</p> )}
              
  
-};
-              <button
+        <button
                 type="button"
                 onClick={handleAddGroupPayment}
                 className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors mb-4"
