@@ -75,7 +75,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
    const [showGroupModal, setShowGroupModal] = useState(false);
   const [groupCount, setGroupCount] = useState(0);
   const [dynamicGroupEntries, setDynamicGroupEntries] = useState<any[]>([]);
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     if (paymentType === 'group') {
