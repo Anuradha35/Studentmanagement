@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef  } from 'react';
 import { ArrowLeft, User, Phone, Mail, GraduationCap, Calendar, DollarSign, CreditCard, Receipt, Users, Plus, X } from 'lucide-react';
 import { AppData, Student, Payment } from '../types';
+import { Dialog } from '@headlessui/react'; // ✅ ADD THIS
 
 
 interface StudentFormProps {
@@ -68,8 +69,11 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const [utrId, setUtrId] = useState('');
   const [paymentDate, setPaymentDate] = useState('');
   const [paymentType, setPaymentType] = useState<'single' | 'group'>('single');
-  
-  // Group payment states
+  const [showGroupModal, setShowGroupModal] = useState(false);
+  const [groupCount, setGroupCount] = useState(0);
+  const [dynamicGroupEntries, setDynamicGroupEntries] = useState<any[]>([]);
+
+ // Group payment states
   const [groupPayments, setGroupPayments] = useState<Array<{
     studentName: string;
     onlineAmount: number;
@@ -84,6 +88,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const [groupUtrId, setGroupUtrId] = useState('');
   const [groupReceiptNo, setGroupReceiptNo] = useState('');
   const [groupPaymentDate, setGroupPaymentDate] = useState('');
+   const groupInputRef = useRef<HTMLInputElement>(null);
 
   // Add state for tracking existing payments for validation
   const [existingPayments, setExistingPayments] = useState<{
@@ -113,6 +118,18 @@ const StudentForm: React.FC<StudentFormProps> = ({
     }));
   }, [formData.courseDuration, selectedCourse, appData.courseFees]);
 
+// ✅ ADD DEBUG LOGGING HERE:
+useEffect(() => {
+  console.log("👀 Should Render Dynamic Group Inputs?");
+  console.log("✅ paymentType:", paymentType);
+  console.log("✅ groupCount:", groupCount);
+  console.log("✅ dynamicGroupEntries.length:", dynamicGroupEntries.length);
+}, [paymentType, groupCount, dynamicGroupEntries]);
+
+useEffect(() => {
+  console.log("👀 useEffect watching dynamicGroupEntries:", dynamicGroupEntries);
+}, [dynamicGroupEntries]);
+
   // Calculate end date based on start date and duration
   useEffect(() => {
     if (formData.startDate && formData.courseDuration) {
@@ -133,6 +150,53 @@ const StudentForm: React.FC<StudentFormProps> = ({
       }));
     }
   }, [formData.startDate, formData.courseDuration]);
+
+   useEffect(() => {
+    if (paymentType === 'group') {
+      setGroupCount(0); // 👈 Reset to 0 every time modal opens
+      setShowGroupModal(true);
+    }
+  }, [paymentType]);
+
+useEffect(() => {
+  if (showGroupModal) {
+    const timer = setTimeout(() => {
+      if (groupInputRef.current) {
+        groupInputRef.current.focus();
+        groupInputRef.current.select(); // optional
+      }
+    }, 100); // delay helps after modal mounts
+    return () => clearTimeout(timer);
+  }
+}, [showGroupModal]);
+
+
+
+    const handleGroupCountConfirm = () => {
+      console.log("✅ Confirm button clicked");
+  console.log("✅ groupCount =", groupCount);
+       const value = groupInputRef.current?.value;
+  const count = parseInt(value || '0');
+
+  if (isNaN(count) || count <= 0) {
+    alert('Please enter a valid number of students');
+    return;
+  }
+     const entries = Array.from({ length: groupCount }, () => ({
+  studentName: '',
+  onlineAmount: '',
+  offlineAmount: '',
+  utrId: '',
+  receiptNo: '',
+  paymentDate: ''
+}));
+setDynamicGroupEntries(entries);
+    setGroupCount(count); // Save the count to state
+  
+  setShowGroupModal(false); // Close modal
+  // ✅ Set this here (not in the radio button)
+  setPaymentType('group');
+  };
 
   // Load existing payments for validation
   useEffect(() => {
@@ -277,85 +341,94 @@ const StudentForm: React.FC<StudentFormProps> = ({
   };
 
   const handleAddGroupPayment = () => {
-    const newErrors: { [key: string]: string } = {};
-    
-    if (!groupStudentName.trim()) newErrors.groupStudentName = 'Student name is required';
-    if (!groupPaymentDate.trim()) {
-      newErrors.groupPaymentDate = 'Payment date is required';
-    } else if (groupPaymentDate.length !== 10 || !validateDate(groupPaymentDate)) {
-      newErrors.groupPaymentDate = 'Please enter a valid date (DD.MM.YYYY)';
+  const newErrors: { [key: string]: string } = {};
+
+  // Validate payment date
+  if (!groupPaymentDate.trim()) {
+    newErrors.groupPaymentDate = 'Payment date is required';
+  } else if (groupPaymentDate.length !== 10 || !validateDate(groupPaymentDate)) {
+    newErrors.groupPaymentDate = 'Please enter a valid date (DD.MM.YYYY)';
+  }
+
+  const onlineAmount = parseInt(groupOnlineAmount) || 0;
+  const offlineAmount = parseInt(groupOfflineAmount) || 0;
+
+  if (onlineAmount === 0 && offlineAmount === 0) {
+    newErrors.groupAmount = 'At least one payment amount is required';
+  }
+
+  if (onlineAmount > 0 && !groupUtrId.trim()) {
+    newErrors.groupUtrId = 'UTR/UPI ID is required for online payment';
+  } else if (onlineAmount > 0 && groupUtrId.length !== 12) {
+    newErrors.groupUtrId = 'UTR/UPI ID must be exactly 12 digits';
+  }
+
+  if (offlineAmount > 0 && !groupReceiptNo.trim()) {
+    newErrors.groupReceiptNo = 'Receipt number is required for offline payment';
+  }
+
+  // Check for duplicate UTR/Receipt numbers
+  const duplicateError = validatePaymentDuplicate(
+    onlineAmount > 0 ? groupUtrId : undefined,
+    offlineAmount > 0 ? groupReceiptNo : undefined
+  );
+  if (duplicateError) {
+    if (onlineAmount > 0) newErrors.groupUtrId = duplicateError;
+    if (offlineAmount > 0) newErrors.groupReceiptNo = duplicateError;
+  }
+
+  // Check student name fields
+  const validStudents = dynamicGroupEntries
+    .map((entry) => entry.studentName.trim())
+    .filter((name) => name !== '');
+
+  if (validStudents.length === 0) {
+    newErrors.groupAmount = 'Please enter at least one student name';
+  }
+
+  setErrors(newErrors);
+
+  if (Object.keys(newErrors).length === 0) {
+    const perStudentOnline = Math.floor(onlineAmount / validStudents.length);
+const perStudentOffline = Math.floor(offlineAmount / validStudents.length);
+
+const newGroupPayments = validStudents.map((name) => ({
+  studentName: name,
+  onlineAmount: perStudentOnline,
+  offlineAmount: perStudentOffline,
+  utrId: onlineAmount > 0 ? groupUtrId : undefined,
+  receiptNo: offlineAmount > 0 ? groupReceiptNo : undefined,
+  paymentDate: groupPaymentDate
+}));
+
+
+    setGroupPayments((prev) => [...prev, ...newGroupPayments]);
+
+    // Track UTR & Receipt
+    if (onlineAmount > 0 && groupUtrId) {
+      setExistingPayments((prev) => ({
+        ...prev,
+        utrIds: new Set([...prev.utrIds, groupUtrId])
+      }));
     }
-    
-    const onlineAmount = parseInt(groupOnlineAmount) || 0;
-    const offlineAmount = parseInt(groupOfflineAmount) || 0;
-    
-    if (onlineAmount === 0 && offlineAmount === 0) {
-      newErrors.groupAmount = 'At least one payment amount is required';
+    if (offlineAmount > 0 && groupReceiptNo) {
+      setExistingPayments((prev) => ({
+        ...prev,
+        receiptNos: new Set([...prev.receiptNos, groupReceiptNo])
+      }));
     }
-    
-    if (onlineAmount > 0 && !groupUtrId.trim()) {
-      newErrors.groupUtrId = 'UTR/UPI ID is required for online payment';
-    }
-    
-    if (onlineAmount > 0 && groupUtrId.length !== 12) {
-      newErrors.groupUtrId = 'UTR/UPI ID must be exactly 12 digits';
-    }
-    
-    if (offlineAmount > 0 && !groupReceiptNo.trim()) {
-      newErrors.groupReceiptNo = 'Receipt number is required for offline payment';
-    }
-    
-    // Check for duplicate UTR/Receipt numbers in group payments
-    const duplicateError = validatePaymentDuplicate(
-      onlineAmount > 0 ? groupUtrId : undefined,
-      offlineAmount > 0 ? groupReceiptNo : undefined
-    );
-    if (duplicateError) {
-      if (onlineAmount > 0) {
-        newErrors.groupUtrId = duplicateError;
-      }
-      if (offlineAmount > 0) {
-        newErrors.groupReceiptNo = duplicateError;
-      }
-    }
-    
-    setErrors(newErrors);
-    
-    if (Object.keys(newErrors).length === 0) {
-      const newGroupPayment = {
-        studentName: groupStudentName,
-        onlineAmount,
-        offlineAmount,
-        utrId: onlineAmount > 0 ? groupUtrId : undefined,
-        receiptNo: offlineAmount > 0 ? groupReceiptNo : undefined,
-        paymentDate: groupPaymentDate
-      };
-      
-      setGroupPayments([...groupPayments, newGroupPayment]);
-      
-      // Add to existing payments to prevent duplicates
-      if (onlineAmount > 0 && groupUtrId) {
-        setExistingPayments(prev => ({
-          ...prev,
-          utrIds: new Set([...prev.utrIds, groupUtrId])
-        }));
-      }
-      if (offlineAmount > 0 && groupReceiptNo) {
-        setExistingPayments(prev => ({
-          ...prev,
-          receiptNos: new Set([...prev.receiptNos, groupReceiptNo])
-        }));
-      }
-      
-      // Clear form
-      setGroupStudentName('');
-      setGroupOnlineAmount('');
-      setGroupOfflineAmount('');
-      setGroupUtrId('');
-      setGroupReceiptNo('');
-      setGroupPaymentDate('');
-    }
-  };
+
+    // Clear fields
+    setDynamicGroupEntries(Array(groupCount).fill({ studentName: '' }));
+    setGroupOnlineAmount('');
+    setGroupOfflineAmount('');
+    setGroupUtrId('');
+    setGroupReceiptNo('');
+    setGroupPaymentDate('');
+    setErrors({});
+  }
+};
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -493,8 +566,56 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const sortedCollegeNames = [...appData.collegeNames].sort();
   const sortedBranches = [...appData.branches].sort();
 
+  
+  console.log("📦 Should Render Group Section?", {
+    paymentType,
+    groupCount,
+    entries: dynamicGroupEntries.length
+  });
+
   return (
+
     <div className="min-h-screen p-6">
+
+{/* 👇 Modal Code Starts */}
+    <Dialog open={showGroupModal} onClose={() => setShowGroupModal(false)} className="fixed z-50 inset-0 flex items-center justify-center">
+      <div className="bg-black bg-opacity-50 fixed inset-0"></div>
+      <Dialog.Panel className="bg-white rounded-lg p-6 z-50 w-full max-w-md">
+        <Dialog.Title className="text-lg font-bold mb-4">Enter Number of Students</Dialog.Title>
+        <input
+          type="number"
+          ref={groupInputRef} // 👈 Add this
+           
+          min={1}
+          max={20}
+          value={groupCount === 0 ? '' : groupCount}
+          onChange={(e) => {
+          const val = parseInt(e.target.value);
+          if (!isNaN(val)) setGroupCount(val);
+           }}
+           onKeyDown={(e) => {
+           if (e.key === 'Enter') {
+            e.preventDefault();  // Prevent form submission if inside <form>
+             handleGroupCountConfirm();     // Same function used for "Continue"
+          }
+          }}
+          className="w-full border rounded p-2 mb-4"
+          
+          placeholder="e.g. 3"
+        />
+        <div className="flex justify-end gap-2">
+          <button onClick={() => setShowGroupModal(false)} className="px-4 py-2 bg-gray-400 text-white rounded">Cancel</button>
+          <button 
+          type='button'
+          onClick={handleGroupCountConfirm} 
+          className="px-4 py-2 bg-blue-600 text-white rounded">
+            Continue
+          </button>
+        </div>
+      </Dialog.Panel>
+    </Dialog>
+    {/* 👆 Modal Code Ends */}
+      
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-4">
@@ -520,7 +641,17 @@ const StudentForm: React.FC<StudentFormProps> = ({
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-8">
+      
+
+
+
+      <form onSubmit={handleSubmit} 
+      className="max-w-4xl mx-auto space-y-8">
+        
+       
+
+
+        
         {/* Personal Information */}
         <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
           <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
@@ -868,8 +999,23 @@ const StudentForm: React.FC<StudentFormProps> = ({
                   type="radio"
                   value="group"
                   checked={paymentType === 'group'}
-                  onChange={(e) => setPaymentType(e.target.value as 'single' | 'group')}
-                  className="text-blue-500"
+                  onChange={(e) => {
+  setPaymentType('group');
+  setShowGroupModal(true);
+
+  // ✅ Clear previous group data
+  setGroupStudentName('');
+  setGroupOnlineAmount('');
+  setGroupOfflineAmount('');
+  setGroupUtrId('');
+  setGroupReceiptNo('');
+  setGroupPaymentDate('');
+  setGroupPayments([]);
+  setDynamicGroupEntries([]);
+  setErrors({});
+}}
+
+                    className="text-blue-500"
                 />
                 <span className="text-white">Group Payment</span>
               </label>
@@ -1044,6 +1190,9 @@ const StudentForm: React.FC<StudentFormProps> = ({
                 Group Payment Entry
               </h3>
               
+              
+
+
               {/* Group Payment Summary */}
               {groupPayments.length > 0 && (
                 <div className="mb-6 p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
@@ -1066,22 +1215,29 @@ const StudentForm: React.FC<StudentFormProps> = ({
               
               {/* Simplified Group Payment Form */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-gray-300 text-sm font-medium mb-2">
-                    Student Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={groupStudentName}
-                    onChange={(e) => {
-                      setGroupStudentName(e.target.value.toUpperCase());
-                      if (errors.groupStudentName) setErrors({ ...errors, groupStudentName: '' });
-                    }}
-                    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter student name"
-                  />
-                  {errors.groupStudentName && <p className="text-red-400 text-sm mt-1">{errors.groupStudentName}</p>}
-                </div>
+                {dynamicGroupEntries.length > 0 && (
+  <div className="mb-4">
+    <label className="block text-gray-300 text-sm font-medium mb-2">
+      Group Student Names *
+    </label>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {dynamicGroupEntries.map((entry, index) => (
+        <input
+          key={index}
+          type="text"
+          placeholder={`Student Name #${index + 1}`}
+          value={entry.studentName}
+          onChange={(e) => {
+            const updated = [...dynamicGroupEntries];
+            updated[index].studentName = e.target.value.toUpperCase();
+            setDynamicGroupEntries(updated);
+          }}
+          className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      ))}
+    </div>
+  </div>
+)}
 
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">
