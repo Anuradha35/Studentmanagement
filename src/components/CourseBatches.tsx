@@ -197,8 +197,8 @@ const CourseBatches: React.FC<CourseBatchesProps> = ({
                 </p>
                 <p className="text-gray-300 text-sm flex items-center gap-2">
                   <Clock className="w-4 h-4 text-purple-400" />
-                  Durations: {batch.courseDurations.join(', ')}
-                </p>
+                  Durations: {Array.isArray(batch.courseDurations) ? batch.courseDurations.join(', ') : 'N/A'}
+</p>
               </div>
 
               {/* Duration Breakdown */}
