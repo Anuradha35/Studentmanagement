@@ -1216,7 +1216,7 @@ const newGroupPayments = validStudents.map((name) => ({
               {/* Simplified Group Payment Form */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 {dynamicGroupEntries.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 w-full">
+                <div className="mb-4">
    
                    <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">
