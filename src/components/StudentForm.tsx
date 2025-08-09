@@ -73,6 +73,10 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const [groupCount, setGroupCount] = useState(0);
   const [dynamicGroupEntries, setDynamicGroupEntries] = useState<any[]>([]);
   const [groupRemainingAmount, setGroupRemainingAmount] = useState('');
+  const [groupCourseName, setGroupCourseName] = useState('');
+const [groupCourseDuration, setGroupCourseDuration] = useState('');
+const studentNameRef = useRef<HTMLInputElement>(null);
+
 
 
  // Group payment states
@@ -135,7 +139,12 @@ useEffect(() => {
   }
 }, [dynamicGroupEntries.length, paymentType]);
 
-
+// focus on student name
+useEffect(() => {
+  if (studentNameRef.current) {
+    studentNameRef.current.focus();
+  }
+}, []);
 
 
   // Update course fee when duration changes
@@ -597,6 +606,7 @@ if (emptyIndex !== -1) {
       
       // Clear group payment fields
       setGroupPayments([]);
+      setPaymentType('single');
       setGroupStudentName('');
       setGroupCourseName('');
       setGroupCourseDuration('');
@@ -605,7 +615,14 @@ if (emptyIndex !== -1) {
       setGroupUtrId('');
       setGroupReceiptNo('');
       setGroupPaymentDate('');
+      setDynamicGroupEntries([]);
       
+
+// ✅ Focus on Student Name after adding
+if (studentNameRef.current) {
+  studentNameRef.current.focus();
+}
+
       alert('Student added successfully!');
     }
   };
@@ -748,6 +765,7 @@ if (emptyIndex !== -1) {
     Student Name *
   </label>
   <input
+   ref={studentNameRef}
     type="text"
     value={formData.studentName}
     onChange={(e) => {
