@@ -72,6 +72,8 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [groupCount, setGroupCount] = useState(0);
   const [dynamicGroupEntries, setDynamicGroupEntries] = useState<any[]>([]);
+  const [groupRemainingAmount, setGroupRemainingAmount] = useState('');
+
 
  // Group payment states
   const [groupPayments, setGroupPayments] = useState<Array<{
@@ -410,6 +412,13 @@ setDynamicGroupEntries(entries);
   const onlineAmount = parseInt(groupOnlineAmount) || 0;
   const offlineAmount = parseInt(groupOfflineAmount) || 0;
 
+  // Student 1 ka amount
+const student1Amount = parseInt(dynamicGroupEntries[0].amount || '0');
+
+// Baki students ka combined remaining amount (input field se liya hua)
+const otherStudentsAmount = parseInt(groupRemainingAmount || '0'); 
+
+
   if (onlineAmount === 0 && offlineAmount === 0) {
     newErrors.groupAmount = 'At least one payment amount is required';
   }
@@ -450,6 +459,10 @@ dynamicGroupEntries.forEach((entry, idx) => {
   }
 });
 
+// Amount blank validation for Student 1
+if (!dynamicGroupEntries[0].amount || parseInt(dynamicGroupEntries[0].amount) <= 0) {
+  newErrors[`amount_0`] = 'Amount is required';
+}
 
 
   // Check for blank student names
@@ -463,33 +476,36 @@ if (emptyIndex !== -1) {
   setErrors(newErrors);
 
  if (Object.keys(newErrors).length === 0) {
-  const newGroupPayments = dynamicGroupEntries.map((entry) => ({
-    studentName: entry.studentName,
-    onlineAmount: onlineAmount > 0 ? parseInt(entry.amount || '0') : 0,
-    offlineAmount: offlineAmount > 0 ? parseInt(entry.amount || '0') : 0,
+  const student1Name = dynamicGroupEntries[0].studentName;
+  const student1Amount = parseInt(dynamicGroupEntries[0].amount || '0');
+
+  // Ye wahi calculation jo tum input me use kar rahi ho
+  const totalPayment = (onlineAmount || 0) + (offlineAmount || 0);
+  const otherStudentsAmount = totalPayment - student1Amount;
+
+  const otherStudents = dynamicGroupEntries
+    .slice(1)
+    .map((s) => s.studentName)
+    .join(', ');
+
+  const newGroupPayment = {
+    studentName: student1Name,
+    student1Amount,
+    otherStudents,
+    otherStudentsAmount,
+    total: student1Amount + otherStudentsAmount,
+    onlineAmount: onlineAmount,
+    offlineAmount: offlineAmount,
     utrId: onlineAmount > 0 ? groupUtrId : undefined,
     receiptNo: offlineAmount > 0 ? groupReceiptNo : undefined,
     paymentDate: groupPaymentDate
-  }));
+  };
 
-  setGroupPayments((prev) => [...prev, ...newGroupPayments]);
+  setGroupPayments((prev) => [...prev, newGroupPayment]);
 
-  // Track UTR/Receipt
-  if (onlineAmount > 0 && groupUtrId) {
-    setExistingPayments((prev) => ({
-      ...prev,
-      utrIds: new Set([...prev.utrIds, groupUtrId])
-    }));
-  }
-  if (offlineAmount > 0 && groupReceiptNo) {
-    setExistingPayments((prev) => ({
-      ...prev,
-      receiptNos: new Set([...prev.receiptNos, groupReceiptNo])
-    }));
-  }
-
-  setErrors({});
+  
 }
+
 
 
 
@@ -1320,60 +1336,40 @@ if (emptyIndex !== -1) {
 
 
               {/* Group Payment Summary */}
-              {groupPayments.length > 0 && (
+             {groupPayments.length > 0 && (
   <div className="mb-6 p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
     <h4 className="text-blue-300 font-medium mb-2">Group Payment Summary</h4>
 
     {/* Total Payment */}
     <div className="text-right mb-2">
       <span className="text-2xl font-bold text-white">
-       Total: ₹{groupPayments.reduce(
-        (sum, p) => sum + (p.onlineAmount || 0) + (p.offlineAmount || 0),
-          0
-           ).toLocaleString()}
-
+        Total: ₹
+        {groupPayments.reduce((sum, p) => sum + p.total, 0).toLocaleString()}
       </span>
     </div>
 
     <div className="space-y-1 text-sm">
-      {/* Student 1 */}
-      {groupPayments[0] && (
-        <div className="flex justify-between items-center text-blue-200">
-          <span>{groupPayments[0].studentName}</span>
-          <span>
-            ₹
-            {(
-              groupPayments[0].onlineAmount +
-              groupPayments[0].offlineAmount
-            ).toLocaleString()}
-          </span>
-        </div>
-      )}
+      {groupPayments.map((payment, index) => (
+        <div key={index}>
+          {/* Student 1 */}
+          <div className="flex justify-between items-center text-blue-200">
+            <span>{payment.studentName}</span>
+            <span>₹{payment.student1Amount.toLocaleString()}</span>
+          </div>
 
-      {/* Other Students Combined */}
-      {groupPayments.length > 1 && (
-        <div className="flex justify-between items-center text-blue-200">
-          <span>
-            {groupPayments
-              .slice(1)
-              .map((p) => p.studentName)
-              .join(', ')}
-          </span>
-          <span>
-            ₹
-            {groupPayments
-              .slice(1)
-              .reduce(
-                (sum, p) => sum + p.onlineAmount + p.offlineAmount,
-                0
-              )
-              .toLocaleString()}
-          </span>
+          {/* Other Students Combined */}
+          {payment.otherStudents && (
+            <div className="flex justify-between items-center text-blue-200">
+              <span>{payment.otherStudents}</span>
+              <span>₹{payment.otherStudentsAmount.toLocaleString()}</span>
+            </div>
+          )}
         </div>
-      )}
+      ))}
     </div>
   </div>
 )}
+
 
               
               {/* Simplified Group Payment Form */}
@@ -1531,12 +1527,15 @@ if (emptyIndex !== -1) {
         return;
       }
 
+
+
         // ✅ Validation 2: Amount ≤ Total Group Payment
   if (amountNum > totalGroupPayment) {
     alert(`Amount cannot be more than total group payment ₹${totalGroupPayment.toLocaleString()}`);
     return;
   }
-
+ // ✅ Error clear on typing
+    setErrors(prev => ({ ...prev, [`amount_0`]: '' }));
        // 1️⃣ Update group entry amount
       const updatedEntries = [...dynamicGroupEntries];
       updatedEntries[0].amount = value;
@@ -1561,6 +1560,10 @@ if (emptyIndex !== -1) {
     }}
     className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white"
   />
+  {errors[`amount_0`] && (
+  <p className="text-red-400 text-sm">{errors[`amount_0`]}</p>
+)}
+
 </div>
 
 
@@ -1641,7 +1644,10 @@ if (emptyIndex !== -1) {
                     <div key={index} className="p-3 bg-slate-700 rounded-lg">
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="text-white font-medium">{payment.studentName}</p>
+                          {/* ✅ Yaha sabhi students ka naam join karke print */}
+            <p className="text-white font-medium">
+              {dynamicGroupEntries.map(s => s.studentName).join(', ')}
+            </p>
                           <p className="text-gray-400 text-sm">
                             {payment.onlineAmount > 0 && `Online: ₹${payment.onlineAmount} (UTR: ${payment.utrId})`}
                             {payment.onlineAmount > 0 && payment.offlineAmount > 0 && ' | '}
