@@ -108,6 +108,34 @@ const StudentForm: React.FC<StudentFormProps> = ({
     return courseFee ? courseFee.fee : 0;
   };
 
+// Top of StudentForm.tsx component function me (props/state ke upar)
+const paymentDateRef = useRef(null);
+
+const validateGroupEntries = () => {
+  for (let i = 0; i < dynamicGroupEntries.length; i++) {
+    if (!dynamicGroupEntries[i].studentName?.trim()) {
+      alert(`Student Name #${i + 1} cannot be blank`);
+      document.getElementById(`studentName-${i}`).focus();
+      return false;
+    }
+  }
+  return true;
+};
+
+const [dateFocusedOnce, setDateFocusedOnce] = useState(false);
+
+useEffect(() => {
+  if (!dateFocusedOnce && dynamicGroupEntries.length > 0 && paymentType === "group") {
+    setTimeout(() => {
+      paymentDateRef.current?.focus();
+      setDateFocusedOnce(true); // ✅ Ab dobara focus nahi hoga
+    }, 100);
+  }
+}, [dynamicGroupEntries.length, paymentType]);
+
+
+
+
   // Update course fee when duration changes
   useEffect(() => {
     const fee = getCourseFee();
@@ -169,6 +197,35 @@ useEffect(() => {
     return () => clearTimeout(timer);
   }
 }, [showGroupModal]);
+
+useEffect(() => {
+  const totalGroupPayment =
+    (parseInt(groupOnlineAmount || '0') || 0) +
+    (parseInt(groupOfflineAmount || '0') || 0);
+
+  // ✅ Sirf Student #1 ka amount clear karo jab total payment change ho
+  setDynamicGroupEntries(prevEntries => {
+    const updated = [...prevEntries];
+    updated[0] = { ...updated[0], amount: '' };
+    return updated;
+  });
+  // Agar tum chaho to totalPaid reset kar sakte ho:
+  setFormData(prev => ({
+    ...prev,
+    totalPaid: 0,
+    remainingFee: prev.courseFee
+  }));
+}, [groupOnlineAmount, groupOfflineAmount]);
+
+// When Group Payment is selected or group entries created
+useEffect(() => {
+  if (dynamicGroupEntries.length > 0 && formData.studentName) {
+    const updated = [...dynamicGroupEntries];
+    updated[0].studentName = formData.studentName.toUpperCase();
+    setDynamicGroupEntries(updated);
+  }
+}, [dynamicGroupEntries.length, formData.studentName]);
+
 
 
 
@@ -386,47 +443,56 @@ setDynamicGroupEntries(entries);
     newErrors.groupAmount = 'Please enter at least one student name';
   }
 
+// ✅ Validate all student fields filled
+dynamicGroupEntries.forEach((entry, idx) => {
+  if (!entry.studentName?.trim()) {
+    newErrors[`studentName_${idx}`] = `Student Name #${idx + 1} is required`;
+  }
+});
+
+
+
+  // Check for blank student names
+const emptyIndex = dynamicGroupEntries.findIndex(
+  (entry) => !entry.studentName?.trim()
+);
+if (emptyIndex !== -1) {
+  newErrors[`studentName_${emptyIndex}`] = `Student Name #${emptyIndex + 1} is required`;
+}
+
   setErrors(newErrors);
 
-  if (Object.keys(newErrors).length === 0) {
-    const perStudentOnline = Math.floor(onlineAmount / validStudents.length);
-const perStudentOffline = Math.floor(offlineAmount / validStudents.length);
+ if (Object.keys(newErrors).length === 0) {
+  const newGroupPayments = dynamicGroupEntries.map((entry) => ({
+    studentName: entry.studentName,
+    onlineAmount: onlineAmount > 0 ? parseInt(entry.amount || '0') : 0,
+    offlineAmount: offlineAmount > 0 ? parseInt(entry.amount || '0') : 0,
+    utrId: onlineAmount > 0 ? groupUtrId : undefined,
+    receiptNo: offlineAmount > 0 ? groupReceiptNo : undefined,
+    paymentDate: groupPaymentDate
+  }));
 
-const newGroupPayments = validStudents.map((name) => ({
-  studentName: name,
-  onlineAmount: perStudentOnline,
-  offlineAmount: perStudentOffline,
-  utrId: onlineAmount > 0 ? groupUtrId : undefined,
-  receiptNo: offlineAmount > 0 ? groupReceiptNo : undefined,
-  paymentDate: groupPaymentDate
-}));
+  setGroupPayments((prev) => [...prev, ...newGroupPayments]);
 
-
-    setGroupPayments((prev) => [...prev, ...newGroupPayments]);
-
-    // Track UTR & Receipt
-    if (onlineAmount > 0 && groupUtrId) {
-      setExistingPayments((prev) => ({
-        ...prev,
-        utrIds: new Set([...prev.utrIds, groupUtrId])
-      }));
-    }
-    if (offlineAmount > 0 && groupReceiptNo) {
-      setExistingPayments((prev) => ({
-        ...prev,
-        receiptNos: new Set([...prev.receiptNos, groupReceiptNo])
-      }));
-    }
-
-    // Clear fields
-    setDynamicGroupEntries(Array(groupCount).fill({ studentName: '' }));
-    setGroupOnlineAmount('');
-    setGroupOfflineAmount('');
-    setGroupUtrId('');
-    setGroupReceiptNo('');
-    setGroupPaymentDate('');
-    setErrors({});
+  // Track UTR/Receipt
+  if (onlineAmount > 0 && groupUtrId) {
+    setExistingPayments((prev) => ({
+      ...prev,
+      utrIds: new Set([...prev.utrIds, groupUtrId])
+    }));
   }
+  if (offlineAmount > 0 && groupReceiptNo) {
+    setExistingPayments((prev) => ({
+      ...prev,
+      receiptNos: new Set([...prev.receiptNos, groupReceiptNo])
+    }));
+  }
+
+  setErrors({});
+}
+
+
+
 };
 
 
@@ -572,6 +638,7 @@ const newGroupPayments = validStudents.map((name) => ({
     groupCount,
     entries: dynamicGroupEntries.length
   });
+  
 
   return (
 
@@ -1200,47 +1267,129 @@ const newGroupPayments = validStudents.map((name) => ({
             </>
           )}
 
+
+
           {paymentType === 'group' && (
+
+          
+
             <div className="bg-slate-800/50 rounded-lg p-4">
               <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
                 <Users className="w-5 h-5" />
                 Group Payment Entry
               </h3>
-              
+              {/* Group Payment Summary Row */}
+<div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+  {/* Course Fee */}
+  <div className="bg-blue-500/20 rounded-lg p-4 border border-blue-500/30">
+    <p className="text-blue-300 text-sm">Course Fee</p>
+    <p className="text-2xl font-bold text-white">
+      ₹{formData.courseFee?.toLocaleString() || 0}
+    </p>
+  </div>
+
+  {/* Total Paid */}
+  <div className="bg-green-500/20 rounded-lg p-4 border border-green-500/30">
+    <p className="text-green-300 text-sm">Total Paid</p>
+    <p className="text-2xl font-bold text-white">
+      ₹{formData.totalPaid?.toLocaleString() || 0}
+    </p>
+  </div>
+
+  {/* Remaining */}
+  <div className="bg-orange-500/20 rounded-lg p-4 border border-orange-500/30">
+    <p className="text-orange-300 text-sm">Remaining</p>
+    <p className="text-2xl font-bold text-white">
+      ₹{formData.remainingFee?.toLocaleString() || 0}
+    </p>
+  </div>
+
+  {/* Total Group Payment */}
+  <div className="bg-purple-500/20 rounded-lg p-4 border border-purple-500/30">
+    <p className="text-purple-300 text-sm">Total Group Payment</p>
+    <p className="text-2xl font-bold text-white">
+      ₹{(
+        parseInt(groupOnlineAmount || "0") +
+        parseInt(groupOfflineAmount || "0")
+      ).toLocaleString()}
+    </p>
+  </div>
+</div>
+
               
 
 
               {/* Group Payment Summary */}
               {groupPayments.length > 0 && (
-                <div className="mb-6 p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
-                  <h4 className="text-blue-300 font-medium mb-2">Group Payment Summary</h4>
-                  <div className="text-right mb-2">
-                    <span className="text-2xl font-bold text-white">
-                      Total: ₹{groupPayments.reduce((sum, p) => sum + p.onlineAmount + p.offlineAmount, 0).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="space-y-1 text-sm">
-                    {groupPayments.map((payment, index) => (
-                      <div key={index} className="flex justify-between items-center text-blue-200">
-                        <span>{payment.studentName}</span>
-                        <span>₹{(payment.onlineAmount + payment.offlineAmount).toLocaleString()}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+  <div className="mb-6 p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
+    <h4 className="text-blue-300 font-medium mb-2">Group Payment Summary</h4>
+
+    {/* Total Payment */}
+    <div className="text-right mb-2">
+      <span className="text-2xl font-bold text-white">
+       Total: ₹{groupPayments.reduce(
+        (sum, p) => sum + (p.onlineAmount || 0) + (p.offlineAmount || 0),
+          0
+           ).toLocaleString()}
+
+      </span>
+    </div>
+
+    <div className="space-y-1 text-sm">
+      {/* Student 1 */}
+      {groupPayments[0] && (
+        <div className="flex justify-between items-center text-blue-200">
+          <span>{groupPayments[0].studentName}</span>
+          <span>
+            ₹
+            {(
+              groupPayments[0].onlineAmount +
+              groupPayments[0].offlineAmount
+            ).toLocaleString()}
+          </span>
+        </div>
+      )}
+
+      {/* Other Students Combined */}
+      {groupPayments.length > 1 && (
+        <div className="flex justify-between items-center text-blue-200">
+          <span>
+            {groupPayments
+              .slice(1)
+              .map((p) => p.studentName)
+              .join(', ')}
+          </span>
+          <span>
+            ₹
+            {groupPayments
+              .slice(1)
+              .reduce(
+                (sum, p) => sum + p.onlineAmount + p.offlineAmount,
+                0
+              )
+              .toLocaleString()}
+          </span>
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
               
               {/* Simplified Group Payment Form */}
               <div className="w-full space-y-6">
                 {dynamicGroupEntries.length > 0 && (
                 <div className="mb-4">
-   
+   <div className="flex flex-wrap gap-4 mb-4">
+  {/* Payment Date */}
+  <div className="flex-1 min-w-[200px]">
                    <div>
-                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                  <label className="block text-gray-300 text-sm font-medium mb-2 ">
                     Payment Date *
                   </label>
                   <input
                     type="text"
+                     ref={paymentDateRef}   // 👈 Ye add karo
                     value={groupPaymentDate}
                     onChange={(e) => {
                       const formatted = formatDate(e.target.value);
@@ -1252,7 +1401,8 @@ const newGroupPayments = validStudents.map((name) => ({
                     maxLength={10}
                   />
                   {errors.groupPaymentDate && <p className="text-red-400 text-sm mt-1">{errors.groupPaymentDate}</p>}
-                </div>
+                </div></div>
+                <div className="flex-1 min-w-[200px]">
                  <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">
                     Online Payment Amount
@@ -1263,11 +1413,23 @@ const newGroupPayments = validStudents.map((name) => ({
                     onChange={(e) => {
                       const value = e.target.value.replace(/\D/g, '');
                       setGroupOnlineAmount(value);
+                      // ✅ Agar value ya offlineAmount me kuch hai to groupAmount error clear
+        if (parseInt(value || '0') > 0 || parseInt(groupOfflineAmount || '0') > 0) {
+          setErrors(prev => ({ ...prev, groupAmount: '' }));
+        }
                     }}
                     className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Enter online amount (optional)"
                   />
+                   {/* ✅ Ye line add karo — message Online Payment Amount ke niche dikhega */}
+   {errors.groupAmount && !groupOnlineAmount && !groupOfflineAmount && (
+      <p className="text-red-400 text-sm mt-1">{errors.groupAmount}</p>
+    )}
                 </div>
+                
+                  </div>
+                  
+                <div className="flex-1 min-w-[200px]">
  <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">
                     Offline Payment Amount
@@ -1282,7 +1444,10 @@ const newGroupPayments = validStudents.map((name) => ({
                     className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Enter offline amount (optional)"
                   />
-                </div>
+                </div></div>
+                <div className="flex-1 min-w-[200px]">
+                  </div>
+                <div className="flex-1 min-w-[200px]">
  {parseInt(groupOnlineAmount) > 0 && (
                   <div>
                     <label className="block text-gray-300 text-sm font-medium mb-2">
@@ -1302,7 +1467,8 @@ const newGroupPayments = validStudents.map((name) => ({
                     />
                     {errors.groupUtrId && <p className="text-red-400 text-sm mt-1">{errors.groupUtrId}</p>}
                   </div>
-                )}
+                )}</div>
+                <div className="flex-1 min-w-[200px]">
 
                 {parseInt(groupOfflineAmount) > 0 && (
                   <div>
@@ -1322,7 +1488,8 @@ const newGroupPayments = validStudents.map((name) => ({
                     />
                     {errors.groupReceiptNo && <p className="text-red-400 text-sm mt-1">{errors.groupReceiptNo}</p>}
                   </div>
-                )}
+                )}</div>
+                </div>
 
                 
  <label className="block text-gray-300 text-sm font-medium mb-2">
@@ -1331,42 +1498,103 @@ const newGroupPayments = validStudents.map((name) => ({
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
   {/* Box 1: Primary Student */}
   <div className="bg-slate-900 p-4 rounded-lg space-y-3 shadow-lg">
-    <label className="text-sm text-white">Student Name #1</label>
-    <input
-      type="text"
-      readOnly
-      value={dynamicGroupEntries[0]?.studentName || ''}
-      className="w-full p-3 bg-gray-800 border border-white/30 rounded-lg text-white"
-    />
+  
+  <input
+    type="text"
+    readOnly
+    value={dynamicGroupEntries[0]?.studentName || ''}
+    placeholder={`Student Name #1`}
+    className="w-full p-3 bg-gray-800 border border-white/30 rounded-lg text-white"
+  />
+  {errors[`studentName_0`] && (
+  <p className="text-red-400 text-sm mt-1">{errors[`studentName_0`]}</p>
+)}
 
-    <label className="text-sm text-white">Amount</label>
-    <input
-      type="text"
-      placeholder="Enter amount"
-      value={dynamicGroupEntries[0]?.amount || ''}
-      onChange={(e) => {
-        const updated = [...dynamicGroupEntries];
-        updated[0].amount = e.target.value.replace(/\D/g, '');
-        setDynamicGroupEntries(updated);
-      }}
-      className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white"
-    />
-  </div>
+  <label className="text-sm text-white">Amount</label>
+  <input
+    type="text"
+    placeholder="Enter amount"
+    value={dynamicGroupEntries[0]?.amount || ''}
+    disabled={
+    (parseInt(groupOnlineAmount || '0') + parseInt(groupOfflineAmount || '0')) === 0
+             }
+    onChange={(e) => {
+      const value = e.target.value.replace(/\D/g, '');
+      const amountNum = parseInt(value || '0');
+       const totalGroupPayment =
+    (parseInt(groupOnlineAmount || '0') || 0) +
+    (parseInt(groupOfflineAmount || '0') || 0);
+
+      // ✅ Validation: Ensure Student #1 amount ≤ course fee
+      if (amountNum > formData.courseFee) {
+        alert(`Amount cannot be more than ₹${formData.courseFee.toLocaleString()}`);
+        return;
+      }
+
+        // ✅ Validation 2: Amount ≤ Total Group Payment
+  if (amountNum > totalGroupPayment) {
+    alert(`Amount cannot be more than total group payment ₹${totalGroupPayment.toLocaleString()}`);
+    return;
+  }
+
+       // 1️⃣ Update group entry amount
+      const updatedEntries = [...dynamicGroupEntries];
+      updatedEntries[0].amount = value;
+      setDynamicGroupEntries(updatedEntries);
+
+      // 2️⃣ Update total paid and remaining for summary
+      const totalPaid = updatedEntries.reduce(
+      (sum, entry) => sum + parseInt(entry.amount || '0'),
+      0
+    );
+
+      // 3️⃣ Update formData summary
+  setFormData((prev) => ({
+    ...prev,
+    totalPaid: totalPaid,
+    remainingFee: prev.courseFee - totalPaid < 0 ? 0 : prev.courseFee - totalPaid
+  }));
+
+      const updated = [...dynamicGroupEntries];
+      updated[0].amount = value;
+      setDynamicGroupEntries(updated);
+    }}
+    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white"
+  />
+</div>
+
 
   {/* Box 2: Other Students */}
   <div className="bg-slate-900 p-4 rounded-lg space-y-2 shadow-lg">
     <div className="flex flex-wrap gap-2">
-      {dynamicGroupEntries.slice(1).map((entry, index) => (
-        <input
-          key={index + 1}
-          type="text"
-          readOnly
-          value={entry.studentName}
-          className="flex-1 min-w-[120px] p-3 bg-gray-800 border border-white/30 rounded-lg text-white"
-          placeholder={`Student Name #${index + 2}`}
-        />
-      ))}
+  {dynamicGroupEntries.slice(1).map((entry, index) => (
+    <div key={index + 1} className="flex-1 min-w-[120px]">
+      <input
+        id={`studentName-${index + 1}`}
+        type="text"
+        onChange={(e) => {
+          const updated = [...dynamicGroupEntries];
+          updated[index + 1].studentName = e.target.value.toUpperCase();
+          setDynamicGroupEntries(updated);
+
+          // ✅ Error clear on typing
+          setErrors(prev => ({ ...prev, [`studentName_${index + 1}`]: '' }));
+        }}
+        value={entry.studentName}
+        className="w-full p-3 bg-gray-800 border border-white/30 rounded-lg text-white"
+        placeholder={`Student Name #${index + 2}`}
+      />
+
+      {/* 🔹 Validation error per student field */}
+      {errors[`studentName_${index + 1}`] && (
+        <p className="text-red-400 text-sm mt-1">
+          {errors[`studentName_${index + 1}`]}
+        </p>
+      )}
     </div>
+  ))}
+</div>
+
 
     <label className="text-sm text-white mt-4 block">Remaining Amount</label>
     <input
@@ -1396,8 +1624,7 @@ const newGroupPayments = validStudents.map((name) => ({
                
               </div>
 
-              {errors.groupAmount && <p className="text-red-400 text-sm mb-4">{errors.groupAmount}</p>}
-
+             
               <button
                 type="button"
                 onClick={handleAddGroupPayment}
