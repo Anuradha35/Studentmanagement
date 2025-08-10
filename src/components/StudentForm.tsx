@@ -103,6 +103,20 @@ const studentNameRef = useRef<HTMLInputElement>(null);
     receiptNos: Set<string>;
   }>({ utrIds: new Set(), receiptNos: new Set() });
 
+
+  // ✅ STEP 2: Add these state variables after existing useState declarations
+const [duplicateCheckModal, setDuplicateCheckModal] = useState(false);
+const [duplicateInfo, setDuplicateInfo] = useState<{
+  type: 'utr' | 'receipt';
+  value: string;
+  existingPayment: any;
+  studentInfo: any;
+  courseName: string;
+  batchName: string;
+  yearName: string;
+  paymentType: 'single' | 'group';
+} | null>(null);
+
   // Get course fee based on selected course and duration
   const getCourseFee = () => {
     if (!appData.courseFees || !selectedCourse || !formData.courseDuration) return 0;
