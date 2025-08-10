@@ -568,43 +568,41 @@ const handleSubmit = (e: React.FormEvent) => {
       });
     }
 
-    // ✅ FIXED: GROUP PAYMENT SAVE - Single Student Record with Group Details
-    if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
-      const groupId = `group_${Date.now()}`;
-      const totalOnlineAmount = parseInt(groupOnlineAmount || '0');
-      const totalOfflineAmount = parseInt(groupOfflineAmount || '0');
-      const mainStudentAmount = parseInt(dynamicGroupEntries[0]?.amount || '0');
+    // ✅ FIXED: GROUP PAYMENT SAVE - Replace this section in your StudentForm.tsx handleSubmit function
 
-      // Update main student's payment info
-      student.totalPaid = mainStudentAmount;
-      student.remainingFee = student.courseFee - mainStudentAmount;
+// Find this section in your StudentForm.tsx (around line 540-565):
+// ✅ FIXED: GROUP PAYMENT SAVE - Single Student Record with Group Details
+if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
+  const groupId = `group_${Date.now()}`;
+  const totalOnlineAmount = parseInt(groupOnlineAmount || '0');
+  const totalOfflineAmount = parseInt(groupOfflineAmount || '0');
+  const mainStudentAmount = parseInt(dynamicGroupEntries[0]?.amount || '0');
 
-      // ✅ CREATE ONE GROUP PAYMENT ENTRY for main student with all group info
-      onAddPayment(student.id, {
-        groupId,
-        studentName: student.studentName,
-        amount: mainStudentAmount, // Main student का share
-        totalGroupAmount: totalOnlineAmount + totalOfflineAmount,
-        onlineAmount: totalOnlineAmount,
-        offlineAmount: totalOfflineAmount,
-        utrId: totalOnlineAmount > 0 ? groupUtrId : '',
-        receiptNo: totalOfflineAmount > 0 ? groupReceiptNo : '',
-        paymentDate: groupPaymentDate,
-        type: 'group',
-        groupStudents: dynamicGroupEntries.map(e => e.studentName).join(', '),
-        studentIndex: 0,
-        // ✅ NEW: Add other students details for display
-        otherStudentsData: dynamicGroupEntries.slice(1).map((entry, idx) => ({
-          name: entry.studentName,
-          amount: totalOnlineAmount + totalOfflineAmount - mainStudentAmount, // Remaining amount distributed
-          index: idx + 1
-        }))
-      });
+  // Update main student's payment info
+  student.totalPaid = mainStudentAmount;
+  student.remainingFee = student.courseFee - mainStudentAmount;
 
-      // ✅ NO MORE: Don't create separate student records for other group members
-      // They will only appear in the group payment details
-    }
+  // ✅ CREATE ONE GROUP PAYMENT ENTRY for main student with all group info
+  onAddPayment(student.id, {
+    groupId,
+    studentName: student.studentName,
+    amount: mainStudentAmount, // Main student का share
+    totalGroupAmount: totalOnlineAmount + totalOfflineAmount,
+    onlineAmount: totalOnlineAmount,
+    offlineAmount: totalOfflineAmount,
+    utrId: totalOnlineAmount > 0 ? groupUtrId : '',
+    receiptNo: totalOfflineAmount > 0 ? groupReceiptNo : '',
+    paymentDate: groupPaymentDate,
+    type: 'group',
+    // ✅ FIXED: Store all group students as comma-separated string
+    groupStudents: dynamicGroupEntries.map(e => e.studentName).join(', '),
+    studentIndex: 0
+  });
 
+  // ✅ NO MORE: Don't create separate student records for other group members
+  // They will only appear in the group payment details as comma-separated names
+}
+    
 // Calculate end date manually after reset
       let calculatedEndDate = '';
       if (preSelectedStartDate && preSelectedDuration) {
