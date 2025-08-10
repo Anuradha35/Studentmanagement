@@ -145,6 +145,55 @@ const validateGroupEntries = () => {
 
 const [dateFocusedOnce, setDateFocusedOnce] = useState(false);
 
+// ✅ STEP 3: Add this helper function before the useEffect hooks
+const findDuplicatePayment = (utrId?: string, receiptNo?: string) => {
+  // Search through all years, courses, batches, and students
+  for (const [yearKey, yearData] of Object.entries(appData.years)) {
+    for (const [courseKey, courseData] of Object.entries(yearData)) {
+      for (const [batchKey, batchData] of Object.entries(courseData)) {
+        for (const student of batchData.students) {
+          // Check payments for this student
+          const studentPayments = appData.payments?.filter(p => p.studentId === student.id) || [];
+          
+          for (const payment of studentPayments) {
+            // Check UTR ID match
+            if (utrId && payment.utrId === utrId) {
+              return {
+                type: 'utr' as const,
+                value: utrId,
+                existingPayment: payment,
+                studentInfo: student,
+                courseName: courseKey,
+                batchName: batchKey,
+                yearName: yearKey,
+                paymentType: payment.type || 'single'
+              };
+            }
+            
+            // Check Receipt Number match
+            if (receiptNo && payment.receiptNo === receiptNo) {
+              return {
+                type: 'receipt' as const,
+                value: receiptNo,
+                existingPayment: payment,
+                studentInfo: student,
+                courseName: courseKey,
+                batchName: batchKey,
+                yearName: yearKey,
+                paymentType: payment.type || 'single'
+              };
+            }
+          }
+        }
+      }
+    }
+  }
+  return null;
+};
+
+
+  
+
 useEffect(() => {
   if (!dateFocusedOnce && dynamicGroupEntries.length > 0 && paymentType === "group") {
     setTimeout(() => {
@@ -253,6 +302,63 @@ useEffect(() => {
 }, [dynamicGroupEntries.length, formData.studentName]);
 
 
+  // ✅ STEP 4: Add this handler function
+const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
+  if (!duplicateInfo) return;
+  
+  if (action === 'cancel') {
+    setDuplicateCheckModal(false);
+    setDuplicateInfo(null);
+    return;
+  }
+  
+  if (action === 'proceed' && duplicateInfo.paymentType === 'group' && paymentType === 'group') {
+    // Add existing student to current group
+    const existingStudent = duplicateInfo.studentInfo;
+    const existingPayment = duplicateInfo.existingPayment;
+    
+    // Set the existing student as Student #1
+    setFormData(prev => ({
+      ...prev,
+      studentName: existingStudent.studentName,
+      fatherName: existingStudent.fatherName,
+      gender: existingStudent.gender,
+      mobileNo: existingStudent.mobileNo,
+      email: existingStudent.email,
+      category: existingStudent.category,
+      hostler: existingStudent.hostler,
+      collegeName: existingStudent.collegeName,
+      branch: existingStudent.branch
+    }));
+    
+    // Pre-fill group payment details from existing payment
+    if (existingPayment.onlineAmount > 0) {
+      setGroupOnlineAmount(existingPayment.onlineAmount.toString());
+      setGroupUtrId(existingPayment.utrId || '');
+    }
+    if (existingPayment.offlineAmount > 0) {
+      setGroupOfflineAmount(existingPayment.offlineAmount.toString());
+      setGroupReceiptNo(existingPayment.receiptNo || '');
+    }
+    setGroupPaymentDate(existingPayment.paymentDate || '');
+    
+    // Update group entries - Student #1 gets existing student info
+    if (dynamicGroupEntries.length > 0) {
+      const updatedEntries = [...dynamicGroupEntries];
+      updatedEntries[0] = {
+        ...updatedEntries[0],
+        studentName: existingStudent.studentName,
+        amount: '' // Amount will be blank as requested
+      };
+      setDynamicGroupEntries(updatedEntries);
+    }
+    
+    alert(`${existingStudent.studentName} has been added to Student #1 position with existing payment details. Please enter the amount for this student.`);
+  }
+  
+  setDuplicateCheckModal(false);
+  setDuplicateInfo(null);
+};
 
 
     const handleGroupCountConfirm = () => {
