@@ -7,27 +7,35 @@ import CourseFeeManager from './components/CourseFeeManager';
 
 function App() {
   const [currentPage, setCurrentPage] = useState<'dashboard' | 'course-batches' | 'student-form' | 'course-fees'>('dashboard');
+  
+  // ✅ UPDATED: Add payments array to initial state
   const [appData, setAppData] = useState<AppData>({
     years: {},
     collegeNames: ['RGPV', 'VIT University', 'Amity University', 'Lovely Professional University'],
     branches: ['Computer Science', 'Information Technology', 'Electronics', 'Mechanical', 'Civil'],
     courseDurations: ['15 Days', '30 Days', '45 Days', '60 Days', '90 Days'],
-    courseFees: []
+    courseFees: [],
+    payments: []  // ✅ ADD THIS LINE
   });
+  
   const [selectedYear, setSelectedYear] = useState<string>('2025');
   const [selectedCourse, setSelectedCourse] = useState<string>('');
   const [selectedBatch, setSelectedBatch] = useState<string>('');
   const [selectedCourseName, setSelectedCourseName] = useState<string>('');
   const [preSelectedDuration, setPreSelectedDuration] = useState<string>('');
-  const [preSelectedStartDate, setPreSelectedStartDate] = useState<string>(''); // ✅ Add this
-
+  const [preSelectedStartDate, setPreSelectedStartDate] = useState<string>('');
 
   const navigateToCourseFees = () => setCurrentPage('course-fees');
 
   useEffect(() => {
     const savedData = localStorage.getItem('studentManagementData');
     if (savedData) {
-      setAppData(JSON.parse(savedData));
+      const parsedData = JSON.parse(savedData);
+      // ✅ UPDATED: Ensure payments array exists in loaded data
+      if (!parsedData.payments) {
+        parsedData.payments = [];
+      }
+      setAppData(parsedData);
     }
   }, []);
 
@@ -38,10 +46,10 @@ function App() {
 
   const addCourseFee = (courseName: string, courseDuration: string, fee: number) => {
     const newData = { ...appData };
-     // ✅ Fix: Ensure courseFees is initialized
-  if (!newData.courseFees) {
-    newData.courseFees = [];
-  }
+    // ✅ Fix: Ensure courseFees is initialized
+    if (!newData.courseFees) {
+      newData.courseFees = [];
+    }
     const newCourseFee: CourseFee = {
       id: Date.now().toString(),
       courseName,
@@ -68,10 +76,55 @@ function App() {
     saveData(newData);
   };
 
-  const addPayment = (studentId: string, payment: Omit<Payment, 'id' | 'studentId' | 'createdAt'>) => {
-    // This would typically save to database
-    // For now, we'll just log it
-    console.log('Adding payment:', { studentId, ...payment });
+  // ✅ UPDATED: Replace the simple addPayment with comprehensive payment handler
+  const handleAddPayment = (studentId: string, payment: Omit<Payment, 'id' | 'studentId' | 'createdAt'>) => {
+    const newPayment: Payment = {
+      id: `payment_${Date.now()}_${Math.random()}`,
+      studentId,
+      createdAt: new Date().toISOString(),
+      ...payment
+    };
+
+    setAppData(prev => ({
+      ...prev,
+      payments: [...(prev.payments || []), newPayment]
+    }));
+
+    // Update student's payment summary if it's a single payment
+    if (payment.type === 'single') {
+      setAppData(prev => {
+        const newData = { ...prev };
+        
+        // Find and update the student
+        Object.keys(newData.years).forEach(year => {
+          Object.keys(newData.years[year]).forEach(course => {
+            Object.keys(newData.years[year][course]).forEach(batch => {
+              const studentIndex = newData.years[year][course][batch].students
+                .findIndex(s => s.id === studentId);
+              
+              if (studentIndex !== -1) {
+                const student = newData.years[year][course][batch].students[studentIndex];
+                const newTotalPaid =  payment.amount;
+                
+                newData.years[year][course][batch].students[studentIndex] = {
+                  ...student,
+                  totalPaid: newTotalPaid,
+                  remainingFee: student.courseFee - newTotalPaid
+                };
+              }
+            });
+          });
+        });
+        
+        return newData;
+      });
+    }
+
+    // Save to localStorage after payment is added
+    setTimeout(() => {
+      const updatedData = { ...appData, payments: [...(appData.payments || []), newPayment] };
+      localStorage.setItem('studentManagementData', JSON.stringify(updatedData));
+    }, 100);
   };
 
   const addCourse = (year: string, courseName: string) => {
@@ -144,24 +197,21 @@ function App() {
     setCurrentPage('course-batches');
   };
 
-//  const navigateToForm = (courseDuration?: string) => {
-//    setPreSelectedDuration(courseDuration || '');
-//    setCurrentPage('student-form');
-//  };
   const navigateToForm = (courseDuration?: string, startDate?: string) => {
-  setPreSelectedDuration(courseDuration || '');
-  setPreSelectedStartDate(startDate || '');
-  setCurrentPage('student-form');
-};
+    setPreSelectedDuration(courseDuration || '');
+    setPreSelectedStartDate(startDate || '');
+    setCurrentPage('student-form');
+  };
 
-// ✅ Add this safety check here:
-  if (!appData || !Array.isArray(appData.courseFees) || !appData.years) {
+  // ✅ UPDATED: Enhanced safety check including payments
+  if (!appData || !Array.isArray(appData.courseFees) || !appData.years || !Array.isArray(appData.payments)) {
     return (
       <div className="text-white p-6">
         ⚠️ App data is not ready or is incomplete. Please reload or check local storage.
       </div>
     );
   }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {currentPage === 'dashboard' && (
@@ -207,7 +257,7 @@ function App() {
           onAddCollegeName={addCollegeName}
           onAddBranch={addBranch}
           onAddCourseDuration={addCourseDuration}
-          onAddPayment={addPayment}
+          onAddPayment={handleAddPayment}  // ✅ UPDATED: Use new payment handler
           onBack={() => setCurrentPage('course-batches')}
         />
       )}
