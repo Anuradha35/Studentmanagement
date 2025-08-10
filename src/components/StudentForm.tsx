@@ -1402,10 +1402,22 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
                         type="text"
                         value={utrId}
                         onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, '').slice(0, 12);
-                          setUtrId(value);
-                          if (errors.utrId) setErrors({ ...errors, utrId: '' });
-                        }}
+  const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+  setUtrId(value);
+  
+  // ✅ Check for duplicates when UTR ID is complete (12 digits)
+  if (value.length === 12) {
+    const duplicate = findDuplicatePayment(value, undefined);
+    if (duplicate) {
+      setDuplicateInfo(duplicate);
+      setDuplicateCheckModal(true);
+      setUtrId(''); // Clear the input
+      return;
+    }
+  }
+  
+  if (errors.utrId) setErrors({ ...errors, utrId: '' });
+}}
                         className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Enter 12-digit UTR/UPI ID"
                         maxLength={12}
