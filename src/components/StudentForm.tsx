@@ -834,49 +834,7 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
 
   return (
 
-    <div className="min-h-screen p-6">
-
-{/* 👇 Modal Code Starts */}
-    <Dialog open={showGroupModal} onClose={() => setShowGroupModal(false)} className="fixed z-50 inset-0 flex items-center justify-center">
-      <div className="bg-black bg-opacity-50 fixed inset-0"></div>
-      <Dialog.Panel className="bg-white rounded-lg p-6 z-50 w-full max-w-md">
-        <Dialog.Title className="text-lg font-bold mb-4">Enter Number of Students</Dialog.Title>
-        <input
-          type="number"
-          ref={groupInputRef} // 👈 Add this
-           
-          min={1}
-          max={20}
-          value={groupCount === 0 ? '' : groupCount}
-          onChange={(e) => {
-          const val = parseInt(e.target.value);
-          if (!isNaN(val)) setGroupCount(val);
-           }}
-           onKeyDown={(e) => {
-           if (e.key === 'Enter') {
-            e.preventDefault();  // Prevent form submission if inside <form>
-             handleGroupCountConfirm();     // Same function used for "Continue"
-          }
-          }}
-          className="w-full border rounded p-2 mb-4"
-          
-          placeholder="e.g. 3"
-        />
-        <div className="flex justify-end gap-2">
-          <button onClick={() => setShowGroupModal(false)} className="px-4 py-2 bg-gray-400 text-white rounded">Cancel</button>
-          <button 
-          type='button'
-          onClick={handleGroupCountConfirm} 
-          className="px-4 py-2 bg-blue-600 text-white rounded">
-            Continue
-          </button>
-        </div>
-      </Dialog.Panel>
-    </Dialog>
-    {/* 👆 Modal Code Ends */}
-
-
-// ✅ STEP 9: Add the Duplicate Check Modal JSX before the closing </div> of your component
+    // ✅ STEP 9: Add the Duplicate Check Modal JSX before the closing </div> of your component
 {/* Duplicate Check Modal */}
 <Dialog 
   open={duplicateCheckModal} 
@@ -952,6 +910,50 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
     </div>
   </Dialog.Panel>
 </Dialog>
+
+    <div className="min-h-screen p-6">
+
+{/* 👇 Modal Code Starts */}
+    <Dialog open={showGroupModal} onClose={() => setShowGroupModal(false)} className="fixed z-50 inset-0 flex items-center justify-center">
+      <div className="bg-black bg-opacity-50 fixed inset-0"></div>
+      <Dialog.Panel className="bg-white rounded-lg p-6 z-50 w-full max-w-md">
+        <Dialog.Title className="text-lg font-bold mb-4">Enter Number of Students</Dialog.Title>
+        <input
+          type="number"
+          ref={groupInputRef} // 👈 Add this
+           
+          min={1}
+          max={20}
+          value={groupCount === 0 ? '' : groupCount}
+          onChange={(e) => {
+          const val = parseInt(e.target.value);
+          if (!isNaN(val)) setGroupCount(val);
+           }}
+           onKeyDown={(e) => {
+           if (e.key === 'Enter') {
+            e.preventDefault();  // Prevent form submission if inside <form>
+             handleGroupCountConfirm();     // Same function used for "Continue"
+          }
+          }}
+          className="w-full border rounded p-2 mb-4"
+          
+          placeholder="e.g. 3"
+        />
+        <div className="flex justify-end gap-2">
+          <button onClick={() => setShowGroupModal(false)} className="px-4 py-2 bg-gray-400 text-white rounded">Cancel</button>
+          <button 
+          type='button'
+          onClick={handleGroupCountConfirm} 
+          className="px-4 py-2 bg-blue-600 text-white rounded">
+            Continue
+          </button>
+        </div>
+      </Dialog.Panel>
+    </Dialog>
+    {/* 👆 Modal Code Ends */}
+
+
+
 
       
       
