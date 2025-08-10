@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef  } from 'react';
 import { ArrowLeft, User, Phone, Mail, GraduationCap, Calendar, DollarSign, CreditCard, Receipt, Users, Plus, X } from 'lucide-react';
 import { AppData, Student, Payment } from '../types';
 import { Dialog } from '@headlessui/react'; // ✅ ADD THIS
+import { v4 as uuidv4 } from 'uuid'; // npm install uuid
 
 
 interface StudentFormProps {
@@ -553,13 +554,66 @@ if (emptyIndex !== -1) {
 
       onAddStudent(selectedYear, selectedCourse, selectedBatch, student);
 
-      // Add payments
+     // ✅ SINGLE PAYMENT SAVE
+    if (paymentType === 'single') {
       payments.forEach(payment => {
         onAddPayment(student.id, {
           ...payment,
-          paymentDate: payment.paymentDate
+          paymentDate: payment.paymentDate,
+          type: 'single'
         });
       });
+    }
+
+   // ✅ GROUP PAYMENT SAVE
+if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
+  const groupId = Date.now().toString();
+
+  dynamicGroupEntries.forEach((entry, idx) => {
+    // अगर पहला student वही है जो form में भरा गया
+    let studentId: string;
+    if (idx === 0) {
+      studentId = student.id; // main form student
+    } else {
+      // बाकी students भी batch में add करो
+      const newStudent: Student = {
+        id: Date.now().toString() + idx,
+        studentName: entry.studentName,
+        fatherName: '', // खाली छोड़ सकते हो या बाद में edit
+        gender: 'Male',
+        mobileNo: '',
+        email: '',
+        category: 'GEN',
+        hostler: 'No',
+        collegeName: '',
+        branch: '',
+        courseDuration: preSelectedDuration || '',
+        startDate: preSelectedStartDate || '',
+        endDate: calculatedEndDate,
+        courseFee: fee,
+        totalPaid: 0,
+        remainingFee: fee,
+        createdAt: new Date().toISOString()
+      };
+      onAddStudent(selectedYear, selectedCourse, selectedBatch, newStudent);
+      studentId = newStudent.id;
+    }
+
+    // Payment entry
+    onAddPayment(studentId, {
+      groupId,
+      studentName: entry.studentName,
+      onlineAmount: parseInt(entry.onlineAmount || '0'),
+      offlineAmount: parseInt(entry.offlineAmount || '0'),
+      utrId: groupUtrId || '',
+      receiptNo: groupReceiptNo || '',
+      paymentDate: groupPaymentDate || '',
+      type: 'group'
+    });
+  });
+}
+
+
 
       // Calculate end date manually after reset
       let calculatedEndDate = '';
@@ -618,10 +672,14 @@ if (emptyIndex !== -1) {
       setDynamicGroupEntries([]);
       
 
+      
+
 // ✅ Focus on Student Name after adding
 if (studentNameRef.current) {
   studentNameRef.current.focus();
 }
+
+
 
       alert('Student added successfully!');
     }
