@@ -1382,11 +1382,23 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
                       <input
                         type="text"
                         value={receiptNo}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, '');
-                          setReceiptNo(value);
-                          if (errors.receiptNo) setErrors({ ...errors, receiptNo: '' });
-                        }}
+                      onChange={(e) => {
+  const value = e.target.value.replace(/\D/g, '');
+  setReceiptNo(value);
+  
+  // ✅ Check for duplicates immediately
+  if (value.length > 0) {
+    const duplicate = findDuplicatePayment(undefined, value);
+    if (duplicate) {
+      setDuplicateInfo(duplicate);
+      setDuplicateCheckModal(true);
+      setReceiptNo(''); // Clear the input
+      return;
+    }
+  }
+  
+  if (errors.receiptNo) setErrors({ ...errors, receiptNo: '' });
+}}
                         className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Enter receipt number"
                       />
