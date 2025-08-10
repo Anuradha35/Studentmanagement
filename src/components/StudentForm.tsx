@@ -2005,9 +2005,7 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
           </div>
         </Dialog.Panel>
       </Dialog>
-    </div>  {/* ← This should be your final closing div */}
-  );
-};
+   
 
 
 
