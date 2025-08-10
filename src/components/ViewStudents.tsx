@@ -65,7 +65,7 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
           </div>
         ))}
 
-        {/* Group Payments - Single Record Display */}
+        {/* Group Payments - Fixed Display */}
         {studentGroupPayments.map((payment, index) => (
           <div key={`group-${index}`} className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-3">
@@ -83,18 +83,23 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
               <div className="text-xs text-purple-200">Main Student Share</div>
             </div>
 
-            {/* Other Students in Group */}
-            {payment.otherStudentsData && payment.otherStudentsData.length > 0 && (
-              <div className="space-y-2 mb-3">
-                <div className="text-purple-200 text-xs font-medium">Other Group Members:</div>
-                {payment.otherStudentsData.map((otherStudent: any, idx: number) => (
-                  <div key={idx} className="bg-purple-500/5 rounded-lg p-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-purple-100 text-sm">{otherStudent.name}</span>
-                      <span className="text-purple-300 text-sm">₹{otherStudent.amount?.toLocaleString()}</span>
-                    </div>
-                  </div>
-                ))}
+            {/* ✅ FIXED: Other Students Combined Display */}
+            {payment.groupStudents && (
+              <div className="bg-purple-500/5 rounded-lg p-3 mb-3">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-purple-100 text-sm">
+                    {/* ✅ Show all other students in one line with commas */}
+                    {payment.groupStudents
+                      .split(', ')
+                      .filter(name => name.trim() !== payment.studentName.trim())
+                      .join(', ')
+                    }
+                  </span>
+                  <span className="text-purple-300 font-bold">
+                    ₹{(payment.totalGroupAmount - payment.amount).toLocaleString()}
+                  </span>
+                </div>
+                <div className="text-xs text-purple-200">Other Group Members (Combined)</div>
               </div>
             )}
 
