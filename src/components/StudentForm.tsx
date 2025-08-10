@@ -522,39 +522,42 @@ if (emptyIndex !== -1) {
 };
 
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+ // StudentForm.tsx - Fixed handleSubmit (सिर्फ यह function replace करें)
 
-    const newErrors: { [key: string]: string } = {};
+const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
 
-    // Validate required fields
-    if (!formData.studentName.trim()) newErrors.studentName = 'Student name is required';
-    if (!formData.fatherName.trim()) newErrors.fatherName = 'Father name is required';
-    if (!formData.mobileNo.trim()) {
-      newErrors.mobileNo = 'Mobile number is required';
-    } else if (formData.mobileNo.length !== 10) {
-      newErrors.mobileNo = 'Mobile number must be exactly 10 digits';
-    }
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    if (!formData.courseDuration) newErrors.courseDuration = 'Course duration is required';
-    if (!formData.startDate.trim()) {
-      newErrors.startDate = 'Start date is required';
-    } else if (formData.startDate.length !== 10 || !validateDate(formData.startDate)) {
-      newErrors.startDate = 'Please enter a valid date (DD.MM.YYYY)';
-    }
+  const newErrors: { [key: string]: string } = {};
 
-    setErrors(newErrors);
+  // Validate required fields
+  if (!formData.studentName.trim()) newErrors.studentName = 'Student name is required';
+  if (!formData.fatherName.trim()) newErrors.fatherName = 'Father name is required';
+  if (!formData.mobileNo.trim()) {
+    newErrors.mobileNo = 'Mobile number is required';
+  } else if (formData.mobileNo.length !== 10) {
+    newErrors.mobileNo = 'Mobile number must be exactly 10 digits';
+  }
+  if (!formData.email.trim()) newErrors.email = 'Email is required';
+  if (!formData.courseDuration) newErrors.courseDuration = 'Course duration is required';
+  if (!formData.startDate.trim()) {
+    newErrors.startDate = 'Start date is required';
+  } else if (formData.startDate.length !== 10 || !validateDate(formData.startDate)) {
+    newErrors.startDate = 'Please enter a valid date (DD.MM.YYYY)';
+  }
 
-    if (Object.keys(newErrors).length === 0) {
-      const student: Student = {
-        id: Date.now().toString(),
-        ...formData,
-        createdAt: new Date().toISOString()
-      };
+  setErrors(newErrors);
 
-      onAddStudent(selectedYear, selectedCourse, selectedBatch, student);
+  if (Object.keys(newErrors).length === 0) {
+    const student: Student = {
+      id: Date.now().toString(),
+      ...formData,
+      createdAt: new Date().toISOString()
+    };
 
-     // ✅ SINGLE PAYMENT SAVE
+    // ✅ FIXED: सिर्फ main student को batch में add करें
+    onAddStudent(selectedYear, selectedCourse, selectedBatch, student);
+
+    // ✅ SINGLE PAYMENT SAVE (unchanged)
     if (paymentType === 'single') {
       payments.forEach(payment => {
         onAddPayment(student.id, {
@@ -565,57 +568,44 @@ if (emptyIndex !== -1) {
       });
     }
 
-   // ✅ GROUP PAYMENT SAVE
-if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
-  const groupId = Date.now().toString();
+    // ✅ FIXED: GROUP PAYMENT SAVE - Single Student Record with Group Details
+    if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
+      const groupId = `group_${Date.now()}`;
+      const totalOnlineAmount = parseInt(groupOnlineAmount || '0');
+      const totalOfflineAmount = parseInt(groupOfflineAmount || '0');
+      const mainStudentAmount = parseInt(dynamicGroupEntries[0]?.amount || '0');
 
-  dynamicGroupEntries.forEach((entry, idx) => {
-    // अगर पहला student वही है जो form में भरा गया
-    let studentId: string;
-    if (idx === 0) {
-      studentId = student.id; // main form student
-    } else {
-      // बाकी students भी batch में add करो
-      const newStudent: Student = {
-        id: Date.now().toString() + idx,
-        studentName: entry.studentName,
-        fatherName: '', // खाली छोड़ सकते हो या बाद में edit
-        gender: 'Male',
-        mobileNo: '',
-        email: '',
-        category: 'GEN',
-        hostler: 'No',
-        collegeName: '',
-        branch: '',
-        courseDuration: preSelectedDuration || '',
-        startDate: preSelectedStartDate || '',
-        endDate: calculatedEndDate,
-        courseFee: fee,
-        totalPaid: 0,
-        remainingFee: fee,
-        createdAt: new Date().toISOString()
-      };
-      onAddStudent(selectedYear, selectedCourse, selectedBatch, newStudent);
-      studentId = newStudent.id;
+      // Update main student's payment info
+      student.totalPaid = mainStudentAmount;
+      student.remainingFee = student.courseFee - mainStudentAmount;
+
+      // ✅ CREATE ONE GROUP PAYMENT ENTRY for main student with all group info
+      onAddPayment(student.id, {
+        groupId,
+        studentName: student.studentName,
+        amount: mainStudentAmount, // Main student का share
+        totalGroupAmount: totalOnlineAmount + totalOfflineAmount,
+        onlineAmount: totalOnlineAmount,
+        offlineAmount: totalOfflineAmount,
+        utrId: totalOnlineAmount > 0 ? groupUtrId : '',
+        receiptNo: totalOfflineAmount > 0 ? groupReceiptNo : '',
+        paymentDate: groupPaymentDate,
+        type: 'group',
+        groupStudents: dynamicGroupEntries.map(e => e.studentName).join(', '),
+        studentIndex: 0,
+        // ✅ NEW: Add other students details for display
+        otherStudentsData: dynamicGroupEntries.slice(1).map((entry, idx) => ({
+          name: entry.studentName,
+          amount: totalOnlineAmount + totalOfflineAmount - mainStudentAmount, // Remaining amount distributed
+          index: idx + 1
+        }))
+      });
+
+      // ✅ NO MORE: Don't create separate student records for other group members
+      // They will only appear in the group payment details
     }
 
-    // Payment entry
-    onAddPayment(studentId, {
-      groupId,
-      studentName: entry.studentName,
-      onlineAmount: parseInt(entry.onlineAmount || '0'),
-      offlineAmount: parseInt(entry.offlineAmount || '0'),
-      utrId: groupUtrId || '',
-      receiptNo: groupReceiptNo || '',
-      paymentDate: groupPaymentDate || '',
-      type: 'group'
-    });
-  });
-}
-
-
-
-      // Calculate end date manually after reset
+// Calculate end date manually after reset
       let calculatedEndDate = '';
       if (preSelectedStartDate && preSelectedDuration) {
         const [day, month, year] = preSelectedStartDate.split('.');
@@ -631,59 +621,52 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
         calculatedEndDate = `${endDay}.${endMonth}.${endYear}`;
       }
 
-      // Reset form with pre-selected values
-      const fee = getCourseFee();
-      setFormData({
-        studentName: '',
-        fatherName: '',
-        gender: 'Male',
-        mobileNo: '',
-        email: '',
-        category: 'GEN',
-        hostler: 'No',
-        collegeName: '',
-        branch: '',
-        courseDuration: preSelectedDuration || '',
-        startDate: preSelectedStartDate || '',
-        endDate: calculatedEndDate,
-        courseFee: fee,
-        totalPaid: 0,
-        remainingFee: fee
-      });
+    // Reset form logic...
+    const fee = getCourseFee();
+    setFormData({
+      studentName: '',
+      fatherName: '',
+      gender: 'Male',
+      mobileNo: '',
+      email: '',
+      category: 'GEN',
+      hostler: 'No',
+      collegeName: '',
+      branch: '',
+      courseDuration: preSelectedDuration || '',
+      startDate: preSelectedStartDate || '',
+      endDate: calculatedEndDate,
+      courseFee: fee,
+      totalPaid: 0,
+      remainingFee: fee
+    });
 
-      // Clear only payment-related fields, keep form structure
-      setPayments([]);
-      setPaymentAmount('');
-      setPaymentDate('');
-      setReceiptNo('');
-      setUtrId('');
-      
-      // Clear group payment fields
-      setGroupPayments([]);
-      setPaymentType('single');
-      setGroupStudentName('');
-      setGroupCourseName('');
-      setGroupCourseDuration('');
-      setGroupOnlineAmount('');
-      setGroupOfflineAmount('');
-      setGroupUtrId('');
-      setGroupReceiptNo('');
-      setGroupPaymentDate('');
-      setDynamicGroupEntries([]);
-      
+    // Clear payment fields
+    setPayments([]);
+    setPaymentAmount('');
+    setPaymentDate('');
+    setReceiptNo('');
+    setUtrId('');
+    setGroupPayments([]);
+    setPaymentType('single');
+    setGroupStudentName('');
+    setGroupCourseName('');
+    setGroupCourseDuration('');
+    setGroupOnlineAmount('');
+    setGroupOfflineAmount('');
+    setGroupUtrId('');
+    setGroupReceiptNo('');
+    setGroupPaymentDate('');
+    setDynamicGroupEntries([]);
 
-      
-
-// ✅ Focus on Student Name after adding
-if (studentNameRef.current) {
-  studentNameRef.current.focus();
-}
-
-
-
-      alert('Student added successfully!');
+    // Focus on Student Name after adding
+    if (studentNameRef.current) {
+      studentNameRef.current.focus();
     }
-  };
+
+    alert('Student added successfully!');
+  }
+};
 
   const handleAddNewCollege = () => {
     if (newCollegeName.trim()) {
