@@ -3,12 +3,7 @@ import { ArrowLeft, User, Phone, Mail, GraduationCap, Calendar, DollarSign, Cred
 import { AppData, Student, Payment } from '../types';
 import { Dialog } from '@headlessui/react'; // ✅ ADD THIS
 import { v4 as uuidv4 } from 'uuid'; // npm install uuid
-// ✅ Add these imports at the top of StudentForm.tsx
-import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, User, Phone, Mail, GraduationCap, Calendar, DollarSign, CreditCard, Receipt, Users, Plus, X, AlertTriangle } from 'lucide-react';
-import { AppData, Student, Payment } from '../types';
-import { Dialog } from '@headlessui/react';
-import { v4 as uuidv4 } from 'uuid';
+import { AlertTriangle } from 'lucide-react';
 
 interface StudentFormProps {
   appData: AppData;
