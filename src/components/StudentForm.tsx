@@ -874,6 +874,86 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
       </Dialog.Panel>
     </Dialog>
     {/* 👆 Modal Code Ends */}
+
+
+// ✅ STEP 9: Add the Duplicate Check Modal JSX before the closing </div> of your component
+{/* Duplicate Check Modal */}
+<Dialog 
+  open={duplicateCheckModal} 
+  onClose={() => handleDuplicateConfirmation('cancel')} 
+  className="fixed z-50 inset-0 flex items-center justify-center"
+>
+  <div className="bg-black bg-opacity-50 fixed inset-0"></div>
+  <Dialog.Panel className="bg-slate-800 border border-red-500/30 rounded-lg p-6 z-50 w-full max-w-lg mx-4">
+    <div className="flex items-center gap-3 mb-4">
+      <AlertTriangle className="w-6 h-6 text-red-400" />
+      <Dialog.Title className="text-xl font-bold text-red-400">
+        Duplicate Payment Detected!
+      </Dialog.Title>
+    </div>
+    
+    {duplicateInfo && (
+      <div className="space-y-4 mb-6">
+        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+          <h3 className="text-red-300 font-medium mb-2">Existing Payment Details:</h3>
+          <div className="text-sm text-gray-300 space-y-1">
+            <div><strong>Student:</strong> {duplicateInfo.studentInfo.studentName}</div>
+            <div><strong>Course:</strong> {duplicateInfo.courseName}</div>
+            <div><strong>Batch:</strong> {duplicateInfo.batchName}</div>
+            <div><strong>Year:</strong> {duplicateInfo.yearName}</div>
+            <div><strong>Duration:</strong> {duplicateInfo.studentInfo.courseDuration}</div>
+            <div><strong>Payment Type:</strong> {duplicateInfo.paymentType === 'single' ? 'Single Payment' : 'Group Payment'}</div>
+            <div><strong>Payment Date:</strong> {duplicateInfo.existingPayment.paymentDate}</div>
+            {duplicateInfo.type === 'utr' && (
+              <div><strong>UTR/UPI ID:</strong> {duplicateInfo.value}</div>
+            )}
+            {duplicateInfo.type === 'receipt' && (
+              <div><strong>Receipt Number:</strong> {duplicateInfo.value}</div>
+            )}
+            <div><strong>Amount:</strong> ₹{duplicateInfo.existingPayment.amount?.toLocaleString()}</div>
+            {duplicateInfo.existingPayment.totalGroupAmount && (
+              <div><strong>Total Group Amount:</strong> ₹{duplicateInfo.existingPayment.totalGroupAmount?.toLocaleString()}</div>
+            )}
+          </div>
+        </div>
+
+        {/* Show different messages based on payment types */}
+        {duplicateInfo.paymentType === 'single' || paymentType === 'single' ? (
+          <div className="text-yellow-300 text-sm bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
+            <strong>⚠️ Cannot Proceed:</strong> This {duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'} 
+            has already been used for a payment. Duplicate payment IDs are not allowed.
+          </div>
+        ) : (
+          <div className="text-blue-300 text-sm bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+            <strong>💡 Group Payment Option:</strong> Since this is a group payment and the existing payment is also a group payment, 
+            you can add <strong>{duplicateInfo.studentInfo.studentName}</strong> to your current group as Student #1. 
+            The existing payment details will be pre-filled, but you'll need to enter the amount for this student.
+          </div>
+        )}
+      </div>
+    )}
+
+    <div className="flex gap-3">
+      <button 
+        onClick={() => handleDuplicateConfirmation('cancel')} 
+        className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+      >
+        Cancel
+      </button>
+      
+      {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
+        <button 
+          onClick={() => handleDuplicateConfirmation('proceed')} 
+          className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Add to Group
+        </button>
+      )}
+    </div>
+  </Dialog.Panel>
+</Dialog>
+
+      
       
       {/* Header */}
       <div className="mb-8">
