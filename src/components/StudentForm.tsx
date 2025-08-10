@@ -1690,10 +1690,25 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
                       type="text"
                       value={groupReceiptNo}
                       onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '');
-                        setGroupReceiptNo(value);
-                        if (errors.groupReceiptNo) setErrors({ ...errors, groupReceiptNo: '' });
-                      }}
+  const value = e.target.value.replace(/\D/g, '');
+  setGroupReceiptNo(value);
+  
+  // ✅ Check for duplicates immediately
+  if (value.length > 0) {
+    const duplicate = findDuplicatePayment(undefined, value);
+    if (duplicate) {
+      setDuplicateInfo(duplicate);
+      setDuplicateCheckModal(true);
+      if (duplicate.paymentType === 'single') {
+        setGroupReceiptNo(''); // Clear input for single payments
+      }
+      return;
+    }
+  }
+  
+  if (errors.groupReceiptNo) setErrors({ ...errors, groupReceiptNo: '' });
+}}
+
                       className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Enter receipt number"
                     />
