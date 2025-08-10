@@ -92,21 +92,42 @@ const CourseBatches: React.FC<CourseBatchesProps> = ({
   };
 
   // IF IN VIEW MODE, SHOW STUDENTS
-  if (viewMode === "viewStudents") {
-    const students = selectedBatchForView === null
-      ? Object.values(currentCourseData).flatMap(batch => batch.students)
-      : currentCourseData[selectedBatchForView]?.students || [];
+ // CourseBatches.tsx - Updated ViewStudents call
 
-    return (
-      <ViewStudents
-        students={students}
-        onBack={() => setViewMode("default")}
-        onEdit={(student) => {
+// IF IN VIEW MODE, SHOW STUDENTS
+if (viewMode === "viewStudents") {
+  const students = selectedBatchForView === null
+    ? Object.values(currentCourseData).flatMap(batch => batch.students)
+    : currentCourseData[selectedBatchForView]?.students || [];
+
+  // Get all payments from appData
+  const allPayments = appData.payments || [];
+  
+  // Filter payments for current students
+  const studentIds = students.map(s => s.id);
+  const relevantPayments = allPayments.filter(payment => 
+    studentIds.includes(payment.studentId)
+  );
+
+  // Separate single and group payments
+  const singlePayments = relevantPayments.filter(p => p.type === 'single');
+  const groupPayments = relevantPayments.filter(p => p.type === 'group');
+
+  return (
+    <ViewStudents
+      students={students}
+      payments={singlePayments}
+      groupPayments={groupPayments}
+      onBack={() => setViewMode("default")}
+      onEditStudent={(studentId) => {
+        const student = students.find(s => s.id === studentId);
+        if (student) {
           onNavigateToForm(student.courseDuration, student.startDate);
-        }}
-      />
-    );
-  }
+        }
+      }}
+    />
+  );
+}
 
   return (
     <div className="min-h-screen p-6">
