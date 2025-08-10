@@ -18,16 +18,34 @@ export interface Student {
   createdAt: string;
 }
 
+// ✅ UPDATED Payment interface for single record group payments
 export interface Payment {
   id: string;
   studentId: string;
-  paymentMode: 'online' | 'offline';
   amount: number;
+  paymentMode?: 'online' | 'offline';
+  paymentDate: string;
+  utrId?: string;
   receiptNo?: string;
   transactionId?: string;
-  utrId?: string;
-  paymentDate: string;
+  type: 'single' | 'group';
   createdAt: string;
+  
+  // Group payment specific fields
+  groupId?: string;
+  studentName?: string;
+  totalGroupAmount?: number;
+  onlineAmount?: number;
+  offlineAmount?: number;
+  groupStudents?: string; // comma separated names (all students including main)
+  studentIndex?: number;
+  
+  // ✅ NEW: Other students data for single record approach
+  otherStudentsData?: {
+    name: string;
+    amount: number;
+    index: number;
+  }[];
 }
 
 export interface CourseFee {
@@ -61,4 +79,5 @@ export interface AppData {
   branches: string[];
   courseDurations: string[];
   courseFees: CourseFee[];
+  payments: Payment[];
 }
