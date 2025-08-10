@@ -1653,11 +1653,25 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
                     <input
                       type="text"
                       value={groupUtrId}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '').slice(0, 12);
-                        setGroupUtrId(value);
-                        if (errors.groupUtrId) setErrors({ ...errors, groupUtrId: '' });
-                      }}
+                     onChange={(e) => {
+  const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+  setGroupUtrId(value);
+  
+  // ✅ Check for duplicates when UTR ID is complete (12 digits)
+  if (value.length === 12) {
+    const duplicate = findDuplicatePayment(value, undefined);
+    if (duplicate) {
+      setDuplicateInfo(duplicate);
+      setDuplicateCheckModal(true);
+      if (duplicate.paymentType === 'single') {
+        setGroupUtrId(''); // Clear input for single payments
+      }
+      return;
+    }
+  }
+  
+  if (errors.groupUtrId) setErrors({ ...errors, groupUtrId: '' });
+}}
                       className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Enter 12-digit UTR/UPI ID"
                       maxLength={12}
