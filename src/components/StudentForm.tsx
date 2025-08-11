@@ -1951,7 +1951,7 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
           <h3 className="text-red-300 font-medium mb-2">Existing Payment Details:</h3>
           <div className="text-sm text-gray-300 space-y-1">
             <div><strong>Student Name:</strong> {duplicateInfo.studentInfo.studentName}</div>
-            <div><strong>Course Name:</strong> {duplicateInfo.courseName}    <strong>Batch:</strong> {duplicateInfo.batchName}</div>
+            <div><strong>Course Name:</strong> {duplicateInfo.courseName} &nbps; &nbps; &nbps; &nbps; &nbps; &nbps; &nbps; &nbps;    <strong>Batch:</strong> {duplicateInfo.batchName}</div>
             <div><strong>Batch:</strong> {duplicateInfo.batchName}</div>
             <div><strong>Year:</strong> {duplicateInfo.yearName}</div>
             <div><strong>Duration:</strong> {duplicateInfo.studentInfo.courseDuration}</div>
