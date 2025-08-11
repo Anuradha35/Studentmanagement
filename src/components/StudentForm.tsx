@@ -2074,14 +2074,10 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
-                        <p className="text-gray-400">This Student's Share</p>
+                        <p className="text-gray-400">This Student's Amount</p>
                         <p className="text-green-400 font-medium">
                           ₹{duplicateInfo.existingPayment.amount?.toLocaleString()}
-                           {duplicateInfo.existingPayment.groupStudents.split(', ').map((student, index) => (
-                    <span key={index} className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-sm">
-                      {student}
-                    </span>
-                  ))}
+                          
                         </p>
                       </div>
                       <div>
