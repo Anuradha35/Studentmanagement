@@ -1934,8 +1934,29 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
 <Dialog 
   open={duplicateCheckModal} 
   onClose={() => {
-    console.log("🔥 Dialog onClose triggered");
-    handleDuplicateConfirmation('cancel');
+    console.log("🔥 Dialog onClose triggered - treating as cancel");
+    
+    if (!duplicateInfo) return;
+    
+    // Clear payment fields on close
+    if (paymentType === 'single') {
+      if (duplicateInfo.type === 'utr') {
+        setUtrId('');
+      } else if (duplicateInfo.type === 'receipt') {
+        setReceiptNo('');
+      }
+    } else if (paymentType === 'group') {
+      if (duplicateInfo.type === 'utr') {
+        setGroupUtrId('');
+        setGroupOnlineAmount('');
+      } else if (duplicateInfo.type === 'receipt') {
+        setGroupReceiptNo('');
+        setGroupOfflineAmount('');
+      }
+    }
+    
+    setDuplicateCheckModal(false);
+    setDuplicateInfo(null);
   }} 
   className="fixed z-50 inset-0 flex items-center justify-center"
 >
@@ -2167,8 +2188,41 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
       <button 
         type="button"
         onClick={() => {
-          console.log("🔥 Cancel button clicked");
-          handleDuplicateConfirmation('cancel');
+          console.log("🔥 DIRECT Cancel button clicked");
+          
+          if (!duplicateInfo) {
+            console.log("❌ No duplicateInfo found, returning");
+            return;
+          }
+          
+          console.log("🚫 CANCEL ACTION - clearing payment fields");
+          console.log("🔍 Current paymentType:", paymentType);
+          console.log("🔍 duplicateInfo.type:", duplicateInfo.type);
+          
+          // Clear payment fields based on payment type and duplicate type
+          if (paymentType === 'single') {
+            if (duplicateInfo.type === 'utr') {
+              console.log("🧹 Clearing single UTR ID:", utrId);
+              setUtrId('');
+            } else if (duplicateInfo.type === 'receipt') {
+              console.log("🧹 Clearing single Receipt No:", receiptNo);
+              setReceiptNo('');
+            }
+          } else if (paymentType === 'group') {
+            if (duplicateInfo.type === 'utr') {
+              console.log("🧹 Clearing group UTR ID and online amount:", groupUtrId, groupOnlineAmount);
+              setGroupUtrId('');
+              setGroupOnlineAmount('');
+            } else if (duplicateInfo.type === 'receipt') {
+              console.log("🧹 Clearing group Receipt No and offline amount:", groupReceiptNo, groupOfflineAmount);
+              setGroupReceiptNo('');
+              setGroupOfflineAmount('');
+            }
+          }
+          
+          setDuplicateCheckModal(false);
+          setDuplicateInfo(null);
+          console.log("✅ Modal closed after cancel");
         }}
         className="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
       >
@@ -2179,8 +2233,84 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
         <button 
           type="button"
           onClick={() => {
-            console.log("🔥 Add to Current Group button clicked");
-            handleDuplicateConfirmation('proceed');
+            console.log("🔥 DIRECT Add to Current Group button clicked");
+            
+            if (!duplicateInfo) {
+              console.log("❌ No duplicateInfo found, returning");
+              return;
+            }
+            
+            // ✅ ENHANCED: Check if current student is part of existing group
+            const currentStudentName = formData.studentName.trim().toUpperCase();
+            const existingGroupStudents = duplicateInfo.existingPayment.groupStudents || '';
+            const existingStudentNames = existingGroupStudents
+              .split(', ')
+              .map(name => name.trim().toUpperCase())
+              .filter(name => name.length > 0);
+            
+            console.log("🔍 Current student name:", currentStudentName);
+            console.log("🔍 Existing group students:", existingStudentNames);
+            
+            // Check if current student is already in the existing group
+            if (!existingStudentNames.includes(currentStudentName)) {
+              console.log("❌ Current student is NOT part of existing group");
+              alert(`Error: ${formData.studentName} is not a member of the existing group payment.\n\nExisting group members: ${existingGroupStudents}\n\nCannot add this student to a different group payment.`);
+              setDuplicateCheckModal(false);
+              setDuplicateInfo(null);
+              return;
+            }
+            
+            console.log("✅ Current student IS part of existing group - proceeding");
+            
+            const existingPayment = duplicateInfo.existingPayment;
+            
+            // Pre-fill payment information
+            if (existingPayment.onlineAmount > 0) {
+              setGroupOnlineAmount(existingPayment.onlineAmount.toString());
+              setGroupUtrId(existingPayment.utrId || '');
+              console.log("✅ Pre-filled online payment:", existingPayment.onlineAmount, existingPayment.utrId);
+            }
+            
+            if (existingPayment.offlineAmount > 0) {
+              setGroupOfflineAmount(existingPayment.offlineAmount.toString());
+              setGroupReceiptNo(existingPayment.receiptNo || '');
+              console.log("✅ Pre-filled offline payment:", existingPayment.offlineAmount, existingPayment.receiptNo);
+            }
+            
+            setGroupPaymentDate(existingPayment.paymentDate || '');
+            console.log("✅ Pre-filled payment date:", existingPayment.paymentDate);
+            
+            // Fill other group members (excluding current student #1)
+            if (dynamicGroupEntries.length > 0) {
+              // Filter out current student from existing members
+              const otherMembers = existingStudentNames.filter(name => 
+                name !== currentStudentName
+              );
+              
+              console.log("🔍 Other members to fill:", otherMembers);
+              
+              const updatedEntries = [...dynamicGroupEntries];
+              
+              // Keep Student #1 unchanged, fill others with existing group members
+              otherMembers.forEach((memberName, index) => {
+                if (index + 1 < updatedEntries.length) {
+                  updatedEntries[index + 1] = {
+                    ...updatedEntries[index + 1],
+                    studentName: memberName,
+                    amount: '' // Amount will be entered manually
+                  };
+                  console.log(`✅ Filled Student #${index + 2}:`, memberName);
+                }
+              });
+              
+              setDynamicGroupEntries(updatedEntries);
+            }
+            
+            alert(`✅ Payment details pre-filled successfully!\n\nStudent #1: ${formData.studentName} (current student)\nOther members: ${existingStudentNames.filter(n => n !== currentStudentName).join(', ')}\n\nPlease enter amounts manually for each student.`);
+            
+            setDuplicateCheckModal(false);
+            setDuplicateInfo(null);
+            console.log("✅ Modal closed after proceed");
           }}
           className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
         >
