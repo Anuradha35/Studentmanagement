@@ -2364,6 +2364,7 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
       // ✅ If we reach here, student is in existing group - show warning if different course details
 
 // ✅ If we reach here, student is in existing group - show warning if different course details
+    // ✅ If we reach here, student is in existing group - show warning if different course details
       if (warningMessage && !confirm(warningMessage)) {
         console.log("🚫 User cancelled the warning confirmation");
         setDuplicateCheckModal(false);
@@ -2434,6 +2435,10 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
         // ✅ Ensure we have at least 1 student (current student)
         const totalStudentsNeeded = Math.max(existingStudentNames.length, 1);
         
+        // ✅ IMPORTANT: Update groupCount to match existing group size
+        console.log("🔄 Updating groupCount from", groupCount, "to", totalStudentsNeeded);
+        setGroupCount(totalStudentsNeeded);
+        
         // ✅ CREATE FRESH GROUP ENTRIES with correct size
         const newGroupEntries = Array.from({ length: totalStudentsNeeded }, (_, index) => {
           if (index === 0) {
@@ -2464,29 +2469,34 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
         
         console.log("🔍 New group entries to set:", newGroupEntries);
         
-        // ✅ UPDATE GROUP COUNT AND ENTRIES in sequence
-        console.log("🔄 Setting group count:", totalStudentsNeeded);
-        setGroupCount(totalStudentsNeeded);
-        
-        // ✅ Use setTimeout to ensure state updates properly
+        // ✅ Use setTimeout to ensure state updates properly and prevent clashing
         setTimeout(() => {
           console.log("🔄 Setting dynamic group entries after count update");
+          console.log("🔍 Current groupCount before setting entries:", groupCount);
+          console.log("🔍 Required totalStudentsNeeded:", totalStudentsNeeded);
+          
+          // ✅ Force update groupCount again if it doesn't match
+          if (groupCount !== totalStudentsNeeded) {
+            console.log("⚠️ GroupCount mismatch detected, forcing update");
+            setGroupCount(totalStudentsNeeded);
+          }
+          
           setDynamicGroupEntries(newGroupEntries);
           
           // ✅ Clear any errors
           setErrors({});
           
-          console.log("✅ Updated group count:", totalStudentsNeeded);
-          console.log("✅ Updated group entries:", newGroupEntries);
+          console.log("✅ Final group count:", totalStudentsNeeded);
+          console.log("✅ Final group entries:", newGroupEntries);
           
           // Show success message
-          const successMsg = proceedMessage || `✅ Payment details pre-filled successfully!\n\nTotal Students: ${totalStudentsNeeded}\nStudent #1: ${currentStudentName} (current student)\n${otherMembers.length > 0 ? `Other Members: ${otherMembers.join(', ')}` : 'No other members'}\n\nPlease enter amounts manually for each student.`;
+          const successMsg = proceedMessage || `✅ Payment details pre-filled successfully!\n\n📊 Group Updated:\n- Total Students: ${totalStudentsNeeded}\n- Student #1: ${currentStudentName} (current student)\n${otherMembers.length > 0 ? `- Other Members: ${otherMembers.join(', ')}` : '- No other members'}\n\n💡 Note: Group size has been automatically adjusted to match existing payment group.\n\nPlease enter amounts manually for each student.`;
           
           setTimeout(() => {
             alert(successMsg);
           }, 200);
           
-        }, 100);
+        }, 150); // Increased timeout for better state synchronization
         
         setDuplicateCheckModal(false);
         setDuplicateInfo(null);
