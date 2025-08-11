@@ -896,7 +896,9 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
     entries: dynamicGroupEntries.length
   });
   
-console.log("🔍 Component Render - paymentType:", paymentType, "groupCount:", groupCount, "entries:", dynamicGroupEntries.length);
+
+
+
 
   return (
 
