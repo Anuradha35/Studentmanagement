@@ -708,9 +708,7 @@ const handleSubmit = (e: React.FormEvent) => {
   console.log("🔍 Form validation state:", Object.keys(errors).length, errors);
   console.log("🔍 Current paymentType:", paymentType, "groupCount:", groupCount, "entries:", dynamicGroupEntries.length);
 
-  const newErrors: { [key: string]: string } = {};
  
-
   const newErrors: { [key: string]: string } = {};
 
   // Validate required fields
