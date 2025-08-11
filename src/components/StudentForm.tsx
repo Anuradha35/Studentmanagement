@@ -709,8 +709,7 @@ const handleSubmit = (e: React.FormEvent) => {
   console.log("🔍 Current paymentType:", paymentType, "groupCount:", groupCount, "entries:", dynamicGroupEntries.length);
 
   const newErrors: { [key: string]: string } = {};
-  // ... rest of existing handleSubmit code remains same
-};
+ 
 
   const newErrors: { [key: string]: string } = {};
 
