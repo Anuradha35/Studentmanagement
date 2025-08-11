@@ -300,7 +300,20 @@ useEffect(() => {
     setDynamicGroupEntries(updated);
   }
 }, [dynamicGroupEntries.length, formData.studentName]);
+// ========================================
+// Find this existing useEffect and ADD this NEW useEffect AFTER it:
 
+useEffect(() => {
+  if (showGroupModal) {
+    const timer = setTimeout(() => {
+      if (groupInputRef.current) {
+        groupInputRef.current.focus();
+        groupInputRef.current.select(); // optional
+      }
+    }, 100); // delay helps after modal mounts
+    return () => clearTimeout(timer);
+  }
+}, [showGroupModal]);
 
   // ✅ STEP 4: Add this handler function
 const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
