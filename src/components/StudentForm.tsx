@@ -2360,17 +2360,52 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
       }
       
       // ✅ If we reach here, student is in existing group - show warning if different course details
+
+// ✅ If we reach here, student is in existing group - show warning if different course details
       if (warningMessage && !confirm(warningMessage)) {
+        console.log("🚫 User cancelled the warning confirmation");
         setDuplicateCheckModal(false);
         setDuplicateInfo(null);
         return;
       }
       
+      console.log("✅ User confirmed to proceed (or no warning needed)");
+      
       // ✅ PROCEED WITH PRE-FILLING
       try {
         console.log("🔄 Starting to pre-fill payment details...");
+        console.log("🔍 Existing payment data:", existingPayment);
+        console.log("🔍 Current form data before update:", {
+          studentName: formData.studentName,
+          courseDuration: formData.courseDuration,
+          courseFee: formData.courseFee
+        });
         
-        // Pre-fill payment information
+        // ✅ CRITICAL: First update the main student's info from existing data if it's an exact match
+        const isSameCourse = selectedCourse === duplicateInfo.courseName;
+        const isSameBatch = selectedBatch === duplicateInfo.batchName;
+        const isSameYear = selectedYear === duplicateInfo.yearName;
+        const isSameDuration = formData.courseDuration === duplicateInfo.studentInfo.courseDuration;
+        
+        if (isSameCourse && isSameBatch && isSameYear && isSameDuration) {
+          console.log("✅ Exact match - updating form data with existing student info");
+          // Update form data with existing student details for exact match
+          setFormData(prev => ({
+            ...prev,
+            fatherName: duplicateInfo.studentInfo.fatherName,
+            gender: duplicateInfo.studentInfo.gender,
+            mobileNo: duplicateInfo.studentInfo.mobileNo,
+            email: duplicateInfo.studentInfo.email,
+            category: duplicateInfo.studentInfo.category,
+            hostler: duplicateInfo.studentInfo.hostler,
+            collegeName: duplicateInfo.studentInfo.collegeName,
+            branch: duplicateInfo.studentInfo.branch,
+            startDate: duplicateInfo.studentInfo.startDate,
+            endDate: duplicateInfo.studentInfo.endDate
+          }));
+        }
+        
+        // ✅ Pre-fill payment information
         if (existingPayment.onlineAmount > 0) {
           setGroupOnlineAmount(existingPayment.onlineAmount.toString());
           setGroupUtrId(existingPayment.utrId || '');
@@ -2394,49 +2429,61 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
         console.log("🔍 Other members to fill:", otherMembers);
         console.log("🔍 Total required entries:", existingStudentNames.length);
         
+        // ✅ Ensure we have at least 1 student (current student)
+        const totalStudentsNeeded = Math.max(existingStudentNames.length, 1);
+        
         // ✅ CREATE FRESH GROUP ENTRIES with correct size
-        const totalStudentsNeeded = existingStudentNames.length;
-        const newGroupEntries = Array.from({ length: totalStudentsNeeded }, (_, index) => ({
-          studentName: '',
-          amount: '',
-          onlineAmount: '',
-          offlineAmount: '',
-          utrId: '',
-          receiptNo: '',
-          paymentDate: ''
-        }));
-        
-        // Fill Student #1 with current student
-        newGroupEntries[0] = {
-          ...newGroupEntries[0],
-          studentName: currentStudentName,
-          amount: '' // Amount will be entered manually
-        };
-        
-        // Fill remaining positions with other members
-        otherMembers.forEach((memberName, index) => {
-          if (index + 1 < newGroupEntries.length) {
-            newGroupEntries[index + 1] = {
-              ...newGroupEntries[index + 1],
-              studentName: memberName,
-              amount: '' // Amount will be entered manually
+        const newGroupEntries = Array.from({ length: totalStudentsNeeded }, (_, index) => {
+          if (index === 0) {
+            // Student #1 is always the current student
+            return {
+              studentName: currentStudentName,
+              amount: '', // Amount will be entered manually
+              onlineAmount: '',
+              offlineAmount: '',
+              utrId: '',
+              receiptNo: '',
+              paymentDate: ''
             };
-            console.log(`✅ Filled Student #${index + 2}:`, memberName);
+          } else {
+            // Fill with other members if available
+            const otherMemberIndex = index - 1;
+            return {
+              studentName: otherMemberIndex < otherMembers.length ? otherMembers[otherMemberIndex] : '',
+              amount: '',
+              onlineAmount: '',
+              offlineAmount: '',
+              utrId: '',
+              receiptNo: '',
+              paymentDate: ''
+            };
           }
         });
         
-        // ✅ UPDATE GROUP COUNT AND ENTRIES
+        console.log("🔍 New group entries to set:", newGroupEntries);
+        
+        // ✅ UPDATE GROUP COUNT AND ENTRIES in sequence
+        console.log("🔄 Setting group count:", totalStudentsNeeded);
         setGroupCount(totalStudentsNeeded);
-        safeSetDynamicGroupEntries(newGroupEntries); // ✅ Use safe function
         
-        console.log("✅ Updated group count:", totalStudentsNeeded);
-        console.log("✅ Updated group entries:", newGroupEntries);
-        
-        // Show success message
-        const successMsg = proceedMessage || `✅ Payment details pre-filled successfully!\n\nTotal Students: ${totalStudentsNeeded}\nStudent #1: ${currentStudentName} (current student)\nOther Members: ${otherMembers.join(', ')}\n\nPlease enter amounts manually for each student.`;
-        
+        // ✅ Use setTimeout to ensure state updates properly
         setTimeout(() => {
-          alert(successMsg);
+          console.log("🔄 Setting dynamic group entries after count update");
+          setDynamicGroupEntries(newGroupEntries);
+          
+          // ✅ Clear any errors
+          setErrors({});
+          
+          console.log("✅ Updated group count:", totalStudentsNeeded);
+          console.log("✅ Updated group entries:", newGroupEntries);
+          
+          // Show success message
+          const successMsg = proceedMessage || `✅ Payment details pre-filled successfully!\n\nTotal Students: ${totalStudentsNeeded}\nStudent #1: ${currentStudentName} (current student)\n${otherMembers.length > 0 ? `Other Members: ${otherMembers.join(', ')}` : 'No other members'}\n\nPlease enter amounts manually for each student.`;
+          
+          setTimeout(() => {
+            alert(successMsg);
+          }, 200);
+          
         }, 100);
         
         setDuplicateCheckModal(false);
@@ -2445,10 +2492,12 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
         
       } catch (error) {
         console.error("❌ Error during pre-filling:", error);
-        alert("❌ An error occurred while pre-filling the payment details. Please try again.");
+        console.error("❌ Error stack:", error.stack);
+        alert(`❌ An error occurred while pre-filling the payment details: ${error.message}\n\nPlease try again or contact support.`);
         setDuplicateCheckModal(false);
         setDuplicateInfo(null);
       }
+      
     }}
     className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
   >
