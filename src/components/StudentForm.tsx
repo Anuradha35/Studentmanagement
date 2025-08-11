@@ -896,7 +896,7 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
     entries: dynamicGroupEntries.length
   });
   
-
+}
 
   return (
 
