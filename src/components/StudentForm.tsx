@@ -703,12 +703,7 @@ if (emptyIndex !== -1) {
 
 const handleSubmit = (e: React.FormEvent) => {
   e.preventDefault();
-   // ✅ ADD THESE DEBUG LINES RIGHT HERE:
-  console.log("🔥 HandleSubmit called - preventing default and checking form state");
-  console.log("🔍 Form validation state:", Object.keys(errors).length, errors);
-  console.log("🔍 Current paymentType:", paymentType, "groupCount:", groupCount, "entries:", dynamicGroupEntries.length);
 
- 
   const newErrors: { [key: string]: string } = {};
 
   // Validate required fields
@@ -893,7 +888,6 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
     entries: dynamicGroupEntries.length
   });
   
-
 
   return (
 
@@ -2296,14 +2290,14 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
         <button 
     type="button"
     onClick={() => {
-      // ✅ REPLACE ENTIRE onClick FUNCTION WITH THIS:
-      console.log("🔥 SIMPLIFIED Add to Current Group button clicked");
+      console.log("🔥 DIRECT Add to Current Group button clicked");
       
       if (!duplicateInfo) {
         console.log("❌ No duplicateInfo found, returning");
         return;
       }
       
+      // ✅ REPLACE THE ENTIRE onClick FUNCTION WITH THIS:
       const currentStudentName = formData.studentName.trim().toUpperCase();
       const existingPayment = duplicateInfo.existingPayment;
       const existingGroupStudents = existingPayment.groupStudents || '';
@@ -2314,21 +2308,50 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
       
       console.log("🔍 Current student name:", currentStudentName);
       console.log("🔍 Existing group students:", existingStudentNames);
+      console.log("🔍 Current course/batch/year:", selectedCourse, selectedBatch, selectedYear);
+      console.log("🔍 Existing course/batch/year:", duplicateInfo.courseName, duplicateInfo.batchName, duplicateInfo.yearName);
       
-      // ✅ SIMPLE CHECK: Is current student part of existing group?
+      // ✅ ENHANCED VALIDATION: Check multiple scenarios
+      let canProceed = false;
+      let warningMessage = '';
+      let proceedMessage = '';
+      
+      // Check if current student is part of existing group
       const isStudentInExistingGroup = existingStudentNames.includes(currentStudentName);
       
-      if (!isStudentInExistingGroup) {
-        // Student is NOT in existing group - not allowed
-        alert(`❌ ERROR: Cannot add to existing group!\n\nCurrent Student: ${currentStudentName}\nExisting Group Members: ${existingGroupStudents}\n\n${currentStudentName} is not a member of the existing group payment.\n\nPlease use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
+      if (isStudentInExistingGroup) {
+        // ✅ SCENARIO 1: Student is already in the group payment
+        console.log("✅ SCENARIO 1: Current student IS part of existing group");
+        
+        // Check if same course/batch/year/duration
+        const isSameCourse = selectedCourse === duplicateInfo.courseName;
+        const isSameBatch = selectedBatch === duplicateInfo.batchName;
+        const isSameYear = selectedYear === duplicateInfo.yearName;
+        const isSameDuration = formData.courseDuration === duplicateInfo.studentInfo.courseDuration;
+        
+        if (isSameCourse && isSameBatch && isSameYear && isSameDuration) {
+          console.log("✅ EXACT MATCH: Same course, batch, year, and duration");
+          canProceed = true;
+          proceedMessage = `✅ Exact match found!\n\nStudent: ${currentStudentName}\nCourse: ${selectedCourse}\nBatch: ${selectedBatch}\nYear: ${selectedYear}\nDuration: ${formData.courseDuration}\n\nThis appears to be the same enrollment. Payment details will be pre-filled.`;
+        } else {
+          console.log("⚠️ PARTIAL MATCH: Different course details");
+          canProceed = true; // Allow but with warning
+          warningMessage = `⚠️ DIFFERENT COURSE DETAILS DETECTED!\n\nCurrent Entry:\n- Course: ${selectedCourse}\n- Batch: ${selectedBatch}\n- Year: ${selectedYear}\n- Duration: ${formData.courseDuration}\n\nExisting Payment:\n- Course: ${duplicateInfo.courseName}\n- Batch: ${duplicateInfo.batchName}\n- Year: ${duplicateInfo.yearName}\n- Duration: ${duplicateInfo.studentInfo.courseDuration}\n\nThis student (${currentStudentName}) appears to be enrolled in multiple courses/batches. Do you want to proceed with creating a separate payment entry for the current course?`;
+        }
+      } else {
+        // ✅ SCENARIO 2: Student is NOT in existing group - this should not be allowed
+        console.log("❌ SCENARIO 2: Current student is NOT part of existing group");
+        alert(`❌ ERROR: Cannot add to existing group!\n\nCurrent Student: ${currentStudentName}\nExisting Group Members: ${existingGroupStudents}\n\n${currentStudentName} is not a member of the existing group payment. Each student can only be added to their own group payments.\n\nPlease use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
         
         // Clear the problematic field
-        if (duplicateInfo.type === 'utr') {
-          setGroupUtrId('');
-          setGroupOnlineAmount('');
-        } else if (duplicateInfo.type === 'receipt') {
-          setGroupReceiptNo('');
-          setGroupOfflineAmount('');
+        if (paymentType === 'group') {
+          if (duplicateInfo.type === 'utr') {
+            setGroupUtrId('');
+            setGroupOnlineAmount('');
+          } else if (duplicateInfo.type === 'receipt') {
+            setGroupReceiptNo('');
+            setGroupOfflineAmount('');
+          }
         }
         
         setDuplicateCheckModal(false);
@@ -2336,10 +2359,17 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
         return;
       }
       
-      // ✅ STUDENT IS IN GROUP - PROCEED WITH PRE-FILLING
-      console.log("✅ Student IS part of existing group - proceeding without course validation");
+      // ✅ If we reach here, student is in existing group - show warning if different course details
+      if (warningMessage && !confirm(warningMessage)) {
+        setDuplicateCheckModal(false);
+        setDuplicateInfo(null);
+        return;
+      }
       
+      // ✅ PROCEED WITH PRE-FILLING
       try {
+        console.log("🔄 Starting to pre-fill payment details...");
+        
         // Pre-fill payment information
         if (existingPayment.onlineAmount > 0) {
           setGroupOnlineAmount(existingPayment.onlineAmount.toString());
@@ -2356,7 +2386,7 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
         setGroupPaymentDate(existingPayment.paymentDate || '');
         console.log("✅ Pre-filled payment date:", existingPayment.paymentDate);
         
-        // ✅ CREATE GROUP ENTRIES based on existing group size
+        // ✅ ENHANCED: Create new group entries based on existing group size
         const otherMembers = existingStudentNames.filter(name => 
           name !== currentStudentName
         );
@@ -2364,48 +2394,53 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
         console.log("🔍 Other members to fill:", otherMembers);
         console.log("🔍 Total required entries:", existingStudentNames.length);
         
-        // Create fresh group entries with correct size
+        // ✅ CREATE FRESH GROUP ENTRIES with correct size
         const totalStudentsNeeded = existingStudentNames.length;
-        const newGroupEntries = Array.from({ length: totalStudentsNeeded }, () => ({
+        const newGroupEntries = Array.from({ length: totalStudentsNeeded }, (_, index) => ({
           studentName: '',
-          amount: ''
+          amount: '',
+          onlineAmount: '',
+          offlineAmount: '',
+          utrId: '',
+          receiptNo: '',
+          paymentDate: ''
         }));
         
         // Fill Student #1 with current student
         newGroupEntries[0] = {
+          ...newGroupEntries[0],
           studentName: currentStudentName,
-          amount: ''
+          amount: '' // Amount will be entered manually
         };
         
         // Fill remaining positions with other members
         otherMembers.forEach((memberName, index) => {
           if (index + 1 < newGroupEntries.length) {
             newGroupEntries[index + 1] = {
+              ...newGroupEntries[index + 1],
               studentName: memberName,
-              amount: ''
+              amount: '' // Amount will be entered manually
             };
             console.log(`✅ Filled Student #${index + 2}:`, memberName);
           }
         });
         
-        // Update group count and entries
+        // ✅ UPDATE GROUP COUNT AND ENTRIES
         setGroupCount(totalStudentsNeeded);
-        setDynamicGroupEntries(newGroupEntries);
+        safeSetDynamicGroupEntries(newGroupEntries); // ✅ Use safe function
         
         console.log("✅ Updated group count:", totalStudentsNeeded);
         console.log("✅ Updated group entries:", newGroupEntries);
         
-        // Success message
-        const successMsg = `✅ Payment details pre-filled successfully!\n\nTotal Students: ${totalStudentsNeeded}\nStudent #1: ${currentStudentName} (current student)\nOther Members: ${otherMembers.join(', ')}\n\nPlease enter amounts manually for each student.`;
+        // Show success message
+        const successMsg = proceedMessage || `✅ Payment details pre-filled successfully!\n\nTotal Students: ${totalStudentsNeeded}\nStudent #1: ${currentStudentName} (current student)\nOther Members: ${otherMembers.join(', ')}\n\nPlease enter amounts manually for each student.`;
+        
+        setTimeout(() => {
+          alert(successMsg);
+        }, 100);
         
         setDuplicateCheckModal(false);
         setDuplicateInfo(null);
-        
-        // Show success message after modal closes
-        setTimeout(() => {
-          alert(successMsg);
-        }, 200);
-        
         console.log("✅ Modal closed after successful proceed");
         
       } catch (error) {
