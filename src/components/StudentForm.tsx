@@ -1930,15 +1930,15 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
         </div>
       </form>
 
-      {/* ✅ WORKING Duplicate Check Modal - Just replace the payment amount display section */}
+    {/* ✅ ENHANCED Duplicate Check Modal - ViewStudent style layout */}
 <Dialog 
   open={duplicateCheckModal} 
   onClose={() => handleDuplicateConfirmation('cancel')} 
   className="fixed z-50 inset-0 flex items-center justify-center"
 >
   <div className="bg-black bg-opacity-50 fixed inset-0"></div>
-  <Dialog.Panel className="bg-slate-800 border border-red-500/30 rounded-lg p-6 z-50 w-full max-w-lg mx-4">
-    <div className="flex items-center gap-3 mb-4">
+  <Dialog.Panel className="bg-slate-800 border border-red-500/30 rounded-lg p-6 z-50 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="flex items-center gap-3 mb-6">
       <AlertTriangle className="w-6 h-6 text-red-400" />
       <Dialog.Title className="text-xl font-bold text-red-400">
         Duplicate Payment Detected!
@@ -1946,52 +1946,215 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
     </div>
     
     {duplicateInfo && (
-      <div className="space-y-4 mb-6">
-        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-          <h3 className="text-red-300 font-medium mb-2">Existing Payment Details:</h3>
-          <div className="text-sm text-gray-300 space-y-1">
-            <div><strong>Student Name:    </strong> {duplicateInfo.studentInfo.studentName}</div>
-            <div><strong>Course Name:     </strong> {duplicateInfo.courseName}</div>
-            <div><strong>Batch:           </strong> {duplicateInfo.batchName}</div>
-            <div><strong>Year:            </strong> {duplicateInfo.yearName}</div>
-            <div><strong>Starting Date of Course: </strong> {duplicateInfo.studentInfo.startDate}</div>
-            <div><strong>Duration:</strong> {duplicateInfo.studentInfo.courseDuration}</div>
-            <div><strong>Payment Type:</strong> {duplicateInfo.paymentType === 'single' ? 'Single Payment' : 'Group Payment'}</div>
-            <div><strong>Payment Date:</strong> {duplicateInfo.existingPayment.paymentDate}</div>
-            {duplicateInfo.type === 'utr' && (
-              <div><strong>UTR/UPI ID:</strong> {duplicateInfo.value}</div>
-            )}
-            {duplicateInfo.type === 'receipt' && (
-              <div><strong>Receipt Number:</strong> {duplicateInfo.value}</div>
-            )}
+      <div className="space-y-6 mb-6">
+        {/* Student Information Card */}
+        <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/30 rounded-xl p-6">
+          <h3 className="text-lg font-bold text-red-300 mb-4 flex items-center gap-2">
+            <User className="w-5 h-5" />
+            Existing Student Details
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <div>
+                <p className="text-gray-400 text-sm">Student Name</p>
+                <p className="text-white font-medium">{duplicateInfo.studentInfo.studentName}</p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">Father's Name</p>
+                <p className="text-white">{duplicateInfo.studentInfo.fatherName}</p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">Mobile Number</p>
+                <p className="text-white">{duplicateInfo.studentInfo.mobileNo}</p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">Email</p>
+                <p className="text-white text-sm">{duplicateInfo.studentInfo.email}</p>
+              </div>
+            </div>
             
-            {/* ✅ ENHANCED: Show different amount details based on payment type */}
-            {duplicateInfo.paymentType === 'single' ? (
-              <div><strong>Amount:</strong> ₹{duplicateInfo.existingPayment.amount?.toLocaleString()}</div>
-            ) : (
-              <div className="space-y-1">
-                <div><strong>Total Group Payment:</strong> ₹{duplicateInfo.existingPayment.totalGroupAmount?.toLocaleString()}</div>
-                <div><strong>This Student's Share:</strong> ₹{duplicateInfo.existingPayment.amount?.toLocaleString()}</div>
-                <div><strong>Other Students' Share:</strong> ₹{(duplicateInfo.existingPayment.totalGroupAmount - duplicateInfo.existingPayment.amount)?.toLocaleString()}</div>
-                {duplicateInfo.existingPayment.groupStudents && (
-                  <div><strong>Group Members:</strong> {duplicateInfo.existingPayment.groupStudents}</div>
+            <div className="space-y-3">
+              <div>
+                <p className="text-gray-400 text-sm">Course</p>
+                <p className="text-white font-medium">{duplicateInfo.courseName}</p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">Batch & Year</p>
+                <p className="text-white">{duplicateInfo.batchName} • {duplicateInfo.yearName}</p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">Duration</p>
+                <p className="text-white">{duplicateInfo.studentInfo.courseDuration}</p>
+              </div>
+              <div>
+                <p className="text-gray-400 text-sm">Course Dates</p>
+                <p className="text-white">{duplicateInfo.studentInfo.startDate} to {duplicateInfo.studentInfo.endDate}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Course Fee Summary */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-blue-500/20 rounded-lg p-4 border border-blue-500/30">
+            <p className="text-blue-300 text-sm">Course Fee</p>
+            <p className="text-2xl font-bold text-white">₹{duplicateInfo.studentInfo.courseFee?.toLocaleString()}</p>
+          </div>
+          <div className="bg-green-500/20 rounded-lg p-4 border border-green-500/30">
+            <p className="text-green-300 text-sm">Total Paid</p>
+            <p className="text-2xl font-bold text-white">₹{duplicateInfo.studentInfo.totalPaid?.toLocaleString()}</p>
+          </div>
+          <div className="bg-orange-500/20 rounded-lg p-4 border border-orange-500/30">
+            <p className="text-orange-300 text-sm">Remaining</p>
+            <p className="text-2xl font-bold text-white">₹{duplicateInfo.studentInfo.remainingFee?.toLocaleString()}</p>
+          </div>
+        </div>
+
+        {/* Payment Details Card */}
+        <div className="bg-slate-900/50 border border-slate-600 rounded-xl p-6">
+          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <DollarSign className="w-5 h-5 text-yellow-400" />
+            Duplicate Payment Information
+          </h3>
+
+          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-4">
+            <div className="flex items-center gap-2 mb-3">
+              {duplicateInfo.type === 'utr' ? (
+                <CreditCard className="w-4 h-4 text-red-400" />
+              ) : (
+                <Receipt className="w-4 h-4 text-red-400" />
+              )}
+              <span className="font-medium text-red-300">
+                {duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}: {duplicateInfo.value}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div>
+                  <p className="text-gray-400 text-sm">Payment Type</p>
+                  <p className="text-white font-medium">
+                    {duplicateInfo.paymentType === 'single' ? '💵 Single Payment' : '👥 Group Payment'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-400 text-sm">Payment Date</p>
+                  <p className="text-white">{duplicateInfo.existingPayment.paymentDate}</p>
+                </div>
+                <div>
+                  <p className="text-gray-400 text-sm">Payment Mode</p>
+                  <p className="text-white">
+                    {duplicateInfo.existingPayment.onlineAmount > 0 && duplicateInfo.existingPayment.offlineAmount > 0
+                      ? '💳 Online + 💵 Offline'
+                      : duplicateInfo.existingPayment.onlineAmount > 0
+                      ? '💳 Online'
+                      : '💵 Offline'
+                    }
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {/* Payment Amounts based on type */}
+                {duplicateInfo.paymentType === 'single' ? (
+                  <div>
+                    <p className="text-gray-400 text-sm">Payment Amount</p>
+                    <p className="text-2xl font-bold text-green-400">
+                      ₹{duplicateInfo.existingPayment.amount?.toLocaleString()}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-gray-400 text-sm">Total Group Payment</p>
+                      <p className="text-xl font-bold text-purple-400">
+                        ₹{duplicateInfo.existingPayment.totalGroupAmount?.toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <p className="text-gray-400">This Student's Share</p>
+                        <p className="text-green-400 font-medium">
+                          ₹{duplicateInfo.existingPayment.amount?.toLocaleString()}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400">Others' Share</p>
+                        <p className="text-blue-400 font-medium">
+                          ₹{(duplicateInfo.existingPayment.totalGroupAmount - duplicateInfo.existingPayment.amount)?.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 )}
+
+                {/* Online/Offline breakdown for group payments */}
+                {duplicateInfo.paymentType === 'group' && (
+                  <div className="text-sm space-y-1 mt-2 pt-2 border-t border-gray-600">
+                    {duplicateInfo.existingPayment.onlineAmount > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">💳 Online Amount:</span>
+                        <span className="text-white">₹{duplicateInfo.existingPayment.onlineAmount?.toLocaleString()}</span>
+                      </div>
+                    )}
+                    {duplicateInfo.existingPayment.offlineAmount > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">💵 Offline Amount:</span>
+                        <span className="text-white">₹{duplicateInfo.existingPayment.offlineAmount?.toLocaleString()}</span>
+                      </div>
+                    )}
+                    {duplicateInfo.existingPayment.utrId && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">UTR ID:</span>
+                        <span className="text-white font-mono">{duplicateInfo.existingPayment.utrId}</span>
+                      </div>
+                    )}
+                    {duplicateInfo.existingPayment.receiptNo && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Receipt No:</span>
+                        <span className="text-white font-mono">{duplicateInfo.existingPayment.receiptNo}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Group Members for group payments */}
+            {duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
+              <div className="mt-4 pt-4 border-t border-gray-600">
+                <p className="text-gray-400 text-sm mb-2">Group Members</p>
+                <div className="flex flex-wrap gap-2">
+                  {duplicateInfo.existingPayment.groupStudents.split(', ').map((student, index) => (
+                    <span key={index} className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-sm">
+                      {student}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Show different messages based on payment types */}
+        {/* Action Message */}
         {duplicateInfo.paymentType === 'single' || paymentType === 'single' ? (
-          <div className="text-yellow-300 text-sm bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
-            <strong>⚠️ Cannot Proceed:</strong> This {duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'} 
-            has already been used for a payment. Duplicate payment IDs are not allowed.
+          <div className="text-yellow-300 text-sm bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="w-4 h-4" />
+              <strong>Cannot Proceed</strong>
+            </div>
+            <p>This {duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'} has already been used for a payment. 
+            Duplicate payment IDs are not allowed to maintain data integrity.</p>
           </div>
         ) : (
-          <div className="text-blue-300 text-sm bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
-            <strong>💡 Group Payment Option:</strong> Since this is a group payment and the existing payment is also a group payment, 
-            you can add <strong>{duplicateInfo.studentInfo.studentName}</strong> to your current group as Student #1. 
-            The existing payment details will be pre-filled, but you'll need to enter the amount for this student.
+          <div className="text-blue-300 text-sm bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="w-4 h-4" />
+              <strong>Group Payment Option Available</strong>
+            </div>
+            <p>Since both payments are group payments, you can add <strong>{duplicateInfo.studentInfo.studentName}</strong> to your current group as Student #1. 
+            The existing payment details will be pre-filled, but you'll need to enter the amount for this student.</p>
           </div>
         )}
       </div>
@@ -2000,7 +2163,7 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
     <div className="flex gap-3">
       <button 
         onClick={() => handleDuplicateConfirmation('cancel')} 
-        className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+        className="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
       >
         Cancel
       </button>
@@ -2008,15 +2171,14 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
       {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
         <button 
           onClick={() => handleDuplicateConfirmation('proceed')} 
-          className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
         >
-          Add to Group
+          Add to Current Group
         </button>
       )}
     </div>
   </Dialog.Panel>
 </Dialog>
-
 
 
       
