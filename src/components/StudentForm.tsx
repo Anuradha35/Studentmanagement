@@ -898,8 +898,6 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
   
 
 
-
-
   return (
 
     <div className="min-h-screen p-6">
