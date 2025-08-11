@@ -2074,14 +2074,14 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
                     </div>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
-                        <p className="text-gray-400">This Student's Amount</p>
+                        <p className="text-gray-400">This Student's Share</p>
                         <p className="text-green-400 font-medium">
                           ₹{duplicateInfo.existingPayment.amount?.toLocaleString()}
                           
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-400">Others' Share</p>
+                        <p className="text-gray-400">Others' Student Share</p>
                         <p className="text-blue-400 font-medium">
                           ₹{(duplicateInfo.existingPayment.totalGroupAmount - duplicateInfo.existingPayment.amount)?.toLocaleString()}
                         </p>
