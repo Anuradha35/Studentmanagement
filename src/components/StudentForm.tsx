@@ -191,7 +191,26 @@ const findDuplicatePayment = (utrId?: string, receiptNo?: string) => {
   return null;
 };
 
-
+// ✅ ADD THIS NEW HELPER FUNCTION RIGHT AFTER findDuplicatePayment:
+const safeSetDynamicGroupEntries = (newEntries) => {
+  try {
+    console.log("🛡️ Safely setting group entries:", newEntries);
+    setDynamicGroupEntries(newEntries);
+    
+    // Force a small delay to ensure React updates properly
+    setTimeout(() => {
+      console.log("✅ Group entries set successfully");
+    }, 50);
+  } catch (error) {
+    console.error("❌ Error setting group entries:", error);
+    // Fallback: create simple entries
+    const fallbackEntries = Array.from({ length: newEntries.length || 1 }, () => ({
+      studentName: '',
+      amount: ''
+    }));
+    setDynamicGroupEntries(fallbackEntries);
+  }
+};
   
 
 useEffect(() => {
@@ -314,6 +333,31 @@ useEffect(() => {
     return () => clearTimeout(timer);
   }
 }, [showGroupModal]);
+
+  / ✅ ADD THIS NEW useEffect RIGHT AFTER THE ABOVE ONE:
+useEffect(() => {
+  console.log("👁️ Dynamic Group Entries Changed:", dynamicGroupEntries.length);
+  
+  // Force re-render of the form section when entries change
+  if (dynamicGroupEntries.length > 0 && paymentType === 'group') {
+    // Update the group count to match entries
+    if (groupCount !== dynamicGroupEntries.length) {
+      setGroupCount(dynamicGroupEntries.length);
+      console.log("🔄 Updated group count to match entries:", dynamicGroupEntries.length);
+    }
+    
+    // Ensure Student #1 has current student name
+    if (dynamicGroupEntries[0] && dynamicGroupEntries[0].studentName !== formData.studentName.toUpperCase()) {
+      const updatedEntries = [...dynamicGroupEntries];
+      updatedEntries[0] = {
+        ...updatedEntries[0],
+        studentName: formData.studentName.toUpperCase()
+      };
+      setDynamicGroupEntries(updatedEntries);
+      console.log("🔄 Synced Student #1 with form student name");
+    }
+  }
+}, [dynamicGroupEntries.length, paymentType, formData.studentName, groupCount]);
 
   // ✅ STEP 4: Add this handler function
 const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
