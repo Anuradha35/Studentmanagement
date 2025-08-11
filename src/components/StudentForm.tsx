@@ -2365,6 +2365,7 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
 
 // ✅ If we reach here, student is in existing group - show warning if different course details
     // ✅ If we reach here, student is in existing group - show warning if different course details
+     // ✅ If we reach here, student is in existing group - show warning if different course details
       if (warningMessage && !confirm(warningMessage)) {
         console.log("🚫 User cancelled the warning confirmation");
         setDuplicateCheckModal(false);
@@ -2489,18 +2490,21 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
           console.log("✅ Final group count:", totalStudentsNeeded);
           console.log("✅ Final group entries:", newGroupEntries);
           
-          // Show success message
-          const successMsg = proceedMessage || `✅ Payment details pre-filled successfully!\n\n📊 Group Updated:\n- Total Students: ${totalStudentsNeeded}\n- Student #1: ${currentStudentName} (current student)\n${otherMembers.length > 0 ? `- Other Members: ${otherMembers.join(', ')}` : '- No other members'}\n\n💡 Note: Group size has been automatically adjusted to match existing payment group.\n\nPlease enter amounts manually for each student.`;
+          // ✅ CRITICAL: Close modal and set info to null BEFORE showing alert
+          setDuplicateCheckModal(false);
+          setDuplicateInfo(null);
           
+          // ✅ Show success message with longer delay to ensure UI is stable
           setTimeout(() => {
+            const successMsg = proceedMessage || `✅ Payment details pre-filled successfully!\n\n📊 Group Updated:\n- Total Students: ${totalStudentsNeeded}\n- Student #1: ${currentStudentName} (current student)\n${otherMembers.length > 0 ? `- Other Members: ${otherMembers.join(', ')}` : '- No other members'}\n\n💡 Note: Group size has been automatically adjusted to match existing payment group.\n\nPlease enter amounts manually for each student.`;
+            
             alert(successMsg);
-          }, 200);
+            console.log("✅ Success message shown, process completed");
+          }, 300);
           
         }, 150); // Increased timeout for better state synchronization
         
-        setDuplicateCheckModal(false);
-        setDuplicateInfo(null);
-        console.log("✅ Modal closed after successful proceed");
+        console.log("✅ Process initiated, modal will close before alert");
         
       } catch (error) {
         console.error("❌ Error during pre-filling:", error);
