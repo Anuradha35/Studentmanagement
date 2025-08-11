@@ -899,16 +899,18 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
       <Dialog.Panel className="bg-white rounded-lg p-6 z-50 w-full max-w-md">
         <Dialog.Title className="text-lg font-bold mb-4">Enter Number of Students</Dialog.Title>
         <input
-          type="number"
-          ref={groupInputRef} // 👈 Add this
-           
-          min={1}
-          max={20}
-          value={groupCount === 0 ? '' : groupCount}
-          onChange={(e) => {
-          const val = parseInt(e.target.value);
-          if (!isNaN(val)) setGroupCount(val);
-           }}
+
+  type="number"
+  ref={groupInputRef}
+  min={1}
+  max={20}
+  value={groupCount === 0 ? '' : groupCount}
+  onChange={(e) => {
+  const val = parseInt(e.target.value);
+  if (!isNaN(val)) setGroupCount(val);
+   }}
+          
+          
            onKeyDown={(e) => {
            if (e.key === 'Enter') {
             e.preventDefault();  // Prevent form submission if inside <form>
