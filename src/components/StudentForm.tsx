@@ -1933,7 +1933,10 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
 {/* ✅ ENHANCED Duplicate Check Modal - ViewStudent style layout */}
 <Dialog 
   open={duplicateCheckModal} 
-  onClose={() => handleDuplicateConfirmation('cancel')} 
+  onClose={() => {
+    console.log("🔥 Dialog onClose triggered");
+    handleDuplicateConfirmation('cancel');
+  }} 
   className="fixed z-50 inset-0 flex items-center justify-center"
 >
   <div className="bg-black bg-opacity-50 fixed inset-0"></div>
@@ -2162,7 +2165,11 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
 
     <div className="flex gap-3">
       <button 
-        onClick={() => handleDuplicateConfirmation('cancel')} 
+        type="button"
+        onClick={() => {
+          console.log("🔥 Cancel button clicked");
+          handleDuplicateConfirmation('cancel');
+        }}
         className="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
       >
         Cancel
@@ -2170,7 +2177,11 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
       
       {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
         <button 
-          onClick={() => handleDuplicateConfirmation('proceed')} 
+          type="button"
+          onClick={() => {
+            console.log("🔥 Add to Current Group button clicked");
+            handleDuplicateConfirmation('proceed');
+          }}
           className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
         >
           Add to Current Group
@@ -2179,7 +2190,6 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
     </div>
   </Dialog.Panel>
 </Dialog>
-
 
       
     </div>
