@@ -1930,7 +1930,7 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
         </div>
       </form>
 
-    {/* ✅ ENHANCED Duplicate Check Modal - ViewStudent style layout */}
+{/* ✅ ENHANCED Duplicate Check Modal - ViewStudent style layout */}
 <Dialog 
   open={duplicateCheckModal} 
   onClose={() => handleDuplicateConfirmation('cancel')} 
@@ -2077,11 +2077,10 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
                         <p className="text-gray-400">This Student's Share</p>
                         <p className="text-green-400 font-medium">
                           ₹{duplicateInfo.existingPayment.amount?.toLocaleString()}
-                          
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-400">Others' Student Share</p>
+                        <p className="text-gray-400">Others' Share</p>
                         <p className="text-blue-400 font-medium">
                           ₹{(duplicateInfo.existingPayment.totalGroupAmount - duplicateInfo.existingPayment.amount)?.toLocaleString()}
                         </p>
