@@ -703,6 +703,14 @@ if (emptyIndex !== -1) {
 
 const handleSubmit = (e: React.FormEvent) => {
   e.preventDefault();
+   // ✅ ADD THESE DEBUG LINES RIGHT HERE:
+  console.log("🔥 HandleSubmit called - preventing default and checking form state");
+  console.log("🔍 Form validation state:", Object.keys(errors).length, errors);
+  console.log("🔍 Current paymentType:", paymentType, "groupCount:", groupCount, "entries:", dynamicGroupEntries.length);
+
+  const newErrors: { [key: string]: string } = {};
+  // ... rest of existing handleSubmit code remains same
+};
 
   const newErrors: { [key: string]: string } = {};
 
