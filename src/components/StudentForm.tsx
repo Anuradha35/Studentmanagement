@@ -334,7 +334,7 @@ useEffect(() => {
   }
 }, [showGroupModal]);
 
-  / ✅ ADD THIS NEW useEffect RIGHT AFTER THE ABOVE ONE:
+  // ✅ ADD THIS NEW useEffect RIGHT AFTER THE ABOVE ONE:
 useEffect(() => {
   console.log("👁️ Dynamic Group Entries Changed:", dynamicGroupEntries.length);
   
