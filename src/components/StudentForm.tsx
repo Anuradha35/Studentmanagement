@@ -2590,7 +2590,13 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       
       // Check if current student is part of existing group
       const isStudentInExistingGroup = existingStudentNames.includes(currentStudentName);
+      const isFatherNameMatching = currentFatherName === existingFatherName;
       
+      // ✅ Both conditions must be true for a valid match
+      const isStudentInExistingGroup = isStudentNameInGroup && isFatherNameMatching;
+       console.log("🔍 Student name in group:", isStudentNameInGroup);
+      console.log("🔍 Father name matching:", isFatherNameMatching);
+      console.log("🔍 Final match result:", isStudentInExistingGroup);
       
       if (isStudentInExistingGroup ) {
         // ✅ SCENARIO 1: Student is already in the group payment
@@ -2606,7 +2612,8 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
         if (isSameCourse && isSameBatch && isSameYear && isSameDuration) {
           console.log("✅ EXACT MATCH: Same course, batch, year, and duration");
           canProceed = true;
-          proceedMessage = `✅ Exact match found!\n\nStudent: ${currentStudentName}\nCourse: ${selectedCourse}\nBatch: ${selectedBatch}\nYear: ${selectedYear}\nDuration: ${formData.courseDuration}\n\nThis appears to be the same enrollment. Payment details will be pre-filled.`;
+          proceedMessage = `✅ Exact match found!\n\nStudent: ${currentStudentName}\nFather: ${currentFatherName}\nCourse: ${selectedCourse}\nBatch: ${selectedBatch}\nYear: ${selectedYear}\nDuration: ${formData.courseDuration}\n\nThis appears to be the same enrollment. Payment details will be pre-filled.`;
+    
         } else {
           console.log("⚠️ PARTIAL MATCH: Different course details");
           canProceed = true; // Allow but with warning
