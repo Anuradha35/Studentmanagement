@@ -2586,7 +2586,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       
       // Check if current student is part of existing group
       const isStudentInExistingGroup = existingStudentNames.includes(currentStudentName);
-      const isFatherInExistingGroup = existingFatherNames.includes(enteredFatherName);
+      
       
       if (isStudentInExistingGroup && isFatherInExistingGroup) {
         // ✅ SCENARIO 1: Student is already in the group payment
