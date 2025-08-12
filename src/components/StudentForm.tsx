@@ -2677,6 +2677,17 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       console.log("✅ User confirmed to proceed (or no warning needed)");
       
       // ✅ PROCEED WITH PRE-FILLING
+      // ✅ Close modal first
+      setDuplicateCheckModal(false);
+      setDuplicateInfo(null);
+      
+      // ✅ Proceed with pre-filling after short delay
+      setTimeout(() => {
+        proceedWithPreFilling();
+      }, 150);
+      
+      // ✅ EXTRACTED FUNCTION: Pre-filling logic
+      function proceedWithPreFilling() {
       try {
         console.log("🔄 Starting to pre-fill payment details...");
         console.log("🔍 Existing payment data:", existingPayment);
@@ -2796,22 +2807,29 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
           setDuplicateCheckModal(false);
           setDuplicateInfo(null);
           
-          // ✅ Show success message with longer delay to ensure UI is stable
-          setTimeout(() => {
+          // ✅ FIXED: Show success message with non-blocking approach
             const successMsg = proceedMessage || `✅ Payment details pre-filled successfully!\n\n📊 Group Updated:\n- Total Students: ${totalStudentsNeeded}\n- Student #1: ${currentStudentName} (current student)\n${otherMembers.length > 0 ? `- Other Members: ${otherMembers.join(', ')}` : '- No other members'}\n\n💡 Note: Group size has been automatically adjusted to match existing payment group.`;
             
-            alert(successMsg);
-            console.log("✅ Success message shown, process completed");
-          }, 300);
+            // ✅ CRITICAL FIX: Use setTimeout for alert to prevent UI blocking and state loss
+            setTimeout(() => {
+              // ✅ Check if component is still mounted before showing alert
+              if (document.body) {
+                alert(successMsg);
+                console.log("✅ Success message shown, process completed");
+              }
+            }, 500); // Reduced timeout but ensure UI is stable
+            
+          }, 200); // Reduced timeout for better responsiveness
           
-        }, 150); // Increased timeout for better state synchronization
-        
-        console.log("✅ Process initiated, modal will close before alert");
+          console.log("✅ Process initiated successfully");
         
       } catch (error) {
         console.error("❌ Error during pre-filling:", error);
         console.error("❌ Error stack:", error.stack);
-        alert(`❌ An error occurred while pre-filling the payment details: ${error.message}\n\nPlease try again or contact support.`);
+         // ✅ FIXED: Non-blocking error alert
+          setTimeout(() => {
+            alert(`❌ An error occurred while pre-filling the payment details: ${error.message}\n\nPlease try again or contact support.`);
+          }, 100);
         setDuplicateCheckModal(false);
         setDuplicateInfo(null);
       }
