@@ -2567,6 +2567,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       
       // ✅ REPLACE THE ENTIRE onClick FUNCTION WITH THIS:
       const currentStudentName = formData.studentName.trim().toUpperCase();
+       const currentFatherName = formData.fatherName.trim().toUpperCase();
       const existingPayment = duplicateInfo.existingPayment;
       const existingGroupStudents = existingPayment.groupStudents || '';
       const enteredFatherName = formData.fatherName.trim().toUpperCase();
