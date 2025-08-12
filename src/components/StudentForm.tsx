@@ -2589,11 +2589,12 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       let proceedMessage = '';
       
       // Check if current student is part of existing group
-      const isStudentInExistingGroup = existingStudentNames.includes(currentStudentName);
+      const isStudentNameInGroup = existingStudentNames.includes(currentStudentName);
       const isFatherNameMatching = currentFatherName === existingFatherName;
       
       // ✅ Both conditions must be true for a valid match
       const isStudentInExistingGroup = isStudentNameInGroup && isFatherNameMatching;
+      
        console.log("🔍 Student name in group:", isStudentNameInGroup);
       console.log("🔍 Father name matching:", isFatherNameMatching);
       console.log("🔍 Final match result:", isStudentInExistingGroup);
