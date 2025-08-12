@@ -1441,11 +1441,8 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
           <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
             <DollarSign className="w-6 h-6 text-yellow-400" />
             Payment Information
-            {paymentFieldsReadOnly && (
-              <span className="text-sm bg-orange-500/20 text-orange-300 px-3 py-1 rounded-full border border-orange-500/30">
-                Fields Locked (Payment Added)
-              </span>
-            )}
+            
+           
           </h2>
 
           {/* Payment Type Selection */}
