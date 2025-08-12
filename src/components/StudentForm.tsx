@@ -905,11 +905,16 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
   min={1}
   max={20}
   value={groupCount === 0 ? '' : groupCount}
-  onChange={(e) => {
-  const val = parseInt(e.target.value);
-  if (!isNaN(val)) setGroupCount(val);
-   }}
-          
+ onChange={(e) => {
+  const val = e.target.value;
+  if (val === '') {
+    setGroupCount(0); // ya '' rakho agar blank allow karna hai
+  } else {
+    const num = parseInt(val);
+    if (!isNaN(num)) setGroupCount(num);
+  }
+}}
+   
           
            onKeyDown={(e) => {
            if (e.key === 'Enter') {
