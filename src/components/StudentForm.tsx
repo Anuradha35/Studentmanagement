@@ -2534,6 +2534,16 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
           setDuplicateCheckModal(false);
           setDuplicateInfo(null);
           console.log("✅ Modal closed after cancel");
+          // ✅ Clear previous group data
+  setGroupStudentName('');
+  setGroupOnlineAmount('');
+  setGroupOfflineAmount('');
+  setGroupUtrId('');
+  setGroupReceiptNo('');
+  setGroupPaymentDate('');
+  setGroupPayments([]);
+  setDynamicGroupEntries([]);
+  setErrors({});
         }}
         className="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
       >
