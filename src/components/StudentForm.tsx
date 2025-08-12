@@ -2829,7 +2829,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
          // ✅ FIXED: Non-blocking error alert
           setTimeout(() => {
             alert(`❌ An error occurred while pre-filling the payment details: ${error.message}\n\nPlease try again or contact support.`);
-          }, 100);
+          }, 5000);
         setDuplicateCheckModal(false);
         setDuplicateInfo(null);
       }
