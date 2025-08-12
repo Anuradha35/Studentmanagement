@@ -1927,6 +1927,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
 )}
 
   <label className="text-sm text-white">Amount</label>
+    readOnly={paymentFieldsReadOnly}
   <input
     type="text"
     placeholder="Enter amount"
@@ -2615,7 +2616,8 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
           
           console.log("✅ Final group count:", totalStudentsNeeded);
           console.log("✅ Final group entries:", newGroupEntries);
-          
+           // ✅ ADD THIS LINE TO ACTIVATE READ-ONLY MODE
+      setPaymentFieldsReadOnly(true);
           // ✅ CRITICAL: Close modal and set info to null BEFORE showing alert
           setDuplicateCheckModal(false);
           setDuplicateInfo(null);
