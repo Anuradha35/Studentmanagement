@@ -2643,16 +2643,34 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
         console.log("🚫 User cancelled the warning confirmation");
         setDuplicateCheckModal(false);
         setDuplicateInfo(null);
-         setGroupStudentName('');
-  setGroupOnlineAmount('');
-  setGroupOfflineAmount('');
-  setGroupUtrId('');
-  setGroupReceiptNo('');
-  setGroupPaymentDate('');
-  setGroupPayments([]);
-  setDynamicGroupEntries([]);
-  setErrors({});
-           setPaymentType('single'); // Reset to single if cancelled
+                 // ✅ Use setTimeout to ensure modal closes before showing confirm dialog
+        setTimeout(() => {
+          const userConfirmed = confirm(warningMessage);
+          
+          if (!userConfirmed) {
+            console.log("🚫 User cancelled the warning confirmation");
+            
+            // ✅ FIXED: Reset all group payment fields as requested
+            setGroupStudentName('');
+            setGroupOnlineAmount('');
+            setGroupOfflineAmount('');
+            setGroupUtrId('');
+            setGroupReceiptNo('');
+            setGroupPaymentDate('');
+            setGroupPayments([]);
+            setDynamicGroupEntries([]);
+            setErrors({});
+            setPaymentType('single'); // Reset to single if cancelled
+            
+            console.log("✅ All group payment fields cleared and reset to single payment");
+            return;
+          }
+          
+          // ✅ User confirmed - proceed with pre-filling
+          proceedWithPreFilling();
+          
+        }, 300); // Increased delay to ensure modal is fully closed
+        
         return;
       }
       
