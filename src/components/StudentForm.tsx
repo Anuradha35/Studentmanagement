@@ -1594,21 +1594,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   setGroupPayments([]);
   setDynamicGroupEntries([]);
   setErrors({});
-// Student #1 को pre-fill करने के लिए
-      setTimeout(() => {
-        const initialGroupEntries = [
-          {
-            studentName: formData.studentName.toUpperCase(),
-            amount: ''
-          },
-          {
-            studentName: '',
-            amount: ''
-          }
-        ];
-     setDynamicGroupEntries(initialGroupEntries);
-        setGroupCount(2);
-      }, 100);               
+             
 }}
 
                     className="text-blue-500"
