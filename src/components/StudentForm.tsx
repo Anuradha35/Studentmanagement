@@ -955,58 +955,80 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
 
     <div className="min-h-screen p-6">
 
-{/* 👇 Modal Code Starts */}
-    <Dialog open={showGroupModal} onClose={() => setShowGroupModal(false)} className="fixed z-50 inset-0 flex items-center justify-center">
-      <div className="bg-black bg-opacity-50 fixed inset-0"></div>
-      <Dialog.Panel className="bg-white rounded-lg p-6 z-50 w-full max-w-md">
-        <Dialog.Title className="text-lg font-bold mb-4">Enter Number of Students</Dialog.Title>
+{/* ✅ REPLACE THE EXISTING GROUP MODAL WITH THIS ENHANCED VERSION */}
+<Dialog 
+  open={showGroupModal} 
+  onClose={() => setShowGroupModal(false)} 
+  className="fixed z-50 inset-0 flex items-center justify-center"
+>
+  <div className="bg-black bg-opacity-50 fixed inset-0"></div>
+  <Dialog.Panel className="bg-slate-800 border border-blue-500/30 rounded-xl p-8 z-50 w-full max-w-md mx-4 shadow-2xl">
+    <div className="flex items-center gap-3 mb-6">
+      <Users className="w-6 h-6 text-blue-400" />
+      <Dialog.Title className="text-xl font-bold text-white">
+        Group Payment Setup
+      </Dialog.Title>
+    </div>
+    
+    <div className="space-y-4">
+      <div>
+        <label className="block text-gray-300 text-sm font-medium mb-2">
+          How many students will be in this group payment?
+        </label>
         <input
-
-  type="number"
-  ref={groupInputRef}
-  min={1}
-  max={20}
-  value={groupCount}
- onChange={(e) => {
-  const val = e.target.value;
-  if (val === '') {
-    setGroupCount(0); // ya '' rakho agar blank allow karna hai
-  } else {
-    const num = parseInt(val);
-    if (!isNaN(num)) setGroupCount(num);
-  }
-}}
-   
-          
-           onKeyDown={(e) => {
-           if (e.key === 'Enter') {
-            e.preventDefault();  // Prevent form submission if inside <form>
-             handleGroupCountConfirm();     // Same function used for "Continue"
-          }
+          type="number"
+          ref={groupInputRef}
+          min={1}
+          max={20}
+          value={groupCount || ''}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (val === '') {
+              setGroupCount(0);
+            } else {
+              const num = parseInt(val);
+              if (!isNaN(num) && num >= 0 && num <= 20) {
+                setGroupCount(num);
+              }
+            }
           }}
-          className="w-full border rounded p-2 mb-4"
-          
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleGroupCountConfirm();
+            }
+          }}
+          className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="e.g. 3"
         />
-        <div className="flex justify-end gap-2">
-          <button type="button" onClick={() => setShowGroupModal(false)} className="px-4 py-2 bg-gray-400 text-white rounded">Cancel</button>
-          <button 
-          type='button'
-          onClick={() => {
-      if (groupCount === '' || groupCount < 1) {
-        alert('Please enter at least 1 student');
-        return;
-      }
-      handleGroupCountConfirm();
-    }}
-          className="px-4 py-2 bg-blue-600 text-white rounded">
-            Continue
-          </button>
-        </div>
-      </Dialog.Panel>
-    </Dialog>
-    {/* 👆 Modal Code Ends */}
+        <p className="text-gray-400 text-sm mt-2">
+          💡 Minimum: 1, Maximum: 20 students
+        </p>
+      </div>
+    </div>
 
+    <div className="flex justify-end gap-3 mt-8">
+      <button 
+        type="button" 
+        onClick={() => {
+          setShowGroupModal(false);
+          setPaymentType('single'); // Reset to single if cancelled
+        }} 
+        className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+      >
+        Cancel
+      </button>
+      <button 
+        type='button'
+        onClick={handleGroupCountConfirm}
+        disabled={!groupCount || groupCount < 1}
+        className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Continue
+      </button>
+    </div>
+  </Dialog.Panel>
+</Dialog>
 
 
 
@@ -1393,6 +1415,11 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
           <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
             <DollarSign className="w-6 h-6 text-yellow-400" />
             Payment Information
+            {paymentFieldsReadOnly && (
+              <span className="text-sm bg-orange-500/20 text-orange-300 px-3 py-1 rounded-full border border-orange-500/30">
+                Fields Locked (Payment Added)
+              </span>
+            )}
           </h2>
 
           {/* Payment Type Selection */}
