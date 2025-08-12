@@ -904,7 +904,7 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
   ref={groupInputRef}
   min={1}
   max={20}
-  value={groupCount === 0 ? '' : groupCount}
+  value={groupCount}
  onChange={(e) => {
   const val = e.target.value;
   if (val === '') {
