@@ -283,6 +283,14 @@ useEffect(() => {
   }
 }, []);
 
+  // ✅ ADD THIS NEW useEffect
+useEffect(() => {
+  if (payments.length > 0 || groupPayments.length > 0) {
+    setPaymentFieldsReadOnly(true);
+  } else {
+    setPaymentFieldsReadOnly(false);
+  }
+}, [payments.length, groupPayments.length]);
 
   // Update course fee when duration changes
   useEffect(() => {
