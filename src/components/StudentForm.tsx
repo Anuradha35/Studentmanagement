@@ -472,6 +472,66 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
   setDuplicateInfo(null);
 };
 
+// Main handler function
+const handlePaymentTypeChange = (newPaymentType) => {
+  if (paymentType !== newPaymentType) {
+    
+    if (paymentType === 'single' && newPaymentType === 'group') {
+      // Single → Group: Clear single fields
+      setPaymentMode('');
+      setPaymentAmount('');
+      setPaymentDate('');
+      setUtrId('');
+      setReceiptNo('');
+      
+      // Setup group with student #1 pre-filled
+      const initialGroupEntries = [
+        {
+          studentName: formData.studentName.toUpperCase(),
+          amount: ''
+        },
+        {
+          studentName: '',
+          amount: ''
+        }
+      ];
+      setDynamicGroupEntries(initialGroupEntries);
+      setGroupCount(2);
+      
+    } else if (paymentType === 'group' && newPaymentType === 'single') {
+      // Group → Single: Clear group fields
+      setGroupPaymentDate('');
+      setGroupOnlineAmount('');
+      setGroupOfflineAmount('');
+      setGroupUtrId('');
+      setGroupReceiptNo('');
+      setGroupPayments([]);
+      setPaymentFieldsReadOnly(false);
+      
+      // Clear student entries except #1 name
+      const resetEntries = [...dynamicGroupEntries];
+      if (resetEntries.length > 0) {
+        resetEntries[0].amount = '';
+        // Clear student #2, #3, etc.
+        for (let i = 1; i < resetEntries.length; i++) {
+          resetEntries[i].studentName = '';
+          resetEntries[i].amount = '';
+        }
+      }
+      setDynamicGroupEntries(resetEntries);
+      
+      // Reset form data summary
+      setFormData(prev => ({
+        ...prev,
+        totalPaid: 0,
+        remainingFee: prev.courseFee
+      }));
+    }
+  }
+  
+  setPaymentType(newPaymentType);
+};
+  
 
     const handleGroupCountConfirm = () => {
       console.log("✅ Confirm button clicked");
