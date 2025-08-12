@@ -1778,10 +1778,13 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                     type="text"
                      ref={paymentDateRef}   // 👈 Ye add karo
                     value={groupPaymentDate}
+                    readOnly={paymentFieldsReadOnly} // ✅ यह line add करें
                     onChange={(e) => {
-                      const formatted = formatDate(e.target.value);
-                      setGroupPaymentDate(formatted);
-                      if (errors.groupPaymentDate) setErrors({ ...errors, groupPaymentDate: '' });
+ if (!paymentFieldsReadOnly) { // ✅ Add this condition
+      const formatted = formatDate(e.target.value);
+      setGroupPaymentDate(formatted);
+      if (errors.groupPaymentDate) setErrors({ ...errors, groupPaymentDate: '' });
+    }
                     }}
                     className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="DD.MM.YYYY"
