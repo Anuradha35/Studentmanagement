@@ -2566,6 +2566,9 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       const currentStudentName = formData.studentName.trim().toUpperCase();
       const existingPayment = duplicateInfo.existingPayment;
       const existingGroupStudents = existingPayment.groupStudents || '';
+      const enteredFatherName = formData.fatherName.trim().toUpperCase();
+const existingFatherName = duplicateInfo.studentInfo.fatherName.trim().toUpperCase();
+
       const existingStudentNames = existingGroupStudents
         .split(', ')
         .map(name => name.trim().toUpperCase())
@@ -2587,6 +2590,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       if (isStudentInExistingGroup) {
         // ✅ SCENARIO 1: Student is already in the group payment
         console.log("✅ SCENARIO 1: Current student IS part of existing group");
+        
         
         // Check if same course/batch/year/duration
         const isSameCourse = selectedCourse === duplicateInfo.courseName;
