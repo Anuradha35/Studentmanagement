@@ -1780,11 +1780,11 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                     value={groupPaymentDate}
                     readOnly={paymentFieldsReadOnly} // ✅ यह line add करें
                     onChange={(e) => {
-  if (!paymentFieldsReadOnly) { // ✅ Add this condition
+ 
       const formatted = formatDate(e.target.value);
       setGroupPaymentDate(formatted);
-     
-  }
+      if (errors.groupPaymentDate) setErrors({ ...errors, groupPaymentDate: '' });
+   
                       
                       
                     }}
@@ -1804,11 +1804,8 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                     value={groupOnlineAmount}
                      readOnly={paymentFieldsReadOnly} // ✅ यह line add करें
                     onChange={(e) => {
-                      if (!paymentFieldsReadOnly) { // ✅ Add this condition
                       const value = e.target.value.replace(/\D/g, '');
                       setGroupOnlineAmount(value);
-                        
-                      }
                       // ✅ Agar value ya offlineAmount me kuch hai to groupAmount error clear
         if (parseInt(value || '0') > 0 || parseInt(groupOfflineAmount || '0') > 0) {
           setErrors(prev => ({ ...prev, groupAmount: '' }));
@@ -1835,10 +1832,8 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                     value={groupOfflineAmount}
                      readOnly={paymentFieldsReadOnly} // ✅ यह line add करें
                     onChange={(e) => {
-                      if (!paymentFieldsReadOnly) { // ✅ Add this condition
                       const value = e.target.value.replace(/\D/g, '');
                       setGroupOfflineAmount(value);
-                      }
                     }}
                     className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Enter offline amount (optional)"
@@ -1857,10 +1852,8 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                       value={groupUtrId}
                        readOnly={paymentFieldsReadOnly} // ✅ यह line add करें
                      onChange={(e) => {
-                       if (!paymentFieldsReadOnly) { // ✅ Add this condition
   const value = e.target.value.replace(/\D/g, '').slice(0, 12);
   setGroupUtrId(value);
-                       }
   
   // ✅ Check for duplicates when UTR ID is complete (12 digits)
   if (value.length === 12) {
@@ -1896,10 +1889,8 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                       value={groupReceiptNo}
                        readOnly={paymentFieldsReadOnly} // ✅ यह line add करें
                       onChange={(e) => {
-                        if (!paymentFieldsReadOnly) { // ✅ Add this condition
   const value = e.target.value.replace(/\D/g, '');
   setGroupReceiptNo(value);
-                        }
   
   // ✅ Check for duplicates immediately
   if (value.length > 0) {
@@ -2014,7 +2005,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       <input
         id={`studentName-${index + 1}`}
         type="text"
-        readOnly={paymentFieldsReadOnly} // ✅ यह line add करें
+         readOnly={paymentFieldsReadOnly} // ✅ यह line add करें
         onChange={(e) => {
           const updated = [...dynamicGroupEntries];
           updated[index + 1].studentName = e.target.value.toUpperCase();
