@@ -1561,6 +1561,26 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                   value="group"
                   checked={paymentType === 'group'}
                   onChange={(e) => {
+// अगर पहले single था तो single fields clear करें  
+      if (paymentType === 'single') {
+        setPaymentMode('');
+        setPaymentAmount('');
+        setPaymentDate('');
+        setUtrId('');
+        setReceiptNo('');
+        
+        // Single errors clear करें
+        setErrors(prev => ({
+          ...prev,
+          paymentMode: '',
+          paymentAmount: '',
+          paymentDate: '',
+          utrId: '',
+          receiptNo: ''
+        }));
+      }
+
+                    
   setPaymentType('group');
   setShowGroupModal(true);
 
@@ -1574,6 +1594,21 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   setGroupPayments([]);
   setDynamicGroupEntries([]);
   setErrors({});
+// Student #1 को pre-fill करने के लिए
+      setTimeout(() => {
+        const initialGroupEntries = [
+          {
+            studentName: formData.studentName.toUpperCase(),
+            amount: ''
+          },
+          {
+            studentName: '',
+            amount: ''
+          }
+        ];
+     setDynamicGroupEntries(initialGroupEntries);
+        setGroupCount(2);
+      }, 100);               
 }}
 
                     className="text-blue-500"
