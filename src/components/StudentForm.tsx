@@ -2684,7 +2684,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       // ✅ Proceed with pre-filling after short delay
       setTimeout(() => {
         proceedWithPreFilling();
-      }, 15000);
+      }, 1500);
       
       // ✅ EXTRACTED FUNCTION: Pre-filling logic
       function proceedWithPreFilling() {
