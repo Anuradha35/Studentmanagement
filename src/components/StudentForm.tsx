@@ -927,10 +927,16 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
           placeholder="e.g. 3"
         />
         <div className="flex justify-end gap-2">
-          <button onClick={() => setShowGroupModal(false)} className="px-4 py-2 bg-gray-400 text-white rounded">Cancel</button>
+          <button type="button" onClick={() => setShowGroupModal(false)} className="px-4 py-2 bg-gray-400 text-white rounded">Cancel</button>
           <button 
           type='button'
-          onClick={handleGroupCountConfirm} 
+          onClick={() => {
+      if (groupCount === '' || groupCount < 1) {
+        alert('Please enter at least 1 student');
+        return;
+      }
+      handleGroupCountConfirm();
+    }}
           className="px-4 py-2 bg-blue-600 text-white rounded">
             Continue
           </button>
