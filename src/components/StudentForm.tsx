@@ -1510,10 +1510,47 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
             <div className="flex gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
+                  
                   type="radio"
                   value="single"
                   checked={paymentType === 'single'}
-                  onChange={(e) => setPaymentType(e.target.value as 'single' | 'group')}
+                  onChange={(e) =>{
+                     // अगर पहले group था तो group fields clear करें
+      if (paymentType === 'group') {
+        // Group fields clear करें
+        setGroupPaymentDate('');
+        setGroupOnlineAmount('');
+        setGroupOfflineAmount('');
+        setGroupUtrId('');
+        setGroupReceiptNo('');
+        setGroupPayments([]);
+        setPaymentFieldsReadOnly(false);
+        setGroupStudentName('');
+        setDynamicGroupEntries([]);
+        setGroupCount(2);
+        
+        // Form summary reset करें
+        setFormData(prev => ({
+          ...prev,
+          totalPaid: 0,
+          remainingFee: prev.courseFee
+        }));
+        
+        // Group errors clear करें
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          Object.keys(newErrors).forEach(key => {
+            if (key.startsWith('group') || key.startsWith('studentName_') || key.startsWith('amount_')) {
+              delete newErrors[key];
+            }
+          });
+          return newErrors;
+        });
+      }
+                    
+                    setPaymentType(e.target.value as 'single' | 'group')
+                  
+                  }}
                   className="text-blue-500"
                 />
                 <span className="text-white">Single Payment</span>
