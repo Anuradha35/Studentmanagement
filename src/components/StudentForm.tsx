@@ -73,6 +73,10 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [groupCount, setGroupCount] = useState(0);
   const [dynamicGroupEntries, setDynamicGroupEntries] = useState<any[]>([]);
+
+// ✅ NEW: Read-only state for payment fields
+  const [paymentFieldsReadOnly, setPaymentFieldsReadOnly] = useState(false);
+  
   const [groupRemainingAmount, setGroupRemainingAmount] = useState('');
   const [groupCourseName, setGroupCourseName] = useState('');
 const [groupCourseDuration, setGroupCourseDuration] = useState('');
@@ -188,6 +192,56 @@ const findDuplicatePayment = (utrId?: string, receiptNo?: string) => {
       }
     }
   }
+  return null;
+};
+
+
+
+  // ✅ ADD THIS NEW FUNCTION AFTER findDuplicatePayment
+const checkForDuplicateStudent = (studentName: string, mobileNo: string, email: string) => {
+  // Check in current batch first
+  const currentBatch = appData.years[selectedYear]?.[selectedCourse]?.[selectedBatch];
+  if (currentBatch?.students) {
+    const duplicate = currentBatch.students.find(student => 
+      student.studentName.toLowerCase() === studentName.toLowerCase() ||
+      student.mobileNo === mobileNo ||
+      student.email.toLowerCase() === email.toLowerCase()
+    );
+    
+    if (duplicate) {
+      return {
+        student: duplicate,
+        location: `${selectedCourse} - Batch ${selectedBatch} - Year ${selectedYear}`,
+        type: 'same_batch'
+      };
+    }
+  }
+
+  // Check in all other batches and years
+  for (const [yearKey, yearData] of Object.entries(appData.years)) {
+    for (const [courseKey, courseData] of Object.entries(yearData)) {
+      for (const [batchKey, batchData] of Object.entries(courseData)) {
+        if (yearKey === selectedYear && courseKey === selectedCourse && batchKey === selectedBatch) {
+          continue;
+        }
+        
+        const duplicate = batchData.students?.find(student => 
+          student.studentName.toLowerCase() === studentName.toLowerCase() ||
+          student.mobileNo === mobileNo ||
+          student.email.toLowerCase() === email.toLowerCase()
+        );
+        
+        if (duplicate) {
+          return {
+            student: duplicate,
+            location: `${courseKey} - Batch ${batchKey} - Year ${yearKey}`,
+            type: 'different_batch'
+          };
+        }
+      }
+    }
+  }
+  
   return null;
 };
 
