@@ -2817,9 +2817,9 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                 alert(successMsg);
                 console.log("✅ Success message shown, process completed");
               }
-            }, 500); // Reduced timeout but ensure UI is stable
+            }, 9000); // Reduced timeout but ensure UI is stable
             
-          }, 200); // Reduced timeout for better responsiveness
+          }, 5000); // Reduced timeout for better responsiveness
           
           console.log("✅ Process initiated successfully");
         
