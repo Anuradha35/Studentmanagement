@@ -784,6 +784,37 @@ const handleSubmit = (e: React.FormEvent) => {
     newErrors.startDate = 'Please enter a valid date (DD.MM.YYYY)';
   }
 
+// ✅ ADD THIS DUPLICATE CHECK BEFORE setErrors(newErrors)
+// Check for duplicate students
+if (formData.studentName.trim() && formData.mobileNo.trim() && formData.email.trim()) {
+  const duplicateStudent = checkForDuplicateStudent(
+    formData.studentName.trim(),
+    formData.mobileNo.trim(),
+    formData.email.trim()
+  );
+
+  if (duplicateStudent) {
+    const { student, location, type } = duplicateStudent;
+    let message = '';
+    let field = '';
+
+    if (student.studentName.toLowerCase() === formData.studentName.toLowerCase()) {
+      message = `Student "${student.studentName}" already exists in ${location}`;
+      field = 'studentName';
+    } else if (student.mobileNo === formData.mobileNo) {
+      message = `Mobile number "${formData.mobileNo}" already exists for student "${student.studentName}" in ${location}`;
+      field = 'mobileNo';
+    } else if (student.email.toLowerCase() === formData.email.toLowerCase()) {
+      message = `Email "${formData.email}" already exists for student "${student.studentName}" in ${location}`;
+      field = 'email';
+    }
+
+    newErrors[field] = message;
+    alert(`⚠️ Duplicate Entry Detected!\n\n${message}\n\nPlease verify the information and make necessary changes.`);
+  }
+}
+  
+
   setErrors(newErrors);
 
   if (Object.keys(newErrors).length === 0) {
@@ -895,6 +926,8 @@ if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
     setGroupReceiptNo('');
     setGroupPaymentDate('');
     setDynamicGroupEntries([]);
+    // ✅ ADD THIS LINE in the form reset section
+setPaymentFieldsReadOnly(false); // Reset read-only state
 
     // Focus on Student Name after adding
     if (studentNameRef.current) {
