@@ -2567,7 +2567,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       const existingPayment = duplicateInfo.existingPayment;
       const existingGroupStudents = existingPayment.groupStudents || '';
       const enteredFatherName = formData.fatherName.trim().toUpperCase();
-const existingFatherName = duplicateInfo.studentInfo.fatherName.trim().toUpperCase();
+      const existingFatherName = duplicateInfo.studentInfo.fatherName.trim().toUpperCase();
 
       const existingStudentNames = existingGroupStudents
         .split(', ')
@@ -2586,8 +2586,9 @@ const existingFatherName = duplicateInfo.studentInfo.fatherName.trim().toUpperCa
       
       // Check if current student is part of existing group
       const isStudentInExistingGroup = existingStudentNames.includes(currentStudentName);
+      const isFatherInExistingGroup = existingFatherNames.includes(enteredFatherName);
       
-      if (isStudentInExistingGroup) {
+      if (isStudentInExistingGroup && isFatherInExistingGroup) {
         // ✅ SCENARIO 1: Student is already in the group payment
         console.log("✅ SCENARIO 1: Current student IS part of existing group");
         
