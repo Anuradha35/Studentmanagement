@@ -283,14 +283,7 @@ useEffect(() => {
   }
 }, []);
 
-  // ✅ ADD THIS NEW useEffect
-useEffect(() => {
-  if (payments.length > 0 || groupPayments.length > 0) {
-    setPaymentFieldsReadOnly(true);
-  } else {
-    setPaymentFieldsReadOnly(false);
-  }
-}, [payments.length, groupPayments.length]);
+
 
   // Update course fee when duration changes
   useEffect(() => {
@@ -2629,7 +2622,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
           
           // ✅ Show success message with longer delay to ensure UI is stable
           setTimeout(() => {
-            const successMsg = proceedMessage || `✅ Payment details pre-filled successfully!\n\n📊 Group Updated:\n- Total Students: ${totalStudentsNeeded}\n- Student #1: ${currentStudentName} (current student)\n${otherMembers.length > 0 ? `- Other Members: ${otherMembers.join(', ')}` : '- No other members'}\n\n💡 Note: Group size has been automatically adjusted to match existing payment group.\n\nPlease enter amounts manually for each student.`;
+            const successMsg = proceedMessage || `✅ Payment details pre-filled successfully!\n\n📊 Group Updated:\n- Total Students: ${totalStudentsNeeded}\n- Student #1: ${currentStudentName} (current student)\n${otherMembers.length > 0 ? `- Other Members: ${otherMembers.join(', ')}` : '- No other members'}\n\n💡 Note: Group size has been automatically adjusted to match existing payment group.`;
             
             alert(successMsg);
             console.log("✅ Success message shown, process completed");
