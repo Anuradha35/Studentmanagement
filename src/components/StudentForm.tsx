@@ -1800,7 +1800,13 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                   <input
                     type="text"
                     value={groupOnlineAmount}
+                     readOnly={paymentFieldsReadOnly} // ✅ यह line add करें
                     onChange={(e) => {
+                        if (!paymentFieldsReadOnly) { // ✅ यह condition add करें
+      const formatted = formatDate(e.target.value);
+      setGroupPaymentDate(formatted);
+      if (errors.groupPaymentDate) setErrors({ ...errors, groupPaymentDate: '' });
+    }
                       const value = e.target.value.replace(/\D/g, '');
                       setGroupOnlineAmount(value);
                       // ✅ Agar value ya offlineAmount me kuch hai to groupAmount error clear
