@@ -427,6 +427,8 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
   if (action === 'proceed' && duplicateInfo.paymentType === 'group' && paymentType === 'group') {
     // Add existing student to current group
     const existingStudent = duplicateInfo.studentInfo;
+    const existingFather = duplicateInfo.studentInfo;
+    
     const existingPayment = duplicateInfo.existingPayment;
     
     // Set the existing student as Student #1
