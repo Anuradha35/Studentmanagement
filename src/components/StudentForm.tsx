@@ -100,9 +100,6 @@ const studentNameRef = useRef<HTMLInputElement>(null);
   const [groupReceiptNo, setGroupReceiptNo] = useState('');
   const [groupPaymentDate, setGroupPaymentDate] = useState('');
    const groupInputRef = useRef<HTMLInputElement>(null);
-  const [paymentErrorModalOpen, setPaymentErrorModalOpen] = useState(false);
-const [paymentErrorMessage, setPaymentErrorMessage] = useState("");
-
 
   // Add state for tracking existing payments for validation
   const [existingPayments, setExistingPayments] = useState<{
@@ -852,23 +849,16 @@ const handleSubmit = (e: React.FormEvent) => {
   }
 
 if (!paymentType) {
-  setPaymentErrorMessage("⚠️ Please select a payment method (Single or Group)");
-  setPaymentErrorModalOpen(true);
-  return; // आगे का submit रोक दो
-} else {
-  if (paymentType === "single" && payments.length === 0) {
-    setPaymentErrorMessage("⚠️ Please add at least one payment before submitting");
-    setPaymentErrorModalOpen(true);
-    return;
+    newErrors.paymentType = "Please select a payment method (Single or Group)";
+  } else {
+    if (paymentType === "single" && payments.length === 0) {
+      newErrors.paymentType = "Please add at least one payment before submitting";
+    }
+    if (paymentType === "group" && groupPayments.length === 0) {
+      newErrors.paymentType = "Please add at least one group payment before submitting";
+    }
   }
-  if (paymentType === "group" && groupPayments.length === 0) {
-    setPaymentErrorMessage("⚠️ Please add at least one group payment before submitting");
-    setPaymentErrorModalOpen(true);
-    return;
-  }
-}
-
-  
+  //n
 // ✅ ADD THIS DUPLICATE CHECK BEFORE setErrors(newErrors)
 // Check for duplicate students
 if (
