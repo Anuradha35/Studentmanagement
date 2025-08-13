@@ -933,29 +933,6 @@ const handleDuplicateStudent = (duplicateResult, formData) => {
   }
 };
 
-// ✅ 4. EXACT DUPLICATE MODAL (Complete duplicate found)
-const showExactDuplicateModal = (existingStudent, currentFormData) => {
-  const modalContent = `🚫 EXACT DUPLICATE DETECTED!\n\n` +
-    `Student "${existingStudent.studentName}" is already enrolled in:\n\n` +
-    `📚 Course: ${existingStudent.courseName}\n` +
-    `👥 Batch: ${existingStudent.batchName}\n` +
-    `📅 Year: ${existingStudent.yearName}\n` +
-    `👨‍👩‍👧‍👦 Father: ${existingStudent.fatherName}\n` +
-    `📱 Mobile: ${existingStudent.mobileNo}\n` +
-    `📧 Email: ${existingStudent.email}\n\n` +
-    `💰 Course Fee: ₹${existingStudent.courseFee?.toLocaleString()}\n` +
-    `✅ Paid: ₹${existingStudent.totalPaid?.toLocaleString()}\n` +
-    `⏳ Remaining: ₹${existingStudent.remainingFee?.toLocaleString()}\n\n` +
-    `❓ Actions Available:\n` +
-    `• Add payment to existing enrollment\n` +
-    `• View/Edit existing student details\n` +
-    `• Check if this is a different person with same name`;
-  
-  alert(modalContent);
-  
-  // Could open existing student view here
-  // openStudentDetailsModal(existingStudent);
-};
 
 // ✅ 5. MULTI-COURSE CONFIRMATION DIALOG
 const showMultiCourseConfirmation = (existingStudent, existingCourses, newFormData) => {
