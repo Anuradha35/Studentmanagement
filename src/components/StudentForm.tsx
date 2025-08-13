@@ -624,80 +624,85 @@ setDynamicGroupEntries(entries);
   };
 
   const handleAddPayment = () => {
-  const newErrors: { [key: string]: string } = {};
-  
-  if (!paymentAmount.trim()) {
-    newErrors.paymentAmount = 'Payment amount is required';
-  }
-  
-  if (!paymentDate.trim()) {
-    newErrors.paymentDate = 'Payment date is required';
-  } else if (paymentDate.length !== 10 || !validateDate(paymentDate)) {
-    newErrors.paymentDate = 'Please enter a valid date (DD.MM.YYYY)';
-  }
-  
-  if (paymentMode === 'offline' && !receiptNo.trim()) {
-    newErrors.receiptNo = 'Receipt number is required for offline payment';
-  }
-  
-  if (paymentMode === 'online' && !utrId.trim()) {
-    newErrors.utrId = 'UTR/UPI ID is required for online payment';
-  }
-  
-  if (paymentMode === 'online' && utrId.length !== 12) {
-    newErrors.utrId = 'UTR/UPI ID must be exactly 12 digits';
-  }
-  
-  const amount = parseInt(paymentAmount);
-  if (isNaN(amount) || amount <= 0) {
-    newErrors.paymentAmount = 'Please enter a valid amount';
-  }
-  
-  // Check if payment exceeds remaining fee
-  const currentTotal = payments.reduce((sum, payment) => sum + payment.amount, 0);
-  if (amount + currentTotal > formData.courseFee) {
-    newErrors.paymentAmount = `Payment amount exceeds course fee! Maximum allowed: ₹${formData.courseFee - currentTotal}`;
-  }
-  
-  // ✅ CRITICAL FIX: Check duplicates in current session payments ONLY
-  const sessionUtrIds = payments
-    .filter(p => p.paymentMode === 'online' && p.utrId)
-    .map(p => p.utrId);
-  
-  const sessionReceiptNos = payments
-    .filter(p => p.paymentMode === 'offline' && p.receiptNo)
-    .map(p => p.receiptNo);
-  
-  if (paymentMode === 'online' && utrId && sessionUtrIds.includes(utrId)) {
-    newErrors.utrId = 'This UTR ID has already been used in current payment session';
-  }
-  
-  if (paymentMode === 'offline' && receiptNo && sessionReceiptNos.includes(receiptNo)) {
-    newErrors.receiptNo = 'This Receipt Number has already been used in current payment session';
-  }
-  
-  setErrors(newErrors);
-  
-  if (Object.keys(newErrors).length === 0) {
-    const newPayment = {
-      paymentMode,
-      amount,
-      paymentDate,
-      ...(paymentMode === 'offline' ? { receiptNo } : { utrId })
-    };
+    const newErrors: { [key: string]: string } = {};
     
-    // ✅ Add to payments history (temporary storage)
-    setPayments([...payments, newPayment]);
+    if (!paymentAmount.trim()) {
+      newErrors.paymentAmount = 'Payment amount is required';
+    }
     
-    // ✅ Clear input fields
-    setPaymentAmount('');
-    setReceiptNo('');
-    setUtrId('');
-    setPaymentDate('');
+    if (!paymentDate.trim()) {
+      newErrors.paymentDate = 'Payment date is required';
+    } else if (paymentDate.length !== 10 || !validateDate(paymentDate)) {
+      newErrors.paymentDate = 'Please enter a valid date (DD.MM.YYYY)';
+    }
     
-    console.log("✅ Payment added to history (temporary storage)");
-  }
-};
+    if (paymentMode === 'offline' && !receiptNo.trim()) {
+      newErrors.receiptNo = 'Receipt number is required for offline payment';
+    }
+    
+    if (paymentMode === 'online' && !utrId.trim()) {
+      newErrors.utrId = 'UTR/UPI ID is required for online payment';
+    }
+    
+    if (paymentMode === 'online' && utrId.length !== 12) {
+      newErrors.utrId = 'UTR/UPI ID must be exactly 12 digits';
+    }
+    
+    const amount = parseInt(paymentAmount);
+    if (isNaN(amount) || amount <= 0) {
+      newErrors.paymentAmount = 'Please enter a valid amount';
+    }
+    
+    // Check if payment exceeds remaining fee
+    const currentTotal = payments.reduce((sum, payment) => sum + payment.amount, 0);
+    if (amount + currentTotal > formData.courseFee) {
+      newErrors.paymentAmount = `Payment amount exceeds course fee! Maximum allowed: ₹${formData.courseFee - currentTotal}`;
+    }
+    
+    // Check for duplicate UTR/Receipt numbers
+    const duplicateError = validatePaymentDuplicate(
+      paymentMode === 'online' ? utrId : undefined,
+      paymentMode === 'offline' ? receiptNo : undefined
+    );
+    if (duplicateError) {
+      if (paymentMode === 'online') {
+        newErrors.utrId = duplicateError;
+      } else {
+        newErrors.receiptNo = duplicateError;
+      }
+    }
+    
+    setErrors(newErrors);
+    
+    if (Object.keys(newErrors).length === 0) {
+      const newPayment = {
+        paymentMode,
+        amount,
+        paymentDate,
+        ...(paymentMode === 'offline' ? { receiptNo } : { utrId })
+      };
+      
+      setPayments([...payments, newPayment]);
+      setPaymentAmount('');
+      setReceiptNo('');
+      setUtrId('');
+      setPaymentDate('');
+      
+      // Add to existing payments to prevent duplicates in same session
+      if (paymentMode === 'online' && utrId) {
+        setExistingPayments(prev => ({
+          ...prev,
+          utrIds: new Set([...prev.utrIds, utrId])
+        }));
+      }
+      if (paymentMode === 'offline' && receiptNo) {
+        setExistingPayments(prev => ({
+          ...prev,
+          receiptNos: new Set([...prev.receiptNos, receiptNo])
+        }));
+      }
+    }
+  };
 
   const handleAddGroupPayment = () => {
   const newErrors: { [key: string]: string } = {};
@@ -711,7 +716,13 @@ setDynamicGroupEntries(entries);
 
   const onlineAmount = parseInt(groupOnlineAmount) || 0;
   const offlineAmount = parseInt(groupOfflineAmount) || 0;
-  const student1Amount = parseInt(dynamicGroupEntries[0].amount || '0');
+
+  // Student 1 ka amount
+const student1Amount = parseInt(dynamicGroupEntries[0].amount || '0');
+
+// Baki students ka combined remaining amount (input field se liya hua)
+const otherStudentsAmount = parseInt(groupRemainingAmount || '0'); 
+
 
   if (onlineAmount === 0 && offlineAmount === 0) {
     newErrors.groupAmount = 'At least one payment amount is required';
@@ -727,21 +738,14 @@ setDynamicGroupEntries(entries);
     newErrors.groupReceiptNo = 'Receipt number is required for offline payment';
   }
 
-  // ✅ CRITICAL FIX: Check duplicates in current session group payments ONLY
-  const sessionGroupUtrIds = groupPayments
-    .filter(p => p.utrId)
-    .map(p => p.utrId);
-  
-  const sessionGroupReceiptNos = groupPayments
-    .filter(p => p.receiptNo)
-    .map(p => p.receiptNo);
-  
-  if (onlineAmount > 0 && groupUtrId && sessionGroupUtrIds.includes(groupUtrId)) {
-    newErrors.groupUtrId = 'This UTR ID has already been used in current group payment session';
-  }
-  
-  if (offlineAmount > 0 && groupReceiptNo && sessionGroupReceiptNos.includes(groupReceiptNo)) {
-    newErrors.groupReceiptNo = 'This Receipt Number has already been used in current group payment session';
+  // Check for duplicate UTR/Receipt numbers
+  const duplicateError = validatePaymentDuplicate(
+    onlineAmount > 0 ? groupUtrId : undefined,
+    offlineAmount > 0 ? groupReceiptNo : undefined
+  );
+  if (duplicateError) {
+    if (onlineAmount > 0) newErrors.groupUtrId = duplicateError;
+    if (offlineAmount > 0) newErrors.groupReceiptNo = duplicateError;
   }
 
   // Check student name fields
@@ -753,203 +757,74 @@ setDynamicGroupEntries(entries);
     newErrors.groupAmount = 'Please enter at least one student name';
   }
 
-  dynamicGroupEntries.forEach((entry, idx) => {
-    if (!entry.studentName?.trim()) {
-      newErrors[`studentName_${idx}`] = `Student Name #${idx + 1} is required`;
-    }
-  });
-
-  if (!dynamicGroupEntries[0].amount || parseInt(dynamicGroupEntries[0].amount) <= 0) {
-    newErrors[`amount_0`] = 'Amount is required';
+// ✅ Validate all student fields filled
+dynamicGroupEntries.forEach((entry, idx) => {
+  if (!entry.studentName?.trim()) {
+    newErrors[`studentName_${idx}`] = `Student Name #${idx + 1} is required`;
   }
+});
 
-  const emptyIndex = dynamicGroupEntries.findIndex(
-    (entry) => !entry.studentName?.trim()
-  );
-  if (emptyIndex !== -1) {
-    newErrors[`studentName_${emptyIndex}`] = `Student Name #${emptyIndex + 1} is required`;
-  }
+// Amount blank validation for Student 1
+if (!dynamicGroupEntries[0].amount || parseInt(dynamicGroupEntries[0].amount) <= 0) {
+  newErrors[`amount_0`] = 'Amount is required';
+}
+
+
+  // Check for blank student names
+const emptyIndex = dynamicGroupEntries.findIndex(
+  (entry) => !entry.studentName?.trim()
+);
+if (emptyIndex !== -1) {
+  newErrors[`studentName_${emptyIndex}`] = `Student Name #${emptyIndex + 1} is required`;
+}
 
   setErrors(newErrors);
 
-  if (Object.keys(newErrors).length === 0) {
-    const student1Name = dynamicGroupEntries[0].studentName;
-    const student1Amount = parseInt(dynamicGroupEntries[0].amount || '0');
-    const totalPayment = (onlineAmount || 0) + (offlineAmount || 0);
-    const otherStudentsAmount = totalPayment - student1Amount;
-    const otherStudents = dynamicGroupEntries
-      .slice(1)
-      .map((s) => s.studentName)
-      .join(', ');
+ if (Object.keys(newErrors).length === 0) {
+  const student1Name = dynamicGroupEntries[0].studentName;
+  const student1Amount = parseInt(dynamicGroupEntries[0].amount || '0');
 
-    const newGroupPayment = {
-      studentName: student1Name,
-      student1Amount,
-      otherStudents,
-      otherStudentsAmount,
-      total: student1Amount + otherStudentsAmount,
-      onlineAmount: onlineAmount,
-      offlineAmount: offlineAmount,
-      utrId: onlineAmount > 0 ? groupUtrId : undefined,
-      receiptNo: offlineAmount > 0 ? groupReceiptNo : undefined,
-      paymentDate: groupPaymentDate
-    };
+  // Ye wahi calculation jo tum input me use kar rahi ho
+  const totalPayment = (onlineAmount || 0) + (offlineAmount || 0);
+  const otherStudentsAmount = totalPayment - student1Amount;
 
-    // ✅ Add to group payments history (temporary storage)
-    setGroupPayments((prev) => [...prev, newGroupPayment]);
-    
-    console.log("✅ Group payment added to history (temporary storage)");
-  }
+  const otherStudents = dynamicGroupEntries
+    .slice(1)
+    .map((s) => s.studentName)
+    .join(', ');
+
+  const newGroupPayment = {
+    studentName: student1Name,
+    student1Amount,
+    otherStudents,
+    otherStudentsAmount,
+    total: student1Amount + otherStudentsAmount,
+    onlineAmount: onlineAmount,
+    offlineAmount: offlineAmount,
+    utrId: onlineAmount > 0 ? groupUtrId : undefined,
+    receiptNo: offlineAmount > 0 ? groupReceiptNo : undefined,
+    paymentDate: groupPaymentDate
+  };
+
+  setGroupPayments((prev) => [...prev, newGroupPayment]);
+
+  
+}
+
+
+
+
 };
 
 
+ // StudentForm.tsx - Fixed handleSubmit (सिर्फ यह function replace करें)
 
-// 🔥 ENHANCED MULTI-COURSE VALIDATION LOGIC
-
-// ✅ 1. SMART DUPLICATE CHECK - Multi-Course Aware
-const checkDuplicateStudent = (formData, existingStudents) => {
-  console.log("🔍 Checking for duplicate student (multi-course aware)...");
-  
-  const duplicates = existingStudents.filter(student => {
-    // Check for exact name + father match (same person)
-    const nameMatch = student.studentName.toLowerCase() === formData.studentName.toLowerCase();
-    const fatherMatch = student.fatherName.toLowerCase() === formData.fatherName.toLowerCase();
-    const mobileMatch = student.mobileNo === formData.mobileNo;
-    const emailMatch = student.email.toLowerCase() === formData.email.toLowerCase();
-    
-    return (nameMatch && fatherMatch) || mobileMatch || emailMatch;
-  });
-
-  if (duplicates.length > 0) {
-    return analyzeDuplicates(duplicates, formData);
-  }
-  
-  return null; // No duplicates found
-};
-
-// ✅ 2. ANALYZE DUPLICATES - Determine Course Conflicts
-const analyzeDuplicates = (duplicates, formData) => {
-  const exactNameMatches = duplicates.filter(student => 
-    student.studentName.toLowerCase() === formData.studentName.toLowerCase() && 
-    student.fatherName.toLowerCase() === formData.fatherName.toLowerCase()
-  );
-  
-  const mobileMatches = duplicates.filter(student => student.mobileNo === formData.mobileNo);
-  const emailMatches = duplicates.filter(student => student.email.toLowerCase() === formData.email.toLowerCase());
-  
-  // 🔍 Case 1: Same Person, Same Course/Batch/Year
-  const exactCourseMatch = exactNameMatches.find(student => 
-    student.courseName === formData.selectedCourse &&
-    student.batchName === formData.selectedBatch &&
-    student.yearName === formData.selectedYear
-  );
-  
-  if (exactCourseMatch) {
-    return {
-      type: 'EXACT_DUPLICATE',
-      student: exactCourseMatch,
-      message: `Complete duplicate detected! Student "${exactCourseMatch.studentName}" is already enrolled in the same course.`,
-      action: 'BLOCK',
-      field: 'studentName'
-    };
-  }
-  
-  // 🔍 Case 2: Same Person, Different Course (Multi-Course Enrollment)
-  if (exactNameMatches.length > 0) {
-    const existingCourses = exactNameMatches.map(s => `${s.courseName} (${s.batchName} - ${s.yearName})`);
-    
-    return {
-      type: 'MULTI_COURSE',
-      student: exactNameMatches[0], // Reference student for details
-      existingCourses: existingCourses,
-      message: `Student "${exactNameMatches[0].studentName}" is already enrolled in other courses.`,
-      action: 'CONFIRM',
-      field: 'studentName'
-    };
-  }
-  
-  // 🔍 Case 3: Different Person, Same Mobile
-  if (mobileMatches.length > 0) {
-    return {
-      type: 'MOBILE_CONFLICT',
-      student: mobileMatches[0],
-      message: `Mobile number "${formData.mobileNo}" is already used by "${mobileMatches[0].studentName}".`,
-      action: 'BLOCK',
-      field: 'mobileNo'
-    };
-  }
-  
-  // 🔍 Case 4: Different Person, Same Email
-  if (emailMatches.length > 0) {
-    return {
-      type: 'EMAIL_CONFLICT',
-      student: emailMatches[0],
-      message: `Email "${formData.email}" is already used by "${emailMatches[0].studentName}".`,
-      action: 'BLOCK',
-      field: 'email'
-    };
-  }
-  
-  return null;
-};
-
-// ✅ 3. HANDLE DUPLICATE RESPONSE
-const handleDuplicateStudent = (duplicateResult, formData) => {
-  if (!duplicateResult) return true; // No duplicate, proceed
-  
-  const { type, student, message, action, field, existingCourses } = duplicateResult;
-  
-  switch (type) {
-    case 'EXACT_DUPLICATE':
-      // ❌ Complete duplicate - show existing student details and block
-      showExactDuplicateModal(student, formData);
-      return false;
-      
-    case 'MULTI_COURSE':
-      // ✅ Multi-course enrollment - show confirmation dialog
-      return showMultiCourseConfirmation(student, existingCourses, formData);
-      
-    case 'MOBILE_CONFLICT':
-    case 'EMAIL_CONFLICT':
-      // ❌ Contact info conflict - block with explanation
-      alert(`⚠️ Contact Information Conflict!\n\n${message}\n\nPlease verify the ${field === 'mobileNo' ? 'mobile number' : 'email address'} and ensure it's correct.`);
-      return false;
-      
-    default:
-      return true;
-  }
-};
-
-// ✅ 7. UPDATED MAIN VALIDATION FUNCTION
-const validateStudentSubmission = (formData) => {
-  console.log("🔄 Validating student submission with multi-course support...");
-  
-  // Get existing students from your data source
-  const existingStudents = getAllStudentsFromDatabase(); // Replace with your actual function
-  
-  // Check for duplicates
-  const duplicateResult = checkDuplicateStudent(formData, existingStudents);
-  
-  // Handle the result
-  const canProceed = handleDuplicateStudent(duplicateResult, formData);
-  
-  if (!canProceed) {
-    console.log("❌ Validation failed, blocking submission");
-    return false;
-  }
-  
-  console.log("✅ Validation passed, proceeding with submission");
-  return true;
-};
-
-  
- const handleSubmit = (e: React.FormEvent) => {
+const handleSubmit = (e: React.FormEvent) => {
   e.preventDefault();
+
   const newErrors: { [key: string]: string } = {};
 
-  console.log("🔄 Starting form submission validation...");
-
-  // ✅ 1. BASIC REQUIRED FIELDS VALIDATION
+  // Validate required fields
   if (!formData.studentName.trim()) newErrors.studentName = 'Student name is required';
   if (!formData.fatherName.trim()) newErrors.fatherName = 'Father name is required';
   if (!formData.mobileNo.trim()) {
@@ -965,280 +840,79 @@ const validateStudentSubmission = (formData) => {
     newErrors.startDate = 'Please enter a valid date (DD.MM.YYYY)';
   }
 
-  // ✅ 2. PAYMENT VALIDATION - CRITICAL FIX
-  console.log("🔍 Checking payment validation...");
-  console.log("🔍 Payment Type:", paymentType);
-  console.log("🔍 Payments array:", payments);
-  console.log("🔍 Group payments array:", groupPayments);
+// ✅ ADD THIS DUPLICATE CHECK BEFORE setErrors(newErrors)
+// Check for duplicate students
+if (formData.studentName.trim() && formData.mobileNo.trim() && formData.email.trim()) {
+  const duplicateStudent = checkForDuplicateStudent(
+    formData.studentName.trim(),
+    formData.mobileNo.trim(),
+    formData.email.trim()
+  );
 
-  if (paymentType === 'single') {
-    // ✅ Single payment must have at least one payment entry
-    if (!payments || payments.length === 0) {
-      newErrors.payment = 'At least one payment entry is required for single payment';
-      alert('❌ No Payment Added!\n\nPlease add at least one payment entry before submitting the form.\n\nClick "Add Payment" button to add payment details.');
-    } else {
-      console.log("✅ Single payment validation passed");
+  if (duplicateStudent) {
+    const { student, location, type } = duplicateStudent;
+    let message = '';
+    let field = '';
+
+    if (student.studentName.toLowerCase() === formData.studentName.toLowerCase()) {
+      message = `Student "${student.studentName}" already exists in ${location}`;
+      field = 'studentName';
+    } else if (student.mobileNo === formData.mobileNo) {
+      message = `Mobile number "${formData.mobileNo}" already exists for student "${student.studentName}" in ${location}`;
+      field = 'mobileNo';
+    } else if (student.email.toLowerCase() === formData.email.toLowerCase()) {
+      message = `Email "${formData.email}" already exists for student "${student.studentName}" in ${location}`;
+      field = 'email';
     }
-  } else if (paymentType === 'group') {
-    // ✅ Group payment must have group entries and at least one group payment
-    if (!dynamicGroupEntries || dynamicGroupEntries.length === 0) {
-      newErrors.groupStudents = 'Group student entries are required for group payment';
-      alert('❌ No Group Students!\n\nPlease add group student entries before submitting.\n\nUse the group payment form to add students.');
-    } else if (!groupPayments || groupPayments.length === 0) {
-      newErrors.groupPayment = 'At least one group payment entry is required';
-      alert('❌ No Group Payment Added!\n\nPlease click "Add to Group Payment" button to save the group payment before submitting.');
-    } else {
-      // ✅ Validate group payment amounts
-      const totalGroupAmount = parseInt(groupOnlineAmount || '0') + parseInt(groupOfflineAmount || '0');
-      const mainStudentAmount = parseInt(dynamicGroupEntries[0]?.amount || '0');
-      
-      if (totalGroupAmount === 0) {
-        newErrors.groupAmount = 'Group payment amount cannot be zero';
-        alert('❌ Invalid Group Payment!\n\nTotal group payment amount (online + offline) cannot be zero.\n\nPlease enter valid payment amounts.');
-      } else if (mainStudentAmount === 0) {
-        newErrors.studentAmount = 'Main student payment amount cannot be zero';
-        alert('❌ Invalid Student Amount!\n\nMain student (Student #1) amount cannot be zero.\n\nPlease enter the amount for this student.');
-      } else if (mainStudentAmount > formData.courseFee) {
-        newErrors.studentAmount = 'Student amount cannot exceed course fee';
-        alert(`❌ Amount Exceeds Course Fee!\n\nStudent amount ₹${mainStudentAmount.toLocaleString()} cannot be more than course fee ₹${formData.courseFee.toLocaleString()}.\n\nPlease enter a valid amount.`);
-      } else {
-        console.log("✅ Group payment validation passed");
-      }
-    }
+
+    newErrors[field] = message;
+    alert(`⚠️ Duplicate Entry Detected!\n\n${message}\n\nPlease verify the information and make necessary changes.`);
   }
+}
+  
 
-  // ✅ 3. MULTI-COURSE DUPLICATE CHECK (Enhanced)
-  if (formData.studentName.trim() && formData.fatherName.trim() && formData.mobileNo.trim() && formData.email.trim()) {
-    console.log("🔍 Checking for duplicate students...");
-    
-    const duplicateResult = checkForEnhancedDuplicate({
-      studentName: formData.studentName.trim(),
-      fatherName: formData.fatherName.trim(),
-      mobileNo: formData.mobileNo.trim(),
-      email: formData.email.trim(),
-      selectedCourse,
-      selectedBatch,
-      selectedYear,
-      courseDuration: formData.courseDuration
-    });
-
-    if (duplicateResult) {
-      console.log("❌ Duplicate found:", duplicateResult.type);
-      
-      switch (duplicateResult.type) {
-        case 'EXACT_DUPLICATE':
-          newErrors[duplicateResult.field] = duplicateResult.message;
-          showExactDuplicateModal(duplicateResult.student);
-          break;
-          
-        case 'MULTI_COURSE':
-          // ✅ Allow multi-course but get user confirmation
-          const confirmMultiCourse = showMultiCourseConfirmation(duplicateResult.student, duplicateResult.existingCourses);
-          if (!confirmMultiCourse) {
-            console.log("🚫 User cancelled multi-course enrollment");
-            return; // Stop submission
-          }
-          // ✅ Pre-fill existing data for consistency
-          prefillExistingStudentData(duplicateResult.student);
-          break;
-          
-        case 'MOBILE_CONFLICT':
-        case 'EMAIL_CONFLICT':
-          newErrors[duplicateResult.field] = duplicateResult.message;
-          alert(`⚠️ Contact Information Conflict!\n\n${duplicateResult.message}\n\nPlease verify and correct the ${duplicateResult.field === 'mobileNo' ? 'mobile number' : 'email address'}.`);
-          break;
-      }
-    } else {
-      console.log("✅ No duplicates found");
-    }
-  }
-
-  // ✅ 4. SET ERRORS AND STOP IF ANY VALIDATION FAILED
   setErrors(newErrors);
 
-  if (Object.keys(newErrors).length > 0) {
-    console.log("❌ Validation failed with errors:", newErrors);
-    return; // Stop submission
-  }
-
-  console.log("✅ All validations passed, proceeding with student creation...");
-
-  // ✅ 5. CREATE STUDENT OBJECT
-  const student: Student = {
-    id: Date.now().toString(),
-    ...formData,
-    createdAt: new Date().toISOString()
-  };
-
-  // ✅ 6. ADD STUDENT TO BATCH
-  onAddStudent(selectedYear, selectedCourse, selectedBatch, student);
-
-  // ✅ 7. HANDLE PAYMENTS BASED ON TYPE
-  if (paymentType === 'single') {
-    console.log("💰 Processing single payments...");
-    
-    // ✅ Save all single payments
-    payments.forEach((payment, index) => {
-      console.log(`💰 Saving single payment ${index + 1}:`, payment);
-      onAddPayment(student.id, {
-        ...payment,
-        paymentDate: payment.paymentDate,
-        type: 'single',
-        studentName: student.studentName
-      });
-    });
-    
-    console.log(`✅ Saved ${payments.length} single payments`);
-    
-  } else if (paymentType === 'group') {
-    console.log("👥 Processing group payments...");
-    
-    const groupId = `group_${Date.now()}`;
-    const totalOnlineAmount = parseInt(groupOnlineAmount || '0');
-    const totalOfflineAmount = parseInt(groupOfflineAmount || '0');
-    const mainStudentAmount = parseInt(dynamicGroupEntries[0]?.amount || '0');
-
-    // ✅ Update main student's payment totals
-    student.totalPaid = mainStudentAmount;
-    student.remainingFee = student.courseFee - mainStudentAmount;
-
-    // ✅ Create single group payment record for main student
-    const groupPaymentRecord = {
-      groupId,
-      studentName: student.studentName,
-      amount: mainStudentAmount, // This student's share
-      totalGroupAmount: totalOnlineAmount + totalOfflineAmount,
-      onlineAmount: totalOnlineAmount,
-      offlineAmount: totalOfflineAmount,
-      utrId: totalOnlineAmount > 0 ? groupUtrId : '',
-      receiptNo: totalOfflineAmount > 0 ? groupReceiptNo : '',
-      paymentDate: groupPaymentDate,
-      type: 'group',
-      groupStudents: dynamicGroupEntries.map(e => e.studentName).join(', '),
-      studentIndex: 0, // Main student index
+  if (Object.keys(newErrors).length === 0) {
+    const student: Student = {
+      id: Date.now().toString(),
+      ...formData,
       createdAt: new Date().toISOString()
     };
 
-    console.log("👥 Saving group payment record:", groupPaymentRecord);
-    onAddPayment(student.id, groupPaymentRecord);
-    
-    console.log("✅ Group payment saved successfully");
-  }
+    // ✅ FIXED: सिर्फ main student को batch में add करें
+    onAddStudent(selectedYear, selectedCourse, selectedBatch, student);
 
-  // ✅ 8. CALCULATE END DATE FOR RESET
-  let calculatedEndDate = '';
-  if (preSelectedStartDate && preSelectedDuration) {
-    const [day, month, year] = preSelectedStartDate.split('.');
-    const startDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-    const durationDays = parseInt(preSelectedDuration.replace(' Days', ''));
-
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + durationDays - 1);
-
-    const endDay = endDate.getDate().toString().padStart(2, '0');
-    const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
-    const endYear = endDate.getFullYear();
-    calculatedEndDate = `${endDay}.${endMonth}.${endYear}`;
-  }
-
-  // ✅ 9. RESET FORM AFTER SUCCESSFUL SUBMISSION
-  console.log("🔄 Resetting form after successful submission...");
-  
-  const fee = getCourseFee();
-  setFormData({
-    studentName: '',
-    fatherName: '',
-    gender: 'Male',
-    mobileNo: '',
-    email: '',
-    category: 'GEN',
-    hostler: 'No',
-    collegeName: '',
-    branch: '',
-    courseDuration: preSelectedDuration || '',
-    startDate: preSelectedStartDate || '',
-    endDate: calculatedEndDate,
-    courseFee: fee,
-    totalPaid: 0,
-    remainingFee: fee
-  });
-
-  // ✅ Clear payment fields
-  setPayments([]);
-  setPaymentMode('offline');
-  setPaymentAmount('');
-  setPaymentDate('');
-  setReceiptNo('');
-  setUtrId('');
-  setGroupPayments([]);
-  setPaymentType('single');
-  setGroupStudentName('');
-  setGroupCourseName('');
-  setGroupCourseDuration('');
-  setGroupOnlineAmount('');
-  setGroupOfflineAmount('');
-  setGroupUtrId('');
-  setGroupReceiptNo('');
-  setGroupPaymentDate('');
-  setDynamicGroupEntries([]);
-  setGroupCount(1);
-  setPaymentFieldsReadOnly(false);
-  setErrors({});
-
-  // ✅ Focus on Student Name after successful submission
-  if (studentNameRef.current) {
-    studentNameRef.current.focus();
-  }
-
-  console.log("✅ Form submitted and reset successfully");
-  alert(`✅ Student Added Successfully!\n\nStudent: ${student.studentName}\nCourse: ${selectedCourse}\nBatch: ${selectedBatch}\nPayment Type: ${paymentType}\n\nForm has been reset for next entry.`);
-
-if (paymentType === 'single') {
-  console.log("💰 Processing and saving single payments...");
-  
-  payments.forEach((payment, index) => {
-    console.log(`💰 Saving single payment ${index + 1}:`, payment);
-    
-    // ✅ Save payment to database first
-    onAddPayment(student.id, {
-      ...payment,
-      paymentDate: payment.paymentDate,
-      type: 'single',
-      studentName: student.studentName
-    });
-    
-    // ✅ THEN add to global validation sets (after successful save)
-    if (payment.paymentMode === 'online' && payment.utrId) {
-      setExistingPayments(prev => ({
-        ...prev,
-        utrIds: new Set([...prev.utrIds, payment.utrId])
-      }));
+    // ✅ SINGLE PAYMENT SAVE (unchanged)
+    if (paymentType === 'single') {
+      payments.forEach(payment => {
+        onAddPayment(student.id, {
+          ...payment,
+          paymentDate: payment.paymentDate,
+          type: 'single'
+        });
+      });
     }
-    if (payment.paymentMode === 'offline' && payment.receiptNo) {
-      setExistingPayments(prev => ({
-        ...prev,
-        receiptNos: new Set([...prev.receiptNos, payment.receiptNo])
-      }));
-    }
-  });
-  
-  console.log(`✅ Saved ${payments.length} single payments`);
-  
-} else if (paymentType === 'group') {
-  console.log("👥 Processing and saving group payments...");
-  
+
+    // ✅ FIXED: GROUP PAYMENT SAVE - Replace this section in your StudentForm.tsx handleSubmit function
+
+// Find this section in your StudentForm.tsx (around line 540-565):
+// ✅ FIXED: GROUP PAYMENT SAVE - Single Student Record with Group Details
+if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
   const groupId = `group_${Date.now()}`;
   const totalOnlineAmount = parseInt(groupOnlineAmount || '0');
   const totalOfflineAmount = parseInt(groupOfflineAmount || '0');
   const mainStudentAmount = parseInt(dynamicGroupEntries[0]?.amount || '0');
 
+  // Update main student's payment info
   student.totalPaid = mainStudentAmount;
   student.remainingFee = student.courseFee - mainStudentAmount;
 
-  const groupPaymentRecord = {
+  // ✅ CREATE ONE GROUP PAYMENT ENTRY for main student with all group info
+  onAddPayment(student.id, {
     groupId,
     studentName: student.studentName,
-    amount: mainStudentAmount,
+    amount: mainStudentAmount, // Main student का share
     totalGroupAmount: totalOnlineAmount + totalOfflineAmount,
     onlineAmount: totalOnlineAmount,
     offlineAmount: totalOfflineAmount,
@@ -1246,230 +920,80 @@ if (paymentType === 'single') {
     receiptNo: totalOfflineAmount > 0 ? groupReceiptNo : '',
     paymentDate: groupPaymentDate,
     type: 'group',
+    // ✅ FIXED: Store all group students as comma-separated string
     groupStudents: dynamicGroupEntries.map(e => e.studentName).join(', '),
-    studentIndex: 0,
-    createdAt: new Date().toISOString()
-  };
-
-  console.log("👥 Saving group payment record:", groupPaymentRecord);
-  
-  // ✅ Save payment to database first
-  onAddPayment(student.id, groupPaymentRecord);
-  
-  // ✅ THEN add to global validation sets (after successful save)
-  if (totalOnlineAmount > 0 && groupUtrId) {
-    setExistingPayments(prev => ({
-      ...prev,
-      utrIds: new Set([...prev.utrIds, groupUtrId])
-    }));
-  }
-  if (totalOfflineAmount > 0 && groupReceiptNo) {
-    setExistingPayments(prev => ({
-      ...prev,
-      receiptNos: new Set([...prev.receiptNos, groupReceiptNo])
-    }));
-  }
-  
-  console.log("✅ Group payment saved successfully");
-}
-
-   
-};
-
-// ✅ ENHANCED DUPLICATE CHECK FUNCTION
-const checkForEnhancedDuplicate = (studentData: any) => {
-  // Get all existing students from your data source
-  const allStudents = getAllExistingStudents(); // Replace with your actual function
-  
-  const { studentName, fatherName, mobileNo, email, selectedCourse, selectedBatch, selectedYear, courseDuration } = studentData;
-  
-  // Find potential duplicates
-  const duplicates = allStudents.filter(student => {
-    const nameMatch = student.studentName.toLowerCase() === studentName.toLowerCase();
-    const fatherMatch = student.fatherName.toLowerCase() === fatherName.toLowerCase();
-    const mobileMatch = student.mobileNo === mobileNo;
-    const emailMatch = student.email.toLowerCase() === email.toLowerCase();
-    
-    return (nameMatch && fatherMatch) || mobileMatch || emailMatch;
+    studentIndex: 0
   });
 
-  if (duplicates.length === 0) return null;
-
-  // ✅ Check for exact duplicate (same person, same course)
-  const exactMatch = duplicates.find(student => 
-    student.studentName.toLowerCase() === studentName.toLowerCase() &&
-    student.fatherName.toLowerCase() === fatherName.toLowerCase() &&
-    student.courseName === selectedCourse &&
-    student.batchName === selectedBatch &&
-    student.yearName === selectedYear
-  );
-
-  if (exactMatch) {
-    return {
-      type: 'EXACT_DUPLICATE',
-      student: exactMatch,
-      field: 'studentName',
-      message: `Student "${exactMatch.studentName}" is already enrolled in ${exactMatch.courseName} (${exactMatch.batchName} - ${exactMatch.yearName})`
-    };
-  }
-
-  // ✅ Check for multi-course (same person, different course)
-  const nameAndFatherMatches = duplicates.filter(student =>
-    student.studentName.toLowerCase() === studentName.toLowerCase() &&
-    student.fatherName.toLowerCase() === fatherName.toLowerCase()
-  );
-
-  if (nameAndFatherMatches.length > 0) {
-    const existingCourses = nameAndFatherMatches.map(s => `${s.courseName} (${s.batchName} - ${s.yearName})`);
+  // ✅ NO MORE: Don't create separate student records for other group members
+  // They will only appear in the group payment details as comma-separated names
+}
     
-    return {
-      type: 'MULTI_COURSE',
-      student: nameAndFatherMatches[0],
-      existingCourses,
-      field: 'studentName',
-      message: `Student "${studentName}" is already enrolled in other courses`
-    };
-  }
+// Calculate end date manually after reset
+      let calculatedEndDate = '';
+      if (preSelectedStartDate && preSelectedDuration) {
+        const [day, month, year] = preSelectedStartDate.split('.');
+        const startDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        const durationDays = parseInt(preSelectedDuration.replace(' Days', ''));
 
-  // ✅ Check for mobile conflicts
-  const mobileMatch = duplicates.find(student => student.mobileNo === mobileNo);
-  if (mobileMatch) {
-    return {
-      type: 'MOBILE_CONFLICT',
-      student: mobileMatch,
-      field: 'mobileNo',
-      message: `Mobile number "${mobileNo}" is already used by "${mobileMatch.studentName}"`
-    };
-  }
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + durationDays - 1); // Include start date
 
-  // ✅ Check for email conflicts
-  const emailMatch = duplicates.find(student => student.email.toLowerCase() === email.toLowerCase());
-  if (emailMatch) {
-    return {
-      type: 'EMAIL_CONFLICT',
-      student: emailMatch,
-      field: 'email',
-      message: `Email "${email}" is already used by "${emailMatch.studentName}"`
-    };
-  }
-
-  return null;
-};
-
-// ✅ HELPER FUNCTIONS
-const showExactDuplicateModal = (existingStudent: any) => {
-  const message = `🚫 EXACT DUPLICATE DETECTED!\n\n` +
-    `Student "${existingStudent.studentName}" is already enrolled in:\n\n` +
-    `📚 Course: ${existingStudent.courseName}\n` +
-    `👥 Batch: ${existingStudent.batchName}\n` +
-    `📅 Year: ${existingStudent.yearName}\n` +
-    `👨‍👩‍👧‍👦 Father: ${existingStudent.fatherName}\n` +
-    `📱 Mobile: ${existingStudent.mobileNo}\n` +
-    `📧 Email: ${existingStudent.email}\n\n` +
-    `💰 Course Fee: ₹${existingStudent.courseFee?.toLocaleString()}\n` +
-    `✅ Paid: ₹${existingStudent.totalPaid?.toLocaleString()}\n` +
-    `⏳ Remaining: ₹${existingStudent.remainingFee?.toLocaleString()}\n\n` +
-    `Please check if you want to add payment to existing enrollment instead.`;
-  
-  alert(message);
-};
-
-const showMultiCourseConfirmation = (existingStudent: any, existingCourses: string[]) => {
-  const message = `👨‍🎓 MULTI-COURSE ENROLLMENT DETECTED!\n\n` +
-    `Student: ${existingStudent.studentName}\n` +
-    `Father: ${existingStudent.fatherName}\n` +
-    `Mobile: ${existingStudent.mobileNo}\n\n` +
-    `📚 EXISTING ENROLLMENTS:\n${existingCourses.map((course, index) => `${index + 1}. ${course}`).join('\n')}\n\n` +
-    `🆕 NEW ENROLLMENT:\n${selectedCourse} (${selectedBatch} - ${selectedYear})\n\n` +
-    `✅ This appears to be a valid multi-course enrollment.\n\n` +
-    `Do you want to proceed with this new course enrollment?`;
-  
-  return confirm(message);
-};
-
-const prefillExistingStudentData = (existingStudent: any) => {
-  setFormData(prev => ({
-    ...prev,
-    fatherName: existingStudent.fatherName,
-    gender: existingStudent.gender,
-    mobileNo: existingStudent.mobileNo,
-    email: existingStudent.email,
-    category: existingStudent.category,
-    hostler: existingStudent.hostler,
-    collegeName: existingStudent.collegeName,
-    branch: existingStudent.branch
-  }));
-  
-  setTimeout(() => {
-    alert(`✅ Personal details pre-filled from existing enrollment for consistency!`);
-  }, 500);
-};
-
-
-  
-
-// Add this function in your StudentForm component before the return statement
-
-// 🔧 ENHANCED Payment Info Prefill for Group Addition
-const handlePaymentInfoPrefill = (studentName) => {
-  if (!studentName.trim()) return;
-  
-  // Check if we're in group payment mode
-  if (paymentType === 'group') {
-    // For group addition - only match by student name from existing students
-    const matchingStudent = students.find(student => 
-      student.studentName.toLowerCase() === studentName.toLowerCase()
-    );
-    
-    if (matchingStudent) {
-      console.log("✅ Found matching student for group addition:", matchingStudent);
-      
-      // Pre-fill form data from existing student
-      setFormData(prev => ({
-        ...prev,
-        fatherName: matchingStudent.fatherName,
-        gender: matchingStudent.gender,
-        mobileNo: matchingStudent.mobileNo,
-        email: matchingStudent.email,
-        category: matchingStudent.category,
-        hostler: matchingStudent.hostler,
-        collegeName: matchingStudent.collegeName,
-        branch: matchingStudent.branch,
-        courseDuration: matchingStudent.courseDuration,
-        startDate: matchingStudent.startDate,
-        endDate: matchingStudent.endDate,
-        courseFee: matchingStudent.courseFee,
-        totalPaid: matchingStudent.totalPaid,
-        remainingFee: matchingStudent.remainingFee
-      }));
-      
-      // Show payment history info
-      if (matchingStudent.payments && matchingStudent.payments.length > 0) {
-        const historyMessage = `💰 Payment History for ${matchingStudent.studentName}:\n\n` +
-          `📋 Course: ${matchingStudent.courseName}\n` +
-          `🎓 Batch: ${matchingStudent.batchName} • ${matchingStudent.yearName}\n` +
-          `💵 Course Fee: ₹${matchingStudent.courseFee?.toLocaleString()}\n` +
-          `✅ Total Paid: ₹${matchingStudent.totalPaid?.toLocaleString()}\n` +
-          `⏳ Remaining: ₹${matchingStudent.remainingFee?.toLocaleString()}\n\n` +
-          `📊 Payment Details:\n${matchingStudent.payments.map(p => 
-            `• ${p.paymentDate}: ₹${p.amount?.toLocaleString()} (${p.paymentMode})`
-          ).join('\n')}`;
-        
-        // Show non-blocking payment history
-        setTimeout(() => {
-          alert(historyMessage);
-        }, 500);
+        const endDay = endDate.getDate().toString().padStart(2, '0');
+        const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
+        const endYear = endDate.getFullYear();
+        calculatedEndDate = `${endDay}.${endMonth}.${endYear}`;
       }
-      
-      return true; // Student found and pre-filled
+
+    // Reset form logic...
+    const fee = getCourseFee();
+    setFormData({
+      studentName: '',
+      fatherName: '',
+      gender: 'Male',
+      mobileNo: '',
+      email: '',
+      category: 'GEN',
+      hostler: 'No',
+      collegeName: '',
+      branch: '',
+      courseDuration: preSelectedDuration || '',
+      startDate: preSelectedStartDate || '',
+      endDate: calculatedEndDate,
+      courseFee: fee,
+      totalPaid: 0,
+      remainingFee: fee
+    });
+
+    // Clear payment fields
+    setPayments([]);
+    setPaymentAmount('');
+    setPaymentDate('');
+    setReceiptNo('');
+    setUtrId('');
+    setGroupPayments([]);
+    setPaymentType('single');
+    setGroupStudentName('');
+    setGroupCourseName('');
+    setGroupCourseDuration('');
+    setGroupOnlineAmount('');
+    setGroupOfflineAmount('');
+    setGroupUtrId('');
+    setGroupReceiptNo('');
+    setGroupPaymentDate('');
+    setDynamicGroupEntries([]);
+    // ✅ ADD THIS LINE in the form reset section
+setPaymentFieldsReadOnly(false); // Reset read-only state
+
+    // Focus on Student Name after adding
+    if (studentNameRef.current) {
+      studentNameRef.current.focus();
     }
+
+    alert('Student added successfully!');
   }
-  
-  return false; // No matching student found
 };
 
-
-  
   const handleAddNewCollege = () => {
     if (newCollegeName.trim()) {
       onAddCollegeName(newCollegeName.trim());
@@ -2250,22 +1774,16 @@ const handlePaymentInfoPrefill = (studentName) => {
                             } • {payment.paymentDate}
                           </p>
                         </div>
-                      
-<button
-  type="button"
-  onClick={() => {
-    const paymentToRemove = payments[index];
-    
-    // ✅ Remove from payments array
-    const newPayments = payments.filter((_, i) => i !== index);
-    setPayments(newPayments);
-    
-    console.log("✅ Payment removed from history (can be re-added with same UTR/Receipt)");
-  }}
-  className="text-red-400 hover:text-red-300 transition-colors"
->
-  Remove
-</button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newPayments = payments.filter((_, i) => i !== index);
+                            setPayments(newPayments);
+                          }}
+                          className="text-red-400 hover:text-red-300 transition-colors"
+                        >
+                          Remove
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -2689,36 +2207,16 @@ const handlePaymentInfoPrefill = (studentName) => {
                             Total: ₹{(payment.onlineAmount + payment.offlineAmount).toLocaleString()}
                           </p>
                         </div>
-                       <button
-  type="button"
-  onClick={() => {
-    const groupPaymentToRemove = groupPayments[index];
-    
-    // ✅ Remove from group payments array
-    const newGroupPayments = groupPayments.filter((_, i) => i !== index);
-    setGroupPayments(newGroupPayments);
-    
-    // ✅ Reset payment fields to allow re-entry
-    setPaymentFieldsReadOnly(false);
-    setGroupPaymentDate('');
-    setGroupOnlineAmount('');
-    setGroupOfflineAmount('');
-    setGroupUtrId('');
-    setGroupReceiptNo('');
-    
-    // ✅ Update form summary when group payment is removed
-    setFormData(prev => ({
-      ...prev,
-      totalPaid: 0,
-      remainingFee: prev.courseFee
-    }));
-    
-    console.log("✅ Group payment removed and fields reset for re-entry");
-  }}
-  className="text-red-400 hover:text-red-300 transition-colors"
->
-  <X className="w-4 h-4" />
-</button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newGroupPayments = groupPayments.filter((_, i) => i !== index);
+                            setGroupPayments(newGroupPayments);
+                          }}
+                          className="text-red-400 hover:text-red-300 transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -3095,7 +2593,7 @@ const handlePaymentInfoPrefill = (studentName) => {
       const isFatherNameMatching = currentFatherName === existingFatherName;
       
       // ✅ Both conditions must be true for a valid match
-      const isStudentInExistingGroup = isStudentNameInGroup;
+      const isStudentInExistingGroup = isStudentNameInGroup && isFatherNameMatching;
       
        console.log("🔍 Student name in group:", isStudentNameInGroup);
       console.log("🔍 Father name matching:", isFatherNameMatching);
@@ -3127,7 +2625,7 @@ const handlePaymentInfoPrefill = (studentName) => {
         console.log("❌ SCENARIO 2: Current student is NOT part of existing group");
        setTimeout(() => {
           alert(`❌ ERROR: Cannot add to existing group!\n\nCurrent Student: ${currentStudentName}\nExisting Group Members: ${existingGroupStudents}\n\n${currentStudentName} is not a member of the existing group payment. Each student can only be added to their own group payments.\n\nPlease use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
-        }, 100);
+        }, 1000);
         
         // Clear the problematic field
         if (paymentType === 'group') {
@@ -3195,7 +2693,7 @@ const handlePaymentInfoPrefill = (studentName) => {
       // ✅ Proceed with pre-filling after short delay
       setTimeout(() => {
         proceedWithPreFilling();
-      }, 150);
+      }, 1500);
       
       // ✅ EXTRACTED FUNCTION: Pre-filling logic
       function proceedWithPreFilling() {
@@ -3328,9 +2826,9 @@ const handlePaymentInfoPrefill = (studentName) => {
                 alert(successMsg);
                 console.log("✅ Success message shown, process completed");
               }
-            }, 500); // Reduced timeout but ensure UI is stable
+            }, 9000); // Reduced timeout but ensure UI is stable
             
-          }, 300); // Reduced timeout for better responsiveness
+          }, 5000); // Reduced timeout for better responsiveness
           
           console.log("✅ Process initiated successfully");
         
@@ -3340,7 +2838,7 @@ const handlePaymentInfoPrefill = (studentName) => {
          // ✅ FIXED: Non-blocking error alert
           setTimeout(() => {
             alert(`❌ An error occurred while pre-filling the payment details: ${error.message}\n\nPlease try again or contact support.`);
-          }, 500);
+          }, 5000);
         setDuplicateCheckModal(false);
         setDuplicateInfo(null);
       }
@@ -3361,6 +2859,3 @@ const handlePaymentInfoPrefill = (studentName) => {
 };
 
 export default StudentForm;
-
-
-    
