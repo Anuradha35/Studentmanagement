@@ -1054,12 +1054,7 @@ const handlePaymentInfoPrefill = (studentName) => {
   return false; // No matching student found
 };
 
-// 🔧 MODIFIED Group Validation Logic (Replace the existing validation)
-const validateGroupMembership = (currentStudentName, existingGroupStudents) => {
-  const existingStudentNames = existingGroupStudents
-    .split(', ')
-    .map(name => name.trim().toUpperCase())
-    .filter(name => name.length > 0);
+
 
   
   const handleAddNewCollege = () => {
@@ -2657,9 +2652,9 @@ const validateGroupMembership = (currentStudentName, existingGroupStudents) => {
       let proceedMessage = '';
       
       // Check if current student is part of existing group
-     
-      const isStudentNameInGroup = existingStudentNames.includes(currentStudentName.toUpperCase());
-  
+      const isStudentNameInGroup = existingStudentNames.includes(currentStudentName);
+      const isFatherNameMatching = currentFatherName === existingFatherName;
+      
       // ✅ Both conditions must be true for a valid match
       const isStudentInExistingGroup = isStudentNameInGroup;
       
