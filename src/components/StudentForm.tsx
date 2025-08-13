@@ -847,7 +847,8 @@ const handleSubmit = (e: React.FormEvent) => {
   } else if (formData.startDate.length !== 10 || !validateDate(formData.startDate)) {
     newErrors.startDate = 'Please enter a valid date (DD.MM.YYYY)';
   }
-
+handleAddPayment();
+  handleAddGroupPayment();
 // ✅ ADD THIS DUPLICATE CHECK BEFORE setErrors(newErrors)
 // Check for duplicate students
 if (
@@ -2248,17 +2249,9 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
           </button>
           <button
             type="submit"
-            className={`flex-1 px-6 py-3 rounded-xl transition-all duration-200 font-medium shadow-lg ${
-            hasAddedPayment || hasAddedGroupPayment
-              ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
-          disabled={!hasAddedPayment && !hasAddedGroupPayment}
-        >
-          Add Student
-          {(hasAddedPayment || hasAddedGroupPayment) && (
-            <span className="ml-2">✓</span>
-          )}
+            className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-200 font-medium shadow-lg"
+          >
+            Add Student
           </button>
         </div>
       </form>
