@@ -2863,14 +2863,6 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     </div>
   </Dialog.Panel>
 </Dialog>
-
-      
-    </div>
-  );
-};
-
-export default StudentForm;
-
 <script>
         
         let hasClickedAddPayment = false;
@@ -2999,3 +2991,11 @@ export default StudentForm;
             updateStatusDisplay();
         });
     </script>
+
+      
+    </div>
+  );
+};
+
+export default StudentForm;
+
