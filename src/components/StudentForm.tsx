@@ -2040,7 +2040,10 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   setGroupReceiptNo(value);
   
   // ✅ Check for duplicates immediately
- onBlur={() => {
+                     
+  if (errors.groupReceiptNo) setErrors({ ...errors, groupReceiptNo: '' });
+}}
+                      onBlur={() => {
   if (groupReceiptNo.trim() !== "") {
     const duplicate = findDuplicatePayment(undefined, groupReceiptNo.trim());
     if (duplicate) {
@@ -2051,11 +2054,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
      return;
   }
 }}
-                        
- 
-  
-  if (errors.groupReceiptNo) setErrors({ ...errors, groupReceiptNo: '' });
-}}
+    
 
                       className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Enter receipt number"
