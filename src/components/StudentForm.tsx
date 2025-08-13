@@ -842,9 +842,10 @@ const handleSubmit = (e: React.FormEvent) => {
 
 // ✅ ADD THIS DUPLICATE CHECK BEFORE setErrors(newErrors)
 // Check for duplicate students
-if (formData.studentName.trim() && formData.mobileNo.trim() && formData.email.trim()) {
+if (formData.studentName.trim() && formData.fatherName && formData.mobileNo.trim() && formData.email.trim()) {
   const duplicateStudent = checkForDuplicateStudent(
     formData.studentName.trim(),
+    formData.fatherName.trim(),
     formData.mobileNo.trim(),
     formData.email.trim()
   );
@@ -857,12 +858,9 @@ if (formData.studentName.trim() && formData.mobileNo.trim() && formData.email.tr
     if (student.studentName.toLowerCase() === formData.studentName.toLowerCase()) {
       message = `Student "${student.studentName}" already exists in ${location}`;
       field = 'studentName';
-    } else if (student.mobileNo === formData.mobileNo) {
-      message = `Mobile number "${formData.mobileNo}" already exists for student "${student.studentName}" in ${location}`;
+    } else if (student.fatherName === formData.fatherName) {
+      message = `Father Name "${formData.fatherName}" already exists for student "${student.studentName}" in ${location}`;
       field = 'mobileNo';
-    } else if (student.email.toLowerCase() === formData.email.toLowerCase()) {
-      message = `Email "${formData.email}" already exists for student "${student.studentName}" in ${location}`;
-      field = 'email';
     }
 
     newErrors[field] = message;
