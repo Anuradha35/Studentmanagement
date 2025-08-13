@@ -1069,6 +1069,27 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     entries: dynamicGroupEntries.length
   });
   
+<Dialog 
+  open={paymentErrorModalOpen} 
+  onClose={() => setPaymentErrorModalOpen(false)} 
+  className="fixed z-50 inset-0 flex items-center justify-center"
+>
+  <div className="bg-black bg-opacity-50 fixed inset-0"></div>
+  <Dialog.Panel className="bg-red-800 border border-red-500/30 rounded-xl p-6 z-50 w-full max-w-md mx-4 shadow-2xl">
+    <Dialog.Title className="text-xl font-bold text-white mb-4">
+      Payment Error
+    </Dialog.Title>
+    <p className="text-white">{paymentErrorMessage}</p>
+    <div className="flex justify-end mt-6">
+      <button
+        onClick={() => setPaymentErrorModalOpen(false)}
+        className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+      >
+        OK
+      </button>
+    </div>
+  </Dialog.Panel>
+</Dialog>
 
   return (
 
