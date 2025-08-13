@@ -120,8 +120,7 @@ const [duplicateInfo, setDuplicateInfo] = useState<{
   yearName: string;
   paymentType: 'single' | 'group';
 } | null>(null);
-const [paymentErrorModalOpen, setPaymentErrorModalOpen] = useState(false);
-const [paymentErrorMessage, setPaymentErrorMessage] = useState("");
+
   // Get course fee based on selected course and duration
   const getCourseFee = () => {
     if (!appData.courseFees || !selectedCourse || !formData.courseDuration) return 0;
@@ -850,23 +849,16 @@ const handleSubmit = (e: React.FormEvent) => {
   }
 
 if (!paymentType) {
-  setPaymentErrorMessage("⚠️ Please select a payment method (Single or Group)");
-  setPaymentErrorModalOpen(true);
-  return; // आगे का submit रोक दो
-} else {
-  if (paymentType === "single" && payments.length === 0) {
-    setPaymentErrorMessage("⚠️ Please add at least one payment before submitting");
-    setPaymentErrorModalOpen(true);
-    return;
+    newErrors.paymentType = "Please select a payment method (Single or Group)";
+  } else {
+    if (paymentType === "single" && payments.length === 0) {
+      newErrors.paymentType = "Please add at least one payment before submitting";
+    }
+    if (paymentType === "group" && groupPayments.length === 0) {
+      newErrors.paymentType = "Please add at least one group payment before submitting";
+    }
   }
-  if (paymentType === "group" && groupPayments.length === 0) {
-    setPaymentErrorMessage("⚠️ Please add at least one group payment before submitting");
-    setPaymentErrorModalOpen(true);
-    return;
-  }
-}
-
-  
+  //nice
 // ✅ ADD THIS DUPLICATE CHECK BEFORE setErrors(newErrors)
 // Check for duplicate students
 if (
@@ -1069,27 +1061,6 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     entries: dynamicGroupEntries.length
   });
   
-<Dialog 
-  open={paymentErrorModalOpen} 
-  onClose={() => setPaymentErrorModalOpen(false)} 
-  className="fixed z-50 inset-0 flex items-center justify-center"
->
-  <div className="bg-black bg-opacity-50 fixed inset-0"></div>
-  <Dialog.Panel className="bg-red-800 border border-red-500/30 rounded-xl p-6 z-50 w-full max-w-md mx-4 shadow-2xl">
-    <Dialog.Title className="text-xl font-bold text-white mb-4">
-      Payment Error
-    </Dialog.Title>
-    <p className="text-white">{paymentErrorMessage}</p>
-    <div className="flex justify-end mt-6">
-      <button
-        onClick={() => setPaymentErrorModalOpen(false)}
-        className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-      >
-        OK
-      </button>
-    </div>
-  </Dialog.Panel>
-</Dialog>
 
   return (
 
