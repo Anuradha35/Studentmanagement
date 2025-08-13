@@ -711,13 +711,7 @@ setDynamicGroupEntries(entries);
 
   const onlineAmount = parseInt(groupOnlineAmount) || 0;
   const offlineAmount = parseInt(groupOfflineAmount) || 0;
-
-  // Student 1 ka amount
-const student1Amount = parseInt(dynamicGroupEntries[0].amount || '0');
-
-// Baki students ka combined remaining amount (input field se liya hua)
-const otherStudentsAmount = parseInt(groupRemainingAmount || '0'); 
-
+  const student1Amount = parseInt(dynamicGroupEntries[0].amount || '0');
 
   if (onlineAmount === 0 && offlineAmount === 0) {
     newErrors.groupAmount = 'At least one payment amount is required';
@@ -733,14 +727,21 @@ const otherStudentsAmount = parseInt(groupRemainingAmount || '0');
     newErrors.groupReceiptNo = 'Receipt number is required for offline payment';
   }
 
-  // Check for duplicate UTR/Receipt numbers
-  const duplicateError = validatePaymentDuplicate(
-    onlineAmount > 0 ? groupUtrId : undefined,
-    offlineAmount > 0 ? groupReceiptNo : undefined
-  );
-  if (duplicateError) {
-    if (onlineAmount > 0) newErrors.groupUtrId = duplicateError;
-    if (offlineAmount > 0) newErrors.groupReceiptNo = duplicateError;
+  // ✅ CRITICAL FIX: Check duplicates in current session group payments ONLY
+  const sessionGroupUtrIds = groupPayments
+    .filter(p => p.utrId)
+    .map(p => p.utrId);
+  
+  const sessionGroupReceiptNos = groupPayments
+    .filter(p => p.receiptNo)
+    .map(p => p.receiptNo);
+  
+  if (onlineAmount > 0 && groupUtrId && sessionGroupUtrIds.includes(groupUtrId)) {
+    newErrors.groupUtrId = 'This UTR ID has already been used in current group payment session';
+  }
+  
+  if (offlineAmount > 0 && groupReceiptNo && sessionGroupReceiptNos.includes(groupReceiptNo)) {
+    newErrors.groupReceiptNo = 'This Receipt Number has already been used in current group payment session';
   }
 
   // Check student name fields
@@ -752,64 +753,55 @@ const otherStudentsAmount = parseInt(groupRemainingAmount || '0');
     newErrors.groupAmount = 'Please enter at least one student name';
   }
 
-// ✅ Validate all student fields filled
-dynamicGroupEntries.forEach((entry, idx) => {
-  if (!entry.studentName?.trim()) {
-    newErrors[`studentName_${idx}`] = `Student Name #${idx + 1} is required`;
+  dynamicGroupEntries.forEach((entry, idx) => {
+    if (!entry.studentName?.trim()) {
+      newErrors[`studentName_${idx}`] = `Student Name #${idx + 1} is required`;
+    }
+  });
+
+  if (!dynamicGroupEntries[0].amount || parseInt(dynamicGroupEntries[0].amount) <= 0) {
+    newErrors[`amount_0`] = 'Amount is required';
   }
-});
 
-// Amount blank validation for Student 1
-if (!dynamicGroupEntries[0].amount || parseInt(dynamicGroupEntries[0].amount) <= 0) {
-  newErrors[`amount_0`] = 'Amount is required';
-}
-
-
-  // Check for blank student names
-const emptyIndex = dynamicGroupEntries.findIndex(
-  (entry) => !entry.studentName?.trim()
-);
-if (emptyIndex !== -1) {
-  newErrors[`studentName_${emptyIndex}`] = `Student Name #${emptyIndex + 1} is required`;
-}
+  const emptyIndex = dynamicGroupEntries.findIndex(
+    (entry) => !entry.studentName?.trim()
+  );
+  if (emptyIndex !== -1) {
+    newErrors[`studentName_${emptyIndex}`] = `Student Name #${emptyIndex + 1} is required`;
+  }
 
   setErrors(newErrors);
 
- if (Object.keys(newErrors).length === 0) {
-  const student1Name = dynamicGroupEntries[0].studentName;
-  const student1Amount = parseInt(dynamicGroupEntries[0].amount || '0');
+  if (Object.keys(newErrors).length === 0) {
+    const student1Name = dynamicGroupEntries[0].studentName;
+    const student1Amount = parseInt(dynamicGroupEntries[0].amount || '0');
+    const totalPayment = (onlineAmount || 0) + (offlineAmount || 0);
+    const otherStudentsAmount = totalPayment - student1Amount;
+    const otherStudents = dynamicGroupEntries
+      .slice(1)
+      .map((s) => s.studentName)
+      .join(', ');
 
-  // Ye wahi calculation jo tum input me use kar rahi ho
-  const totalPayment = (onlineAmount || 0) + (offlineAmount || 0);
-  const otherStudentsAmount = totalPayment - student1Amount;
+    const newGroupPayment = {
+      studentName: student1Name,
+      student1Amount,
+      otherStudents,
+      otherStudentsAmount,
+      total: student1Amount + otherStudentsAmount,
+      onlineAmount: onlineAmount,
+      offlineAmount: offlineAmount,
+      utrId: onlineAmount > 0 ? groupUtrId : undefined,
+      receiptNo: offlineAmount > 0 ? groupReceiptNo : undefined,
+      paymentDate: groupPaymentDate
+    };
 
-  const otherStudents = dynamicGroupEntries
-    .slice(1)
-    .map((s) => s.studentName)
-    .join(', ');
-
-  const newGroupPayment = {
-    studentName: student1Name,
-    student1Amount,
-    otherStudents,
-    otherStudentsAmount,
-    total: student1Amount + otherStudentsAmount,
-    onlineAmount: onlineAmount,
-    offlineAmount: offlineAmount,
-    utrId: onlineAmount > 0 ? groupUtrId : undefined,
-    receiptNo: offlineAmount > 0 ? groupReceiptNo : undefined,
-    paymentDate: groupPaymentDate
-  };
-
-  setGroupPayments((prev) => [...prev, newGroupPayment]);
-
-  
-}
-
-
-
-
+    // ✅ Add to group payments history (temporary storage)
+    setGroupPayments((prev) => [...prev, newGroupPayment]);
+    
+    console.log("✅ Group payment added to history (temporary storage)");
+  }
 };
+
 
 
 // 🔥 ENHANCED MULTI-COURSE VALIDATION LOGIC
@@ -2176,16 +2168,22 @@ const handlePaymentInfoPrefill = (studentName) => {
                             } • {payment.paymentDate}
                           </p>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const newPayments = payments.filter((_, i) => i !== index);
-                            setPayments(newPayments);
-                          }}
-                          className="text-red-400 hover:text-red-300 transition-colors"
-                        >
-                          Remove
-                        </button>
+                      
+<button
+  type="button"
+  onClick={() => {
+    const paymentToRemove = payments[index];
+    
+    // ✅ Remove from payments array
+    const newPayments = payments.filter((_, i) => i !== index);
+    setPayments(newPayments);
+    
+    console.log("✅ Payment removed from history (can be re-added with same UTR/Receipt)");
+  }}
+  className="text-red-400 hover:text-red-300 transition-colors"
+>
+  Remove
+</button>
                       </div>
                     ))}
                   </div>
