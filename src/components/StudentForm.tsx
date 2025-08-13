@@ -3126,7 +3126,19 @@ const handlePaymentInfoPrefill = (studentName) => {
         // ✅ SCENARIO 2: Student is NOT in existing group - this should not be allowed
         console.log("❌ SCENARIO 2: Current student is NOT part of existing group");
        setTimeout(() => {
+         // ✅ FIXED: Reset all group payment fields as requested
+            setGroupStudentName('');
+            setGroupOnlineAmount('');
+            setGroupOfflineAmount('');
+            setGroupUtrId('');
+            setGroupReceiptNo('');
+            setGroupPaymentDate('');
+            setGroupPayments([]);
+            setDynamicGroupEntries([]);
+            setErrors({});
+            setPaymentType('single'); // Reset to single if cancelled
           alert(`❌ ERROR: Cannot add to existing group!\n\nCurrent Student: ${currentStudentName}\nExisting Group Members: ${existingGroupStudents}\n\n${currentStudentName} is not a member of the existing group payment. Each student can only be added to their own group payments.\n\nPlease use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
+         
         }, 100);
         
         // Clear the problematic field
