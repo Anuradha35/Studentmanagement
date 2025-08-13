@@ -2872,11 +2872,11 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
 export default StudentForm;
 
 <script>
-        // Global variables to track payment button clicks
+        
         let hasClickedAddPayment = false;
         let hasClickedGroupPayment = false;
 
-        // Function to update status display
+       
         function updateStatusDisplay() {
             const statusDiv = document.getElementById('statusDisplay');
             if (hasClickedAddPayment) {
@@ -2888,7 +2888,7 @@ export default StudentForm;
             }
         }
 
-        // Function to handle Add Payment button click
+        
         function handleAddPaymentClick() {
             hasClickedAddPayment = true;
             hasClickedGroupPayment = false; // Reset other option
