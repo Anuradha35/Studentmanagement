@@ -2040,19 +2040,19 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   setGroupReceiptNo(value);
   
   // ✅ Check for duplicates immediately
-
-                        
-  if (value.length > 0) {
-    const duplicate = findDuplicatePayment(undefined, value);
+ onBlur={() => {
+  if (groupReceiptNo.trim() !== "") {
+    const duplicate = findDuplicatePayment(undefined, groupReceiptNo.trim());
     if (duplicate) {
       setDuplicateInfo(duplicate);
       setDuplicateCheckModal(true);
-      if (duplicate.paymentType === 'single') {
-        setGroupReceiptNo(''); // Clear input for single payments
-      }
-      return;
+      setReceiptNo('');
     }
+     return;
   }
+}}
+                        
+ 
   
   if (errors.groupReceiptNo) setErrors({ ...errors, groupReceiptNo: '' });
 }}
