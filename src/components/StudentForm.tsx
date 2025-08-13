@@ -2188,9 +2188,9 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
               </div>
 
              
-              <button
+              <button id="groupPaymentBtn" class="btn btn-payment" onclick="handleGroupPaymentClick()"
                 type="button"
-                onClick={handleAddGroupPayment}
+               // onClick={handleAddGroupPayment}
                 className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors mb-4"
               >
                 Add to Group Payment
