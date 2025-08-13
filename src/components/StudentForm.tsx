@@ -624,85 +624,80 @@ setDynamicGroupEntries(entries);
   };
 
   const handleAddPayment = () => {
-    const newErrors: { [key: string]: string } = {};
+  const newErrors: { [key: string]: string } = {};
+  
+  if (!paymentAmount.trim()) {
+    newErrors.paymentAmount = 'Payment amount is required';
+  }
+  
+  if (!paymentDate.trim()) {
+    newErrors.paymentDate = 'Payment date is required';
+  } else if (paymentDate.length !== 10 || !validateDate(paymentDate)) {
+    newErrors.paymentDate = 'Please enter a valid date (DD.MM.YYYY)';
+  }
+  
+  if (paymentMode === 'offline' && !receiptNo.trim()) {
+    newErrors.receiptNo = 'Receipt number is required for offline payment';
+  }
+  
+  if (paymentMode === 'online' && !utrId.trim()) {
+    newErrors.utrId = 'UTR/UPI ID is required for online payment';
+  }
+  
+  if (paymentMode === 'online' && utrId.length !== 12) {
+    newErrors.utrId = 'UTR/UPI ID must be exactly 12 digits';
+  }
+  
+  const amount = parseInt(paymentAmount);
+  if (isNaN(amount) || amount <= 0) {
+    newErrors.paymentAmount = 'Please enter a valid amount';
+  }
+  
+  // Check if payment exceeds remaining fee
+  const currentTotal = payments.reduce((sum, payment) => sum + payment.amount, 0);
+  if (amount + currentTotal > formData.courseFee) {
+    newErrors.paymentAmount = `Payment amount exceeds course fee! Maximum allowed: ₹${formData.courseFee - currentTotal}`;
+  }
+  
+  // ✅ CRITICAL FIX: Check duplicates in current session payments ONLY
+  const sessionUtrIds = payments
+    .filter(p => p.paymentMode === 'online' && p.utrId)
+    .map(p => p.utrId);
+  
+  const sessionReceiptNos = payments
+    .filter(p => p.paymentMode === 'offline' && p.receiptNo)
+    .map(p => p.receiptNo);
+  
+  if (paymentMode === 'online' && utrId && sessionUtrIds.includes(utrId)) {
+    newErrors.utrId = 'This UTR ID has already been used in current payment session';
+  }
+  
+  if (paymentMode === 'offline' && receiptNo && sessionReceiptNos.includes(receiptNo)) {
+    newErrors.receiptNo = 'This Receipt Number has already been used in current payment session';
+  }
+  
+  setErrors(newErrors);
+  
+  if (Object.keys(newErrors).length === 0) {
+    const newPayment = {
+      paymentMode,
+      amount,
+      paymentDate,
+      ...(paymentMode === 'offline' ? { receiptNo } : { utrId })
+    };
     
-    if (!paymentAmount.trim()) {
-      newErrors.paymentAmount = 'Payment amount is required';
-    }
+    // ✅ Add to payments history (temporary storage)
+    setPayments([...payments, newPayment]);
     
-    if (!paymentDate.trim()) {
-      newErrors.paymentDate = 'Payment date is required';
-    } else if (paymentDate.length !== 10 || !validateDate(paymentDate)) {
-      newErrors.paymentDate = 'Please enter a valid date (DD.MM.YYYY)';
-    }
+    // ✅ Clear input fields
+    setPaymentAmount('');
+    setReceiptNo('');
+    setUtrId('');
+    setPaymentDate('');
     
-    if (paymentMode === 'offline' && !receiptNo.trim()) {
-      newErrors.receiptNo = 'Receipt number is required for offline payment';
-    }
-    
-    if (paymentMode === 'online' && !utrId.trim()) {
-      newErrors.utrId = 'UTR/UPI ID is required for online payment';
-    }
-    
-    if (paymentMode === 'online' && utrId.length !== 12) {
-      newErrors.utrId = 'UTR/UPI ID must be exactly 12 digits';
-    }
-    
-    const amount = parseInt(paymentAmount);
-    if (isNaN(amount) || amount <= 0) {
-      newErrors.paymentAmount = 'Please enter a valid amount';
-    }
-    
-    // Check if payment exceeds remaining fee
-    const currentTotal = payments.reduce((sum, payment) => sum + payment.amount, 0);
-    if (amount + currentTotal > formData.courseFee) {
-      newErrors.paymentAmount = `Payment amount exceeds course fee! Maximum allowed: ₹${formData.courseFee - currentTotal}`;
-    }
-    
-    // Check for duplicate UTR/Receipt numbers
-    const duplicateError = validatePaymentDuplicate(
-      paymentMode === 'online' ? utrId : undefined,
-      paymentMode === 'offline' ? receiptNo : undefined
-    );
-    if (duplicateError) {
-      if (paymentMode === 'online') {
-        newErrors.utrId = duplicateError;
-      } else {
-        newErrors.receiptNo = duplicateError;
-      }
-    }
-    
-    setErrors(newErrors);
-    
-    if (Object.keys(newErrors).length === 0) {
-      const newPayment = {
-        paymentMode,
-        amount,
-        paymentDate,
-        ...(paymentMode === 'offline' ? { receiptNo } : { utrId })
-      };
-      
-      setPayments([...payments, newPayment]);
-      setPaymentAmount('');
-      setReceiptNo('');
-      setUtrId('');
-      setPaymentDate('');
-      
-      // Add to existing payments to prevent duplicates in same session
-      if (paymentMode === 'online' && utrId) {
-        setExistingPayments(prev => ({
-          ...prev,
-          utrIds: new Set([...prev.utrIds, utrId])
-        }));
-      }
-      if (paymentMode === 'offline' && receiptNo) {
-        setExistingPayments(prev => ({
-          ...prev,
-          receiptNos: new Set([...prev.receiptNos, receiptNo])
-        }));
-      }
-    }
-  };
+    console.log("✅ Payment added to history (temporary storage)");
+  }
+};
 
   const handleAddGroupPayment = () => {
   const newErrors: { [key: string]: string } = {};
