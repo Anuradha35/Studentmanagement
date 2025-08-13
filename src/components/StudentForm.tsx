@@ -2888,9 +2888,9 @@ const handlePaymentInfoPrefill = (studentName) => {
                 alert(successMsg);
                 console.log("✅ Success message shown, process completed");
               }
-            }, 9000); // Reduced timeout but ensure UI is stable
+            }, 500); // Reduced timeout but ensure UI is stable
             
-          }, 5000); // Reduced timeout for better responsiveness
+          }, 300); // Reduced timeout for better responsiveness
           
           console.log("✅ Process initiated successfully");
         
