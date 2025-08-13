@@ -1317,7 +1317,7 @@ const prefillExistingStudentData = (existingStudent) => {
     branch: existingStudent.branch || prev.branch
   }));
 };
- 
+/* 
 // ✅ ENHANCED DUPLICATE CHECK FUNCTION
 const checkForEnhancedDuplicate = (studentData: any) => {
   // Get all existing students from your data source
@@ -1447,6 +1447,7 @@ const prefillExistingStudentData = (existingStudent: any) => {
   }, 500);
 };
 
+*/
 
   
 
