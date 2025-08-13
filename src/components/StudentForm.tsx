@@ -848,6 +848,17 @@ const handleSubmit = (e: React.FormEvent) => {
     newErrors.startDate = 'Please enter a valid date (DD.MM.YYYY)';
   }
 
+if (!paymentType) {
+    newErrors.paymentType = "Please select a payment method (Single or Group)";
+  } else {
+    if (paymentType === "single" && payments.length === 0) {
+      newErrors.paymentType = "Please add at least one payment before submitting";
+    }
+    if (paymentType === "group" && groupPayments.length === 0) {
+      newErrors.paymentType = "Please add at least one group payment before submitting";
+    }
+  }
+  
 // ✅ ADD THIS DUPLICATE CHECK BEFORE setErrors(newErrors)
 // Check for duplicate students
 if (
