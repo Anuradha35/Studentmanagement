@@ -2210,6 +2210,10 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
               >
                 Add to Group Payment
               </button>
+              {errors.paymentType && (
+  <p className="text-red-400 text-sm mt-2">{errors.paymentType}</p>
+)}
+
 
               {/* Group Payment List */}
               {groupPayments.length > 0 && (
