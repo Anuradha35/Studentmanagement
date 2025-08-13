@@ -2607,16 +2607,36 @@ const handlePaymentInfoPrefill = (studentName) => {
                             Total: ₹{(payment.onlineAmount + payment.offlineAmount).toLocaleString()}
                           </p>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const newGroupPayments = groupPayments.filter((_, i) => i !== index);
-                            setGroupPayments(newGroupPayments);
-                          }}
-                          className="text-red-400 hover:text-red-300 transition-colors"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
+                       <button
+  type="button"
+  onClick={() => {
+    const groupPaymentToRemove = groupPayments[index];
+    
+    // ✅ Remove from group payments array
+    const newGroupPayments = groupPayments.filter((_, i) => i !== index);
+    setGroupPayments(newGroupPayments);
+    
+    // ✅ Reset payment fields to allow re-entry
+    setPaymentFieldsReadOnly(false);
+    setGroupPaymentDate('');
+    setGroupOnlineAmount('');
+    setGroupOfflineAmount('');
+    setGroupUtrId('');
+    setGroupReceiptNo('');
+    
+    // ✅ Update form summary when group payment is removed
+    setFormData(prev => ({
+      ...prev,
+      totalPaid: 0,
+      remainingFee: prev.courseFee
+    }));
+    
+    console.log("✅ Group payment removed and fields reset for re-entry");
+  }}
+  className="text-red-400 hover:text-red-300 transition-colors"
+>
+  <X className="w-4 h-4" />
+</button>
                       </div>
                     </div>
                   ))}
