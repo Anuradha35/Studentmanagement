@@ -1717,15 +1717,18 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   setReceiptNo(value);
   
   // ✅ Check for duplicates immediately
-  if (value.length > 0) {
-    const duplicate = findDuplicatePayment(undefined, value);
+                        onBlur={() => {
+  if (receiptNo.trim() !== "") {
+    const duplicate = findDuplicatePayment(undefined, receiptNo.trim());
     if (duplicate) {
       setDuplicateInfo(duplicate);
       setDuplicateCheckModal(true);
-      setReceiptNo(''); // Clear the input
-      return;
+      setReceiptNo('');
     }
   }
+}}
+
+  
   
   if (errors.receiptNo) setErrors({ ...errors, receiptNo: '' });
 }}
@@ -2037,17 +2040,17 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   setGroupReceiptNo(value);
   
   // ✅ Check for duplicates immediately
-  if (value.length > 0) {
-    const duplicate = findDuplicatePayment(undefined, value);
+ onBlur={() => {
+  if (receiptNo.trim() !== "") {
+    const duplicate = findDuplicatePayment(undefined, receiptNo.trim());
     if (duplicate) {
       setDuplicateInfo(duplicate);
       setDuplicateCheckModal(true);
-      if (duplicate.paymentType === 'single') {
-        setGroupReceiptNo(''); // Clear input for single payments
-      }
-      return;
+      setReceiptNo('');
     }
   }
+}}
+
   
   if (errors.groupReceiptNo) setErrors({ ...errors, groupReceiptNo: '' });
 }}
