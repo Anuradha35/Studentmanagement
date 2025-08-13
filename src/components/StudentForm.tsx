@@ -849,16 +849,23 @@ const handleSubmit = (e: React.FormEvent) => {
   }
 
 if (!paymentType) {
-    newErrors.paymentType = "Please select a payment method (Single or Group)";
-  } else {
-    if (paymentType === "single" && payments.length === 0) {
-      newErrors.paymentType = "Please add at least one payment before submitting";
-    }
-    if (paymentType === "group" && groupPayments.length === 0) {
-      newErrors.paymentType = "Please add at least one group payment before submitting";
-    }
+  setPaymentErrorMessage("⚠️ Please select a payment method (Single or Group)");
+  setPaymentErrorModalOpen(true);
+  return; // आगे का submit रोक दो
+} else {
+  if (paymentType === "single" && payments.length === 0) {
+    setPaymentErrorMessage("⚠️ Please add at least one payment before submitting");
+    setPaymentErrorModalOpen(true);
+    return;
   }
-  //nice
+  if (paymentType === "group" && groupPayments.length === 0) {
+    setPaymentErrorMessage("⚠️ Please add at least one group payment before submitting");
+    setPaymentErrorModalOpen(true);
+    return;
+  }
+}
+
+  
 // ✅ ADD THIS DUPLICATE CHECK BEFORE setErrors(newErrors)
 // Check for duplicate students
 if (
