@@ -933,68 +933,6 @@ const handleDuplicateStudent = (duplicateResult, formData) => {
   }
 };
 
-
-// ✅ 5. MULTI-COURSE CONFIRMATION DIALOG
-const showMultiCourseConfirmation = (existingStudent, existingCourses, newFormData) => {
-  const confirmMessage = `👨‍🎓 MULTI-COURSE ENROLLMENT DETECTED!\n\n` +
-    `Student: ${existingStudent.studentName}\n` +
-    `Father: ${existingStudent.fatherName}\n` +
-    `Mobile: ${existingStudent.mobileNo}\n\n` +
-    `📚 EXISTING ENROLLMENTS:\n${existingCourses.map((course, index) => `${index + 1}. ${course}`).join('\n')}\n\n` +
-    `🆕 NEW ENROLLMENT:\n${newFormData.selectedCourse} (${newFormData.selectedBatch} - ${newFormData.selectedYear})\n\n` +
-    `✅ This appears to be a valid multi-course enrollment for the same student.\n\n` +
-    `🤔 Do you want to proceed with this new course enrollment?`;
-  
-  const userConfirmed = confirm(confirmMessage);
-  
-  if (userConfirmed) {
-    console.log("✅ User confirmed multi-course enrollment");
-    
-    // Pre-fill existing student data to maintain consistency
-    prefillExistingStudentData(existingStudent, newFormData);
-    
-    return true; // Allow submission
-  } else {
-    console.log("🚫 User cancelled multi-course enrollment");
-    return false; // Block submission
-  }
-};
-
-// ✅ 6. PRE-FILL EXISTING STUDENT DATA (for multi-course)
-const prefillExistingStudentData = (existingStudent, currentFormData) => {
-  console.log("🔄 Pre-filling existing student data for multi-course enrollment");
-  
-  // Update form with existing student's personal details
-  setFormData(prev => ({
-    ...prev,
-    // Keep course-specific data as new
-    studentName: currentFormData.studentName,
-    selectedCourse: currentFormData.selectedCourse,
-    selectedBatch: currentFormData.selectedBatch,
-    selectedYear: currentFormData.selectedYear,
-    
-    // Use existing personal data
-    fatherName: existingStudent.fatherName,
-    gender: existingStudent.gender,
-    mobileNo: existingStudent.mobileNo,
-    email: existingStudent.email,
-    category: existingStudent.category,
-    hostler: existingStudent.hostler,
-    collegeName: existingStudent.collegeName,
-    branch: existingStudent.branch,
-    
-    // Reset payment data for new course
-    courseFee: currentFormData.courseFee,
-    totalPaid: 0,
-    remainingFee: currentFormData.courseFee
-  }));
-  
-  // Show success message
-  setTimeout(() => {
-    alert(`✅ Student data pre-filled!\n\nPersonal details have been copied from existing enrollment to maintain consistency.\n\nPlease verify course-specific information and proceed with payment.`);
-  }, 500);
-};
-
 // ✅ 7. UPDATED MAIN VALIDATION FUNCTION
 const validateStudentSubmission = (formData) => {
   console.log("🔄 Validating student submission with multi-course support...");
@@ -1018,8 +956,6 @@ const validateStudentSubmission = (formData) => {
 };
 
   
-
-
  const handleSubmit = (e: React.FormEvent) => {
   e.preventDefault();
   const newErrors: { [key: string]: string } = {};
@@ -1270,7 +1206,6 @@ const validateStudentSubmission = (formData) => {
   console.log("✅ Form submitted and reset successfully");
   alert(`✅ Student Added Successfully!\n\nStudent: ${student.studentName}\nCourse: ${selectedCourse}\nBatch: ${selectedBatch}\nPayment Type: ${paymentType}\n\nForm has been reset for next entry.`);
 };
-
 
 // ✅ ENHANCED DUPLICATE CHECK FUNCTION
 const checkForEnhancedDuplicate = (studentData: any) => {
