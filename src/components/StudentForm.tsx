@@ -120,7 +120,8 @@ const [duplicateInfo, setDuplicateInfo] = useState<{
   yearName: string;
   paymentType: 'single' | 'group';
 } | null>(null);
-
+const [paymentErrorModalOpen, setPaymentErrorModalOpen] = useState(false);
+const [paymentErrorMessage, setPaymentErrorMessage] = useState("");
   // Get course fee based on selected course and duration
   const getCourseFee = () => {
     if (!appData.courseFees || !selectedCourse || !formData.courseDuration) return 0;
