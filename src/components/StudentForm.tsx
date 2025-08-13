@@ -1776,6 +1776,10 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                 >
                   Add Payment
                 </button>
+                {errors.paymentType && (
+  <p className="text-red-400 text-sm mt-2">{errors.paymentType}</p>
+)}
+
               </div>
 
               {/* Payment List */}
