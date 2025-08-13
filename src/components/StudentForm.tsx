@@ -2593,7 +2593,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       const isFatherNameMatching = currentFatherName === existingFatherName;
       
       // ✅ Both conditions must be true for a valid match
-      const isStudentInExistingGroup = isStudentNameInGroup && isFatherNameMatching;
+      const isStudentInExistingGroup = isStudentNameInGroup;
       
        console.log("🔍 Student name in group:", isStudentNameInGroup);
       console.log("🔍 Father name matching:", isFatherNameMatching);
