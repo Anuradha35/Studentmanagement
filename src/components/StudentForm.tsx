@@ -994,6 +994,69 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   }
 };
 
+// Add this function in your StudentForm component before the return statement
+
+// 🔧 ENHANCED Payment Info Prefill for Group Addition
+const handlePaymentInfoPrefill = (studentName) => {
+  if (!studentName.trim()) return;
+  
+  // Check if we're in group payment mode
+  if (paymentType === 'group') {
+    // For group addition - only match by student name from existing students
+    const matchingStudent = students.find(student => 
+      student.studentName.toLowerCase() === studentName.toLowerCase()
+    );
+    
+    if (matchingStudent) {
+      console.log("✅ Found matching student for group addition:", matchingStudent);
+      
+      // Pre-fill form data from existing student
+      setFormData(prev => ({
+        ...prev,
+        fatherName: matchingStudent.fatherName,
+        gender: matchingStudent.gender,
+        mobileNo: matchingStudent.mobileNo,
+        email: matchingStudent.email,
+        category: matchingStudent.category,
+        hostler: matchingStudent.hostler,
+        collegeName: matchingStudent.collegeName,
+        branch: matchingStudent.branch,
+        courseDuration: matchingStudent.courseDuration,
+        startDate: matchingStudent.startDate,
+        endDate: matchingStudent.endDate,
+        courseFee: matchingStudent.courseFee,
+        totalPaid: matchingStudent.totalPaid,
+        remainingFee: matchingStudent.remainingFee
+      }));
+      
+      // Show payment history info
+      if (matchingStudent.payments && matchingStudent.payments.length > 0) {
+        const historyMessage = `💰 Payment History for ${matchingStudent.studentName}:\n\n` +
+          `📋 Course: ${matchingStudent.courseName}\n` +
+          `🎓 Batch: ${matchingStudent.batchName} • ${matchingStudent.yearName}\n` +
+          `💵 Course Fee: ₹${matchingStudent.courseFee?.toLocaleString()}\n` +
+          `✅ Total Paid: ₹${matchingStudent.totalPaid?.toLocaleString()}\n` +
+          `⏳ Remaining: ₹${matchingStudent.remainingFee?.toLocaleString()}\n\n` +
+          `📊 Payment Details:\n${matchingStudent.payments.map(p => 
+            `• ${p.paymentDate}: ₹${p.amount?.toLocaleString()} (${p.paymentMode})`
+          ).join('\n')}`;
+        
+        // Show non-blocking payment history
+        setTimeout(() => {
+          alert(historyMessage);
+        }, 500);
+      }
+      
+      return true; // Student found and pre-filled
+    }
+  }
+  
+  return false; // No matching student found
+};
+
+
+
+  
   const handleAddNewCollege = () => {
     if (newCollegeName.trim()) {
       onAddCollegeName(newCollegeName.trim());
