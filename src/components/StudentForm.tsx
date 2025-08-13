@@ -1760,7 +1760,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
 
                 <button id="addPaymentBtn" class="btn btn-payment" onclick="handleAddPaymentClick()"
                   type="button"
-                 // onClick={handleAddPayment}
+                //  onClick={handleAddPayment}
                   className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
                 >
                   Add Payment
