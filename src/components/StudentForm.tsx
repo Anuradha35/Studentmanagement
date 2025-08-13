@@ -2755,7 +2755,7 @@ const handlePaymentInfoPrefill = (studentName) => {
       // ✅ Proceed with pre-filling after short delay
       setTimeout(() => {
         proceedWithPreFilling();
-      }, 1500);
+      }, 150);
       
       // ✅ EXTRACTED FUNCTION: Pre-filling logic
       function proceedWithPreFilling() {
