@@ -1062,7 +1062,7 @@ const validateGroupMembership = (currentStudentName, existingGroupStudents) => {
     .filter(name => name.length > 0);
   
   // ✅ FIXED: Only check student name for group membership
-  const isStudentNameInGroup = existingStudentNames.includes(currentStudentName.toUpperCase());
+   isStudentNameInGroup = existingStudentNames.includes(currentStudentName.toUpperCase());
   
   console.log("🔍 Group validation:");
   console.log("🔍 Current student:", currentStudentName);
