@@ -2670,6 +2670,16 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
         
         setDuplicateCheckModal(false);
         setDuplicateInfo(null);
+        setGroupStudentName('');
+            setGroupOnlineAmount('');
+            setGroupOfflineAmount('');
+            setGroupUtrId('');
+            setGroupReceiptNo('');
+            setGroupPaymentDate('');
+            setGroupPayments([]);
+            setDynamicGroupEntries([]);
+            setErrors({});
+            setPaymentType('single'); // Reset to single if cancelled
         return;
       }
       
