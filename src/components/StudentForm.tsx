@@ -1758,9 +1758,9 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                   )}
                 </div>
 
-                <button id="addPaymentBtn" class="btn btn-payment" onclick="handleAddPaymentClick()"
+                <button 
                   type="button"
-                //  onClick={handleAddPayment}
+                  onClick={handleAddPayment}
                   className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
                 >
                   Add Payment
@@ -2188,9 +2188,9 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
               </div>
 
              
-              <button id="groupPaymentBtn" class="btn btn-payment" onclick="handleGroupPaymentClick()"
+              <button
                 type="button"
-               // onClick={handleAddGroupPayment}
+                onClick={handleAddGroupPayment}
                 className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors mb-4"
               >
                 Add to Group Payment
@@ -2248,9 +2248,17 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
           </button>
           <button
             type="submit"
-            className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-200 font-medium shadow-lg"
-          >
-            Add Student
+            className={`flex-1 px-6 py-3 rounded-xl transition-all duration-200 font-medium shadow-lg ${
+            hasAddedPayment || hasAddedGroupPayment
+              ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }`}
+          disabled={!hasAddedPayment && !hasAddedGroupPayment}
+        >
+          Add Student
+          {(hasAddedPayment || hasAddedGroupPayment) && (
+            <span className="ml-2">✓</span>
+          )}
           </button>
         </div>
       </form>
@@ -2871,3 +2879,131 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
 
 export default StudentForm;
 
+<script>
+        // Global variables to track payment button clicks
+        let hasClickedAddPayment = false;
+        let hasClickedGroupPayment = false;
+
+        // Function to update status display
+        function updateStatusDisplay() {
+            const statusDiv = document.getElementById('statusDisplay');
+            if (hasClickedAddPayment) {
+                statusDiv.innerHTML = 'Status: <strong style="color: green;">Add Payment selected ✓</strong>';
+            } else if (hasClickedGroupPayment) {
+                statusDiv.innerHTML = 'Status: <strong style="color: green;">Group Payment selected ✓</strong>';
+            } else {
+                statusDiv.innerHTML = 'Status: कोई payment method select नहीं किया गया';
+            }
+        }
+
+        // Function to handle Add Payment button click
+        function handleAddPaymentClick() {
+            hasClickedAddPayment = true;
+            hasClickedGroupPayment = false; // Reset other option
+            
+            // Visual feedback
+            const btn = document.getElementById('addPaymentBtn');
+            const groupBtn = document.getElementById('groupPaymentBtn');
+            
+            btn.classList.add('clicked');
+            groupBtn.classList.remove('clicked');
+            
+            updateStatusDisplay();
+            
+            console.log("Add Payment button clicked");
+            // Your existing add payment logic here
+        }
+
+        // Function to handle Add to Group Payment button click
+        function handleGroupPaymentClick() {
+            hasClickedGroupPayment = true;
+            hasClickedAddPayment = false; // Reset other option
+            
+            // Visual feedback
+            const btn = document.getElementById('groupPaymentBtn');
+            const addBtn = document.getElementById('addPaymentBtn');
+            
+            btn.classList.add('clicked');
+            addBtn.classList.remove('clicked');
+            
+            updateStatusDisplay();
+            
+            console.log("Add to Group Payment button clicked");
+            // Your existing group payment logic here
+        }
+
+        // Function to show alert message
+        function showAlert(message, type = 'warning') {
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        // Function to validate before adding student
+        function validateBeforeAddStudent() {
+            if (!hasClickedAddPayment && !hasClickedGroupPayment) {
+                showAlert("⚠️ कृपया पहले 'Add Payment' या 'Add to Group Payment' पर click करें!", 'warning');
+                return false;
+            }
+            return true;
+        }
+
+        // Function to handle Add Student form submission
+        function handleAddStudentSubmit(event) {
+            event.preventDefault();
+            
+            // Validate payment button clicks
+            if (!validateBeforeAddStudent()) {
+                return false;
+            }
+            
+            // Get form data
+            const formData = new FormData(event.target);
+            const studentData = {
+                name: formData.get('studentName'),
+                father: formData.get('fatherName'),
+                mobile: formData.get('mobile'),
+                email: formData.get('email'),
+                college: formData.get('college'),
+                paymentMethod: hasClickedAddPayment ? 'individual' : 'group'
+            };
+            
+            console.log("Student data:", studentData);
+            
+            // Show success message
+            showAlert("✅ Student successfully added!", 'success');
+            
+            // Reset form and flags
+            event.target.reset();
+            resetPaymentFlags();
+        }
+
+        // Function to reset payment flags
+        function resetPaymentFlags() {
+            hasClickedAddPayment = false;
+            hasClickedGroupPayment = false;
+            
+            // Reset button visual states
+            document.getElementById('addPaymentBtn').classList.remove('clicked');
+            document.getElementById('groupPaymentBtn').classList.remove('clicked');
+            
+            updateStatusDisplay();
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add form event listener
+            document.getElementById('addStudentForm').addEventListener('submit', handleAddStudentSubmit);
+            
+            // Initialize status display
+            updateStatusDisplay();
+        });
+    </script>
