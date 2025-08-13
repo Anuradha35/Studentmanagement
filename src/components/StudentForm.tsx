@@ -1192,6 +1192,88 @@ const validateStudentSubmission = (formData) => {
 
   console.log("✅ Form submitted and reset successfully");
   alert(`✅ Student Added Successfully!\n\nStudent: ${student.studentName}\nCourse: ${selectedCourse}\nBatch: ${selectedBatch}\nPayment Type: ${paymentType}\n\nForm has been reset for next entry.`);
+
+if (paymentType === 'single') {
+  console.log("💰 Processing and saving single payments...");
+  
+  payments.forEach((payment, index) => {
+    console.log(`💰 Saving single payment ${index + 1}:`, payment);
+    
+    // ✅ Save payment to database first
+    onAddPayment(student.id, {
+      ...payment,
+      paymentDate: payment.paymentDate,
+      type: 'single',
+      studentName: student.studentName
+    });
+    
+    // ✅ THEN add to global validation sets (after successful save)
+    if (payment.paymentMode === 'online' && payment.utrId) {
+      setExistingPayments(prev => ({
+        ...prev,
+        utrIds: new Set([...prev.utrIds, payment.utrId])
+      }));
+    }
+    if (payment.paymentMode === 'offline' && payment.receiptNo) {
+      setExistingPayments(prev => ({
+        ...prev,
+        receiptNos: new Set([...prev.receiptNos, payment.receiptNo])
+      }));
+    }
+  });
+  
+  console.log(`✅ Saved ${payments.length} single payments`);
+  
+} else if (paymentType === 'group') {
+  console.log("👥 Processing and saving group payments...");
+  
+  const groupId = `group_${Date.now()}`;
+  const totalOnlineAmount = parseInt(groupOnlineAmount || '0');
+  const totalOfflineAmount = parseInt(groupOfflineAmount || '0');
+  const mainStudentAmount = parseInt(dynamicGroupEntries[0]?.amount || '0');
+
+  student.totalPaid = mainStudentAmount;
+  student.remainingFee = student.courseFee - mainStudentAmount;
+
+  const groupPaymentRecord = {
+    groupId,
+    studentName: student.studentName,
+    amount: mainStudentAmount,
+    totalGroupAmount: totalOnlineAmount + totalOfflineAmount,
+    onlineAmount: totalOnlineAmount,
+    offlineAmount: totalOfflineAmount,
+    utrId: totalOnlineAmount > 0 ? groupUtrId : '',
+    receiptNo: totalOfflineAmount > 0 ? groupReceiptNo : '',
+    paymentDate: groupPaymentDate,
+    type: 'group',
+    groupStudents: dynamicGroupEntries.map(e => e.studentName).join(', '),
+    studentIndex: 0,
+    createdAt: new Date().toISOString()
+  };
+
+  console.log("👥 Saving group payment record:", groupPaymentRecord);
+  
+  // ✅ Save payment to database first
+  onAddPayment(student.id, groupPaymentRecord);
+  
+  // ✅ THEN add to global validation sets (after successful save)
+  if (totalOnlineAmount > 0 && groupUtrId) {
+    setExistingPayments(prev => ({
+      ...prev,
+      utrIds: new Set([...prev.utrIds, groupUtrId])
+    }));
+  }
+  if (totalOfflineAmount > 0 && groupReceiptNo) {
+    setExistingPayments(prev => ({
+      ...prev,
+      receiptNos: new Set([...prev.receiptNos, groupReceiptNo])
+    }));
+  }
+  
+  console.log("✅ Group payment saved successfully");
+}
+
+   
 };
 
 // ✅ ENHANCED DUPLICATE CHECK FUNCTION
