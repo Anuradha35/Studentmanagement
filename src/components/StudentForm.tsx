@@ -2859,7 +2859,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
 };
 
 export default StudentForm;
-setErrors(newErrors);
+
 
     if (Object.keys(newErrors).length === 0) {
       const student: Student = {
