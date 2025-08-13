@@ -100,6 +100,9 @@ const studentNameRef = useRef<HTMLInputElement>(null);
   const [groupReceiptNo, setGroupReceiptNo] = useState('');
   const [groupPaymentDate, setGroupPaymentDate] = useState('');
    const groupInputRef = useRef<HTMLInputElement>(null);
+  const [paymentErrorModalOpen, setPaymentErrorModalOpen] = useState(false);
+const [paymentErrorMessage, setPaymentErrorMessage] = useState("");
+
 
   // Add state for tracking existing payments for validation
   const [existingPayments, setExistingPayments] = useState<{
