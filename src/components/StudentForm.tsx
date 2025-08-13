@@ -817,12 +817,250 @@ if (emptyIndex !== -1) {
 };
 
 
+// 🔥 ENHANCED MULTI-COURSE VALIDATION LOGIC
+
+// ✅ 1. SMART DUPLICATE CHECK - Multi-Course Aware
+const checkDuplicateStudent = (formData, existingStudents) => {
+  console.log("🔍 Checking for duplicate student (multi-course aware)...");
+  
+  const duplicates = existingStudents.filter(student => {
+    // Check for exact name + father match (same person)
+    const nameMatch = student.studentName.toLowerCase() === formData.studentName.toLowerCase();
+    const fatherMatch = student.fatherName.toLowerCase() === formData.fatherName.toLowerCase();
+    const mobileMatch = student.mobileNo === formData.mobileNo;
+    const emailMatch = student.email.toLowerCase() === formData.email.toLowerCase();
+    
+    return (nameMatch && fatherMatch) || mobileMatch || emailMatch;
+  });
+
+  if (duplicates.length > 0) {
+    return analyzeDuplicates(duplicates, formData);
+  }
+  
+  return null; // No duplicates found
+};
+
+// ✅ 2. ANALYZE DUPLICATES - Determine Course Conflicts
+const analyzeDuplicates = (duplicates, formData) => {
+  const exactNameMatches = duplicates.filter(student => 
+    student.studentName.toLowerCase() === formData.studentName.toLowerCase() && 
+    student.fatherName.toLowerCase() === formData.fatherName.toLowerCase()
+  );
+  
+  const mobileMatches = duplicates.filter(student => student.mobileNo === formData.mobileNo);
+  const emailMatches = duplicates.filter(student => student.email.toLowerCase() === formData.email.toLowerCase());
+  
+  // 🔍 Case 1: Same Person, Same Course/Batch/Year
+  const exactCourseMatch = exactNameMatches.find(student => 
+    student.courseName === formData.selectedCourse &&
+    student.batchName === formData.selectedBatch &&
+    student.yearName === formData.selectedYear
+  );
+  
+  if (exactCourseMatch) {
+    return {
+      type: 'EXACT_DUPLICATE',
+      student: exactCourseMatch,
+      message: `Complete duplicate detected! Student "${exactCourseMatch.studentName}" is already enrolled in the same course.`,
+      action: 'BLOCK',
+      field: 'studentName'
+    };
+  }
+  
+  // 🔍 Case 2: Same Person, Different Course (Multi-Course Enrollment)
+  if (exactNameMatches.length > 0) {
+    const existingCourses = exactNameMatches.map(s => `${s.courseName} (${s.batchName} - ${s.yearName})`);
+    
+    return {
+      type: 'MULTI_COURSE',
+      student: exactNameMatches[0], // Reference student for details
+      existingCourses: existingCourses,
+      message: `Student "${exactNameMatches[0].studentName}" is already enrolled in other courses.`,
+      action: 'CONFIRM',
+      field: 'studentName'
+    };
+  }
+  
+  // 🔍 Case 3: Different Person, Same Mobile
+  if (mobileMatches.length > 0) {
+    return {
+      type: 'MOBILE_CONFLICT',
+      student: mobileMatches[0],
+      message: `Mobile number "${formData.mobileNo}" is already used by "${mobileMatches[0].studentName}".`,
+      action: 'BLOCK',
+      field: 'mobileNo'
+    };
+  }
+  
+  // 🔍 Case 4: Different Person, Same Email
+  if (emailMatches.length > 0) {
+    return {
+      type: 'EMAIL_CONFLICT',
+      student: emailMatches[0],
+      message: `Email "${formData.email}" is already used by "${emailMatches[0].studentName}".`,
+      action: 'BLOCK',
+      field: 'email'
+    };
+  }
+  
+  return null;
+};
+
+// ✅ 3. HANDLE DUPLICATE RESPONSE
+const handleDuplicateStudent = (duplicateResult, formData) => {
+  if (!duplicateResult) return true; // No duplicate, proceed
+  
+  const { type, student, message, action, field, existingCourses } = duplicateResult;
+  
+  switch (type) {
+    case 'EXACT_DUPLICATE':
+      // ❌ Complete duplicate - show existing student details and block
+      showExactDuplicateModal(student, formData);
+      return false;
+      
+    case 'MULTI_COURSE':
+      // ✅ Multi-course enrollment - show confirmation dialog
+      return showMultiCourseConfirmation(student, existingCourses, formData);
+      
+    case 'MOBILE_CONFLICT':
+    case 'EMAIL_CONFLICT':
+      // ❌ Contact info conflict - block with explanation
+      alert(`⚠️ Contact Information Conflict!\n\n${message}\n\nPlease verify the ${field === 'mobileNo' ? 'mobile number' : 'email address'} and ensure it's correct.`);
+      return false;
+      
+    default:
+      return true;
+  }
+};
+
+// ✅ 4. EXACT DUPLICATE MODAL (Complete duplicate found)
+const showExactDuplicateModal = (existingStudent, currentFormData) => {
+  const modalContent = `🚫 EXACT DUPLICATE DETECTED!\n\n` +
+    `Student "${existingStudent.studentName}" is already enrolled in:\n\n` +
+    `📚 Course: ${existingStudent.courseName}\n` +
+    `👥 Batch: ${existingStudent.batchName}\n` +
+    `📅 Year: ${existingStudent.yearName}\n` +
+    `👨‍👩‍👧‍👦 Father: ${existingStudent.fatherName}\n` +
+    `📱 Mobile: ${existingStudent.mobileNo}\n` +
+    `📧 Email: ${existingStudent.email}\n\n` +
+    `💰 Course Fee: ₹${existingStudent.courseFee?.toLocaleString()}\n` +
+    `✅ Paid: ₹${existingStudent.totalPaid?.toLocaleString()}\n` +
+    `⏳ Remaining: ₹${existingStudent.remainingFee?.toLocaleString()}\n\n` +
+    `❓ Actions Available:\n` +
+    `• Add payment to existing enrollment\n` +
+    `• View/Edit existing student details\n` +
+    `• Check if this is a different person with same name`;
+  
+  alert(modalContent);
+  
+  // Could open existing student view here
+  // openStudentDetailsModal(existingStudent);
+};
+
+// ✅ 5. MULTI-COURSE CONFIRMATION DIALOG
+const showMultiCourseConfirmation = (existingStudent, existingCourses, newFormData) => {
+  const confirmMessage = `👨‍🎓 MULTI-COURSE ENROLLMENT DETECTED!\n\n` +
+    `Student: ${existingStudent.studentName}\n` +
+    `Father: ${existingStudent.fatherName}\n` +
+    `Mobile: ${existingStudent.mobileNo}\n\n` +
+    `📚 EXISTING ENROLLMENTS:\n${existingCourses.map((course, index) => `${index + 1}. ${course}`).join('\n')}\n\n` +
+    `🆕 NEW ENROLLMENT:\n${newFormData.selectedCourse} (${newFormData.selectedBatch} - ${newFormData.selectedYear})\n\n` +
+    `✅ This appears to be a valid multi-course enrollment for the same student.\n\n` +
+    `🤔 Do you want to proceed with this new course enrollment?`;
+  
+  const userConfirmed = confirm(confirmMessage);
+  
+  if (userConfirmed) {
+    console.log("✅ User confirmed multi-course enrollment");
+    
+    // Pre-fill existing student data to maintain consistency
+    prefillExistingStudentData(existingStudent, newFormData);
+    
+    return true; // Allow submission
+  } else {
+    console.log("🚫 User cancelled multi-course enrollment");
+    return false; // Block submission
+  }
+};
+
+// ✅ 6. PRE-FILL EXISTING STUDENT DATA (for multi-course)
+const prefillExistingStudentData = (existingStudent, currentFormData) => {
+  console.log("🔄 Pre-filling existing student data for multi-course enrollment");
+  
+  // Update form with existing student's personal details
+  setFormData(prev => ({
+    ...prev,
+    // Keep course-specific data as new
+    studentName: currentFormData.studentName,
+    selectedCourse: currentFormData.selectedCourse,
+    selectedBatch: currentFormData.selectedBatch,
+    selectedYear: currentFormData.selectedYear,
+    
+    // Use existing personal data
+    fatherName: existingStudent.fatherName,
+    gender: existingStudent.gender,
+    mobileNo: existingStudent.mobileNo,
+    email: existingStudent.email,
+    category: existingStudent.category,
+    hostler: existingStudent.hostler,
+    collegeName: existingStudent.collegeName,
+    branch: existingStudent.branch,
+    
+    // Reset payment data for new course
+    courseFee: currentFormData.courseFee,
+    totalPaid: 0,
+    remainingFee: currentFormData.courseFee
+  }));
+  
+  // Show success message
+  setTimeout(() => {
+    alert(`✅ Student data pre-filled!\n\nPersonal details have been copied from existing enrollment to maintain consistency.\n\nPlease verify course-specific information and proceed with payment.`);
+  }, 500);
+};
+
+// ✅ 7. UPDATED MAIN VALIDATION FUNCTION
+const validateStudentSubmission = (formData) => {
+  console.log("🔄 Validating student submission with multi-course support...");
+  
+  // Get existing students from your data source
+  const existingStudents = getAllStudentsFromDatabase(); // Replace with your actual function
+  
+  // Check for duplicates
+  const duplicateResult = checkDuplicateStudent(formData, existingStudents);
+  
+  // Handle the result
+  const canProceed = handleDuplicateStudent(duplicateResult, formData);
+  
+  if (!canProceed) {
+    console.log("❌ Validation failed, blocking submission");
+    return false;
+  }
+  
+  console.log("✅ Validation passed, proceeding with submission");
+  return true;
+};
+
+  
+
+
  // StudentForm.tsx - Fixed handleSubmit (सिर्फ यह function replace करें)
 
 const handleSubmit = (e: React.FormEvent) => {
   e.preventDefault();
-
   const newErrors: { [key: string]: string } = {};
+
+  // Validate with multi-course support
+  const isValid = validateStudentSubmission(formData);
+  
+  if (!isValid) {
+    console.log("❌ Form validation failed");
+    return;
+  }
+  
+  // Proceed with normal form submission
+  console.log("✅ Proceeding with student creation/enrollment");
+
+  
 
   // Validate required fields
   if (!formData.studentName.trim()) newErrors.studentName = 'Student name is required';
