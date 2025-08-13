@@ -2042,7 +2042,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   // ✅ Check for duplicates immediately
  onBlur={() => {
   if (groupReceiptNo.trim() !== "") {
-    const duplicate = findDuplicatePayment(undefined, receiptNo.trim());
+    const duplicate = findDuplicatePayment(undefined, groupReceiptNo.trim());
     if (duplicate) {
       setDuplicateInfo(duplicate);
       setDuplicateCheckModal(true);
