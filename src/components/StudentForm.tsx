@@ -198,14 +198,20 @@ const findDuplicatePayment = (utrId?: string, receiptNo?: string) => {
 
 
   // ✅ ADD THIS NEW FUNCTION AFTER findDuplicatePayment
-const checkForDuplicateStudent = (studentName: string, mobileNo: string, email: string) => {
+const checkForDuplicateStudent = (
+  studentName: string,
+  fatherName: string,
+  courseName: string,
+  yearName: string
+) => {
   // Check in current batch first
   const currentBatch = appData.years[selectedYear]?.[selectedCourse]?.[selectedBatch];
   if (currentBatch?.students) {
     const duplicate = currentBatch.students.find(student => 
-      student.studentName.toLowerCase() === studentName.toLowerCase() ||
-      student.mobileNo === mobileNo ||
-      student.email.toLowerCase() === email.toLowerCase()
+      student.studentName.trim().toLowerCase() === studentName.toLowerCase() &&
+      student.fatherName.trim().toLowerCase() === fatherName.toLowerCase() &&
+      student.courseName.trim().toLowerCase() === courseName.toLowerCase() &&
+      student.yearName.trim().toLowerCase() === yearName.toLowerCase()
     );
     
     if (duplicate) {
@@ -226,9 +232,10 @@ const checkForDuplicateStudent = (studentName: string, mobileNo: string, email: 
         }
         
         const duplicate = batchData.students?.find(student => 
-          student.studentName.toLowerCase() === studentName.toLowerCase() ||
-          student.mobileNo === mobileNo ||
-          student.email.toLowerCase() === email.toLowerCase()
+          student.studentName.trim().toLowerCase() === studentName.toLowerCase() &&
+          student.fatherName.trim().toLowerCase() === fatherName.toLowerCase() &&
+          student.courseName.trim().toLowerCase() === courseName.toLowerCase() &&
+          student.yearName.trim().toLowerCase() === yearName.toLowerCase()
         );
         
         if (duplicate) {
@@ -244,6 +251,7 @@ const checkForDuplicateStudent = (studentName: string, mobileNo: string, email: 
   
   return null;
 };
+
 
 // ✅ ADD THIS NEW HELPER FUNCTION RIGHT AFTER findDuplicatePayment:
 const safeSetDynamicGroupEntries = (newEntries) => {
@@ -842,28 +850,31 @@ const handleSubmit = (e: React.FormEvent) => {
 
 // ✅ ADD THIS DUPLICATE CHECK BEFORE setErrors(newErrors)
 // Check for duplicate students
-if (formData.studentName.trim() && formData.mobileNo.trim() && formData.email.trim()) {
+if (
+  formData.studentName.trim() &&
+  formData.fatherName.trim() &&
+  formData.mobileNo.trim() &&
+  formData.email.trim() &&
+  selectedYear &&
+  selectedCourse
+) {
   const duplicateStudent = checkForDuplicateStudent(
     formData.studentName.trim(),
-    formData.mobileNo.trim(),
-    formData.email.trim()
+    formData.fatherName.trim(),
+    selectedCourse,
+    selectedYear
   );
 
   if (duplicateStudent) {
-    const { student, location, type } = duplicateStudent;
-    let message = '';
-    let field = '';
+   const { student, location } = duplicateStudent;
+    let message = `Student "${student.studentName}" with Father "${student.fatherName}" already exists in ${location}\n` +
+                  `📚 Course: ${student.courseName} | 📅 Year: ${student.yearName}`;
+   
+    let field = 'studentName';
 
-    if (student.studentName.toLowerCase() === formData.studentName.toLowerCase()) {
-      message = `Student "${student.studentName}" already exists in ${location}`;
-      field = 'studentName';
-    } else if (student.mobileNo === formData.mobileNo) {
-      message = `Mobile number "${formData.mobileNo}" already exists for student "${student.studentName}" in ${location}`;
-      field = 'mobileNo';
-    } else if (student.email.toLowerCase() === formData.email.toLowerCase()) {
-      message = `Email "${formData.email}" already exists for student "${student.studentName}" in ${location}`;
-      field = 'email';
-    }
+    
+     
+     
 
     newErrors[field] = message;
     alert(`⚠️ Duplicate Entry Detected!\n\n${message}\n\nPlease verify the information and make necessary changes.`);
