@@ -1054,23 +1054,6 @@ const handlePaymentInfoPrefill = (studentName) => {
   return false; // No matching student found
 };
 
-/ 🔧 MODIFIED Group Validation Logic (Replace the existing validation)
-const validateGroupMembership = (currentStudentName, existingGroupStudents) => {
-  const existingStudentNames = existingGroupStudents
-    .split(', ')
-    .map(name => name.trim().toUpperCase())
-    .filter(name => name.length > 0);
-  
-  // ✅ FIXED: Only check student name for group membership
-   isStudentNameInGroup = existingStudentNames.includes(currentStudentName.toUpperCase());
-  
-  console.log("🔍 Group validation:");
-  console.log("🔍 Current student:", currentStudentName);
-  console.log("🔍 Existing group members:", existingStudentNames);
-  console.log("🔍 Is student in group:", isStudentNameInGroup);
-  
-  return isStudentNameInGroup; // Return only name-based validation
-};
 
   
   const handleAddNewCollege = () => {
