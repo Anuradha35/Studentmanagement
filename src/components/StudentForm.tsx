@@ -847,8 +847,7 @@ const handleSubmit = (e: React.FormEvent) => {
   } else if (formData.startDate.length !== 10 || !validateDate(formData.startDate)) {
     newErrors.startDate = 'Please enter a valid date (DD.MM.YYYY)';
   }
-handleAddPayment();
-  handleAddGroupPayment();
+
 // ✅ ADD THIS DUPLICATE CHECK BEFORE setErrors(newErrors)
 // Check for duplicate students
 if (
