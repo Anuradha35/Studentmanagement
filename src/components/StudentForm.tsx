@@ -73,7 +73,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [groupCount, setGroupCount] = useState(0);
   const [dynamicGroupEntries, setDynamicGroupEntries] = useState<any[]>([]);
-  
 
 // ✅ NEW: Read-only state for payment fields
   const [paymentFieldsReadOnly, setPaymentFieldsReadOnly] = useState(false);
@@ -82,15 +81,6 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const [groupCourseName, setGroupCourseName] = useState('');
 const [groupCourseDuration, setGroupCourseDuration] = useState('');
 const studentNameRef = useRef<HTMLInputElement>(null);
-// ✅ Duplicate modal control state
-const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
-const [duplicateInfo, setDuplicateInfo] = useState<{
-  studentName: string;
-  fatherName: string;
-  location: string;
-  courseName: string;
-  yearName: string;
-} | null>(null);
 
 
 
@@ -240,7 +230,6 @@ const checkForDuplicateStudentFull = (
   }
   return null;
 };
-
 
 
 
@@ -852,10 +841,6 @@ if (!paymentType) {
   //n
 // ✅ ADD THIS DUPLICATE CHECK BEFORE setErrors(newErrors)
 // ✅ ADD THIS DUPLICATE CHECK BEFORE setErrors(newErrors)
-// State for duplicate modal
-
-
-// ✅ Duplicate check before submit
 if (
   formData.studentName.trim() &&
   formData.fatherName.trim() &&
@@ -870,29 +855,22 @@ if (
   );
 
   if (duplicateStudent) {
-    const { student, location, isSameCourse, courseName, yearName } = duplicateStudent;
+  const { student, location, isSameCourse, courseName, yearName } = duplicateStudent;
 
-    if (isSameCourse) {
-      // Same course → Show custom modal
-      setDuplicateInfo({
-        studentName: student.studentName,
-        fatherName: student.fatherName,
-        location,
-        courseName,
-        yearName
-      });
-      setDuplicateModalOpen(true);
-      return; // stop submit
-    } else {
-      // Different course → confirm
-      const proceed = window.confirm(
-        `ℹ️ Student "${student.studentName}" with Father "${student.fatherName}" is already enrolled in another course.\n📚 Existing: ${courseName} | 📅 Year: ${yearName}\n\nDo you want to proceed with admission to "${selectedCourse}"?`
-      );
-      if (!proceed) return;
-    }
+  if (isSameCourse) {
+    alert( 'Same satudent Present in this course\n\n'+
+      `⚠️ Student "${student.studentName}" with Father "${student.fatherName}" already exists in ${location}\n📚 Course: ${courseName} | 📅 Year: ${yearName}`
+    );
+    return;
+  } else {
+    const proceed = window.confirm(
+      `ℹ️ Student "${student.studentName}" with Father "${student.fatherName}" is already enrolled in another course.\n📚 Existing: ${courseName} | 📅 Year: ${yearName}\n\nDo you want to proceed with admission to "${selectedCourse}"?`
+    );
+    if (!proceed) return;
   }
 }
 
+}
 
 
   setErrors(newErrors);
@@ -1143,33 +1121,6 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   </Dialog.Panel>
 </Dialog>
 
-<Dialog
-  open={duplicateModalOpen}
-  onClose={() => setDuplicateModalOpen(false)}
-  className="fixed inset-0 flex items-center justify-center z-50"
->
-  <div className="bg-black bg-opacity-50 fixed inset-0"></div>
-  <Dialog.Panel className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
-    <Dialog.Title className="text-lg font-bold text-red-600">
-      Same student present in this course
-    </Dialog.Title>
-    {duplicateInfo && (
-      <p className="mt-4 text-gray-800">
-        ⚠️ Student <strong>{duplicateInfo.studentName}</strong> with Father <strong>{duplicateInfo.fatherName}</strong> already exists in {duplicateInfo.location}.
-        <br />
-        📚 <strong>Course:</strong> {duplicateInfo.courseName} | 📅 <strong>Year:</strong> {duplicateInfo.yearName}
-      </p>
-    )}
-    <div className="mt-6 flex justify-end">
-      <button
-        onClick={() => setDuplicateModalOpen(false)}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-      >
-        OK
-      </button>
-    </div>
-  </Dialog.Panel>
-</Dialog>
 
 
       
