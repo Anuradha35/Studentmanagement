@@ -204,7 +204,6 @@ const checkForDuplicateStudentFull = (
   courseName: string,
   yearName: string
 ) => {
-  // Search in all years & courses
   for (const yearKey in appData.years) {
     for (const courseKey in appData.years[yearKey]) {
       for (const batchKey in appData.years[yearKey][courseKey]) {
@@ -221,7 +220,9 @@ const checkForDuplicateStudentFull = (
           return {
             student: found,
             location: `Year ${yearKey}, Batch ${batchKey}`,
-            isSameCourse: courseKey === courseName
+            isSameCourse: courseKey === courseName,
+            courseName: courseKey,
+            yearName: yearKey
           };
         }
       }
@@ -229,6 +230,7 @@ const checkForDuplicateStudentFull = (
   }
   return null;
 };
+
 
 
 // ✅ ADD THIS NEW HELPER FUNCTION RIGHT AFTER findDuplicatePayment:
