@@ -282,12 +282,7 @@ useEffect(() => {
       remainingFee: fee - prev.totalPaid
     }));
   }, [formData.courseDuration, selectedCourse, appData.courseFees]);
-useEffect(() => {
-  // Current payments se existingPayments Set rebuild karo
-  const newExistingPayments = {
-    utrIds: new Set(),
-    receiptNos: new Set()
-  };
+
 // ✅ ADD DEBUG LOGGING HERE:
 useEffect(() => {
   console.log("👀 Should Render Dynamic Group Inputs?");
