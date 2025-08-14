@@ -198,57 +198,35 @@ const findDuplicatePayment = (utrId?: string, receiptNo?: string) => {
 
 
   // ✅ ADD THIS NEW FUNCTION AFTER findDuplicatePayment
-const checkForDuplicateStudent = (
+const checkForDuplicateStudentFull = (
   studentName: string,
   fatherName: string,
   courseName: string,
   yearName: string
 ) => {
-  // Check in current batch first
-  const currentBatch = appData.years[selectedYear]?.[selectedCourse]?.[selectedBatch];
-  if (currentBatch?.students) {
-    const duplicate = currentBatch.students.find(student => 
-      student.studentName.trim().toLowerCase() === studentName.toLowerCase() &&
-      student.fatherName.trim().toLowerCase() === fatherName.toLowerCase() &&
-      student.courseName.trim().toLowerCase() === courseName.toLowerCase() &&
-      student.yearName.trim().toLowerCase() === yearName.toLowerCase()
-    );
-    
-    if (duplicate) {
-      return {
-        student: duplicate,
-        location: `${selectedCourse} - Batch ${selectedBatch} - Year ${selectedYear}`,
-        type: 'same_batch'
-      };
-    }
-  }
+  // Search in all years & courses
+  for (const yearKey in appData.years) {
+    for (const courseKey in appData.years[yearKey]) {
+      for (const batchKey in appData.years[yearKey][courseKey]) {
+        const batch = appData.years[yearKey][courseKey][batchKey];
+        if (!batch.students) continue;
 
-  // Check in all other batches and years
-  for (const [yearKey, yearData] of Object.entries(appData.years)) {
-    for (const [courseKey, courseData] of Object.entries(yearData)) {
-      for (const [batchKey, batchData] of Object.entries(courseData)) {
-        if (yearKey === selectedYear && courseKey === selectedCourse && batchKey === selectedBatch) {
-          continue;
-        }
-        
-        const duplicate = batchData.students?.find(student => 
-          student.studentName.trim().toLowerCase() === studentName.toLowerCase() &&
-          student.fatherName.trim().toLowerCase() === fatherName.toLowerCase() &&
-          student.courseName.trim().toLowerCase() === courseName.toLowerCase() &&
-          student.yearName.trim().toLowerCase() === yearName.toLowerCase()
+        const found = batch.students.find(
+          (s) =>
+            s.studentName.toLowerCase() === studentName.toLowerCase() &&
+            s.fatherName.toLowerCase() === fatherName.toLowerCase()
         );
-        
-        if (duplicate) {
+
+        if (found) {
           return {
-            student: duplicate,
-            location: `${courseKey} - Batch ${batchKey} - Year ${yearKey}`,
-            type: 'different_batch'
+            student: found,
+            location: `Year ${yearKey}, Batch ${batchKey}`,
+            isSameCourse: courseKey === courseName
           };
         }
       }
     }
   }
-  
   return null;
 };
 
