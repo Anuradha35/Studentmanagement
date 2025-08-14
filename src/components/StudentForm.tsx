@@ -270,12 +270,35 @@ useEffect(() => {
     studentNameRef.current.focus();
   }
 }, []);
-useEffect()=>{
-  const newExistingPayment = {
+useEffect(() => {
+  // Current payments se existingPayments Set rebuild karo
+  const newExistingPayments = {
     utrIds: new Set(),
     receiptNos: new Set()
-  }
-}
+  };
+  
+  // Individual payments se add karo
+  payments.forEach(payment => {
+    if (payment.paymentMode === 'online' && payment.utrId) {
+      newExistingPayments.utrIds.add(payment.utrId);
+    }
+    if (payment.paymentMode === 'offline' && payment.receiptNo) {
+      newExistingPayments.receiptNos.add(payment.receiptNo);
+    }
+  });
+  
+  // Group payments se add karo
+  groupPayments.forEach(groupPayment => {
+    if (groupPayment.utrId) {
+      newExistingPayments.utrIds.add(groupPayment.utrId);
+    }
+    if (groupPayment.receiptNo) {
+      newExistingPayments.receiptNos.add(groupPayment.receiptNo);
+    }
+  });
+  
+  setExistingPayments(newExistingPayments);
+}, [payments, groupPayments]); // Jab bhi payments ya groupPayments change ho
 
 
   // Update course fee when duration changes
