@@ -2265,58 +2265,65 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   <label className="text-sm text-white">Amount</label>
     readOnly={paymentFieldsReadOnly}
   <input
-    type="text"
-    placeholder="Enter amount"
-    value={dynamicGroupEntries[0]?.amount || ''}
-    disabled={
+  type="text"
+  placeholder="Enter amount"
+  value={dynamicGroupEntries[0]?.amount || ''} // 🔧 SAFETY: Add fallback
+  disabled={
     (parseInt(groupOnlineAmount || '0') + parseInt(groupOfflineAmount || '0')) === 0
-             }
-    onChange={(e) => {
-      const value = e.target.value.replace(/\D/g, '');
-      const amountNum = parseInt(value || '0');
-       const totalGroupPayment =
-    (parseInt(groupOnlineAmount || '0') || 0) +
-    (parseInt(groupOfflineAmount || '0') || 0);
-
-      // ✅ Validation: Ensure Student #1 amount ≤ course fee
-      if (amountNum > formData.courseFee) {
-        alert(`Amount cannot be more than ₹${formData.courseFee.toLocaleString()}`);
-        return;
-      }
-
-
-
-        // ✅ Validation 2: Amount ≤ Total Group Payment
-  if (amountNum > totalGroupPayment) {
-    alert(`Amount cannot be more than total group payment ₹${totalGroupPayment.toLocaleString()}`);
-    return;
   }
- // ✅ Error clear on typing
-    setErrors(prev => ({ ...prev, [`amount_0`]: '' }));
-       // 1️⃣ Update group entry amount
-      const updatedEntries = [...dynamicGroupEntries];
-      updatedEntries[0].amount = value;
-      setDynamicGroupEntries(updatedEntries);
+  onChange={(e) => {
+    const value = e.target.value.replace(/\D/g, '');
+    const amountNum = parseInt(value || '0');
+    const totalGroupPayment =
+      (parseInt(groupOnlineAmount || '0') || 0) +
+      (parseInt(groupOfflineAmount || '0') || 0);
 
-      // 2️⃣ Update total paid and remaining for summary
-      const totalPaid = updatedEntries.reduce(
-      (sum, entry) => sum + parseInt(entry.amount || '0'),
+    // ✅ Validation: Ensure Student #1 amount ≤ course fee
+    if (amountNum > formData.courseFee) {
+      alert(`Amount cannot be more than ₹${formData.courseFee.toLocaleString()}`);
+      return;
+    }
+
+    // ✅ Validation 2: Amount ≤ Total Group Payment
+    if (amountNum > totalGroupPayment) {
+      alert(`Amount cannot be more than total group payment ₹${totalGroupPayment.toLocaleString()}`);
+      return;
+    }
+
+    // ✅ Error clear on typing
+    setErrors(prev => ({ ...prev, [`amount_0`]: '' }));
+
+    // 1️⃣ Update group entry amount with safety check
+    const updatedEntries = [...dynamicGroupEntries];
+    if (!updatedEntries[0]) {
+      updatedEntries[0] = {
+        studentName: formData.studentName.toUpperCase(),
+        amount: '',
+        onlineAmount: '',
+        offlineAmount: '',
+        utrId: '',
+        receiptNo: '',
+        paymentDate: ''
+      };
+    }
+    updatedEntries[0] = { ...updatedEntries[0], amount: value };
+    setDynamicGroupEntries(updatedEntries);
+
+    // 2️⃣ Update total paid and remaining for summary
+    const totalPaid = updatedEntries.reduce(
+      (sum, entry) => sum + parseInt(entry?.amount || '0'),
       0
     );
 
-      // 3️⃣ Update formData summary
-  setFormData((prev) => ({
-    ...prev,
-    totalPaid: totalPaid,
-    remainingFee: prev.courseFee - totalPaid < 0 ? 0 : prev.courseFee - totalPaid
-  }));
-
-      const updated = [...dynamicGroupEntries];
-      updated[0].amount = value;
-      setDynamicGroupEntries(updated);
-    }}
-    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white"
-  />
+    // 3️⃣ Update formData summary
+    setFormData((prev) => ({
+      ...prev,
+      totalPaid: totalPaid,
+      remainingFee: prev.courseFee - totalPaid < 0 ? 0 : prev.courseFee - totalPaid
+    }));
+  }}
+  className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white"
+/>
   {errors[`amount_0`] && (
   <p className="text-red-400 text-sm">{errors[`amount_0`]}</p>
 )}
