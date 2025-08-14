@@ -2358,8 +2358,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     setDuplicateCheckModal(false);
     setDuplicateInfo(null);
   }} 
-  className="fixed z-50 inset-0 flex items-center justify-center"
->
+  className="fixed z-50 inset-0 flex items-center justify-center">
   <div className="bg-black bg-opacity-50 fixed inset-0"></div>
   <Dialog.Panel className="bg-slate-800 border border-red-500/30 rounded-lg p-6 z-50 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
     <div className="flex items-center gap-3 mb-6">
