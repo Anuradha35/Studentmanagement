@@ -485,25 +485,35 @@ useEffect(() => {
   }, [showGroupModal]);
 
   useEffect(() => {
-    console.log("👁️ Dynamic Group Entries Changed:", dynamicGroupEntries.length);
+  // Add safety check for dynamicGroupEntries
+  if (dynamicGroupEntries.length > 0 && paymentType === 'group') {
+    if (groupCount !== dynamicGroupEntries.length) {
+      setGroupCount(dynamicGroupEntries.length);
+      console.log("🔄 Updated group count to match entries:", dynamicGroupEntries.length);
+    }
     
-    if (dynamicGroupEntries.length > 0 && paymentType === 'group') {
-      if (groupCount !== dynamicGroupEntries.length) {
-        setGroupCount(dynamicGroupEntries.length);
-        console.log("🔄 Updated group count to match entries:", dynamicGroupEntries.length);
-      }
+    // 🔧 SAFETY CHECK: Ensure first entry exists before accessing studentName
+    if (dynamicGroupEntries[0] && formData.studentName) {
+      const currentStudentName = formData.studentName.toUpperCase();
       
-      if (dynamicGroupEntries[0] && dynamicGroupEntries[0].studentName !== formData.studentName.toUpperCase()) {
+      // Check if the studentName property exists and is different
+      if (dynamicGroupEntries[0].studentName !== currentStudentName) {
         const updatedEntries = [...dynamicGroupEntries];
-        updatedEntries[0] = {
-          ...updatedEntries[0],
-          studentName: formData.studentName.toUpperCase()
-        };
-        setDynamicGroupEntries(updatedEntries);
-        console.log("🔄 Synced Student #1 with form student name");
+        
+        // 🔧 SAFETY: Ensure the entry object exists before updating
+        if (updatedEntries[0]) {
+          updatedEntries[0] = {
+            ...updatedEntries[0],
+            studentName: currentStudentName
+          };
+          setDynamicGroupEntries(updatedEntries);
+          console.log("🔄 Synced Student #1 with form student name");
+        }
       }
     }
-  }, [dynamicGroupEntries.length, paymentType, formData.studentName, groupCount]);
+  }
+}, [dynamicGroupEntries.length, paymentType, formData.studentName, groupCount]);
+
 
   // ✅ ENHANCED: Handle duplicate with better group member management
   const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
