@@ -270,7 +270,12 @@ useEffect(() => {
     studentNameRef.current.focus();
   }
 }, []);
-
+useEffect()=>{
+  const newExistingPayment = {
+    utrIds: new Set(),
+    receiptNos: new Set()
+  }
+}
 
 
   // Update course fee when duration changes
