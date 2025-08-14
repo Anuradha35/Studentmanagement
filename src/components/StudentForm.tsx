@@ -858,7 +858,7 @@ if (
   const { student, location, isSameCourse, courseName, yearName } = duplicateStudent;
 
   if (isSameCourse) {
-    alert( 'Same satudent Present in this course\n'
+    alert( 'Same satudent Present in this course\n'+
       `⚠️ Student "${student.studentName}" with Father "${student.fatherName}" already exists in ${location}\n📚 Course: ${courseName} | 📅 Year: ${yearName}`
     );
     return;
