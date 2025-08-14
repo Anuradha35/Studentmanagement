@@ -1334,31 +1334,46 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   <label className="block text-gray-300 text-sm font-medium mb-2">
     Student Name *
   </label>
-  <input
-   ref={studentNameRef}
-    type="text"
-    value={formData.studentName}
-    onChange={(e) => {
-      const nameValue = e.target.value.toUpperCase();
+ <input
+  ref={studentNameRef}
+  type="text"
+  value={formData.studentName}
+  onChange={(e) => {
+    const nameValue = e.target.value.toUpperCase();
 
-      // Update personal info name
-      setFormData({ ...formData, studentName: nameValue });
+    // Update personal info name
+    setFormData({ ...formData, studentName: nameValue });
 
-      // Auto-fill Group Payment first student name
-      setDynamicGroupEntries((prev) => {
-        if (!prev.length) return prev; // If no group entries yet
-        const updated = [...prev];
-        updated[0] = { ...updated[0], studentName: nameValue };
-        return updated;
-      });
-
-      if (errors.studentName) {
-        setErrors({ ...errors, studentName: '' });
+    // 🔧 SAFETY CHECK: Auto-fill Group Payment first student name
+    setDynamicGroupEntries((prev) => {
+      if (!prev.length) return prev; // If no group entries yet
+      
+      // 🔧 SAFETY: Check if first entry exists
+      if (!prev[0]) {
+        console.warn("⚠️ First group entry is undefined, creating new entry");
+        return [{
+          studentName: nameValue,
+          amount: '',
+          onlineAmount: '',
+          offlineAmount: '',
+          utrId: '',
+          receiptNo: '',
+          paymentDate: ''
+        }, ...prev.slice(1)];
       }
-    }}
-    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-    placeholder="Enter student name"
-  />
+      
+      const updated = [...prev];
+      updated[0] = { ...updated[0], studentName: nameValue };
+      return updated;
+    });
+
+    if (errors.studentName) {
+      setErrors({ ...errors, studentName: '' });
+    }
+  }}
+  className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  placeholder="Enter student name"
+/>
   {errors.studentName && (
     <p className="text-red-400 text-sm mt-1">{errors.studentName}</p>
   )}
