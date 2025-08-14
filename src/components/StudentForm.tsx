@@ -302,7 +302,19 @@ const checkForDuplicateStudentFull = (
 const safeSetDynamicGroupEntries = (newEntries) => {
   try {
     console.log("🛡️ Safely setting group entries:", newEntries);
-    setDynamicGroupEntries(newEntries);
+    
+    // 🔧 SAFETY: Validate entries structure
+    const validatedEntries = newEntries.map((entry, index) => ({
+      studentName: entry?.studentName || (index === 0 ? formData.studentName.toUpperCase() : ''),
+      amount: entry?.amount || '',
+      onlineAmount: entry?.onlineAmount || '',
+      offlineAmount: entry?.offlineAmount || '',
+      utrId: entry?.utrId || '',
+      receiptNo: entry?.receiptNo || '',
+      paymentDate: entry?.paymentDate || ''
+    }));
+    
+    setDynamicGroupEntries(validatedEntries);
     
     // Force a small delay to ensure React updates properly
     setTimeout(() => {
@@ -311,13 +323,19 @@ const safeSetDynamicGroupEntries = (newEntries) => {
   } catch (error) {
     console.error("❌ Error setting group entries:", error);
     // Fallback: create simple entries
-    const fallbackEntries = Array.from({ length: newEntries.length || 1 }, () => ({
-      studentName: '',
-      amount: ''
+    const fallbackEntries = Array.from({ length: newEntries.length || 1 }, (_, index) => ({
+      studentName: index === 0 ? formData.studentName.toUpperCase() : '',
+      amount: '',
+      onlineAmount: '',
+      offlineAmount: '',
+      utrId: '',
+      receiptNo: '',
+      paymentDate: ''
     }));
     setDynamicGroupEntries(fallbackEntries);
   }
 };
+
   
 
 useEffect(() => {
