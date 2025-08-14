@@ -855,24 +855,21 @@ if (
   );
 
   if (duplicateStudent) {
-    const { student, location, isSameCourse } = duplicateStudent;
+  const { student, location, isSameCourse, courseName, yearName } = duplicateStudent;
 
-    if (isSameCourse) {
-      // Same course → hard stop
-      alert(
-        `⚠️ Student "${student.studentName}" with Father "${student.fatherName}" already exists in ${location}\n📚 Course: ${student.courseName} | 📅 Year: ${student.yearName}`
-      );
-      return; // Stop submit
-    } else {
-      // Different course → confirmation
-      const proceed = window.confirm(
-        `ℹ️ Student "${student.studentName}" with Father "${student.fatherName}" is already enrolled in another course.\n📚 Existing: ${student.courseName} | 📅 Year: ${student.yearName}\n\nDo you want to proceed with admission to "${selectedCourse}"?`
-      );
-      if (!proceed) {
-        return; // User cancelled
-      }
-    }
+  if (isSameCourse) {
+    alert(
+      `⚠️ Student "${student.studentName}" with Father "${student.fatherName}" already exists in ${location}\n📚 Course: ${courseName} | 📅 Year: ${yearName}`
+    );
+    return;
+  } else {
+    const proceed = window.confirm(
+      `ℹ️ Student "${student.studentName}" with Father "${student.fatherName}" is already enrolled in another course.\n📚 Existing: ${courseName} | 📅 Year: ${yearName}\n\nDo you want to proceed with admission to "${selectedCourse}"?`
+    );
+    if (!proceed) return;
   }
+}
+
 }
 
 
