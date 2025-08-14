@@ -2147,7 +2147,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   
   // ✅ Check for duplicates when UTR ID is complete (12 digits)
   if (value.length === 12) {
-    const duplicate = findDuplicatePayment(value, undefined);
+    const duplicate = findDuplicatePaymentWithAllMembers(value, undefined);
     if (duplicate) {
       setDuplicateInfo(duplicate);
       setDuplicateCheckModal(true);
