@@ -282,12 +282,7 @@ useEffect(() => {
       remainingFee: fee - prev.totalPaid
     }));
   }, [formData.courseDuration, selectedCourse, appData.courseFees]);
-useEffect(() => {
-  // Current payments se existingPayments Set rebuild karo
-  const newExistingPayments = {
-    utrIds: new Set(),
-    receiptNos: new Set()
-  };
+
 // ✅ ADD DEBUG LOGGING HERE:
 useEffect(() => {
   console.log("👀 Should Render Dynamic Group Inputs?");
@@ -2227,7 +2222,11 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
 
   </div>
 )}
+
                 
+
+               
+               
                
               </div>
 
@@ -2927,5 +2926,5 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   );
 };
 
-export default StudentForm ;
+export default StudentForm;
 
