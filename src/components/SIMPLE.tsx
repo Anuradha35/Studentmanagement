@@ -1,3 +1,16 @@
+Uncaught TypeError: Cannot read properties of undefined (reading 'studentName')
+1
+"The above error occurred in the <StudentForm> component: at StudentForm (https://zp1v56uxy8rdx5ypatb0ockcb9tr6a-oci3--5173--96435430.local-credentialless.webcontainer-api.io/src/components/StudentForm.tsx?t=1755188847533:23:3) at div at App (https://zp1v56uxy8rdx5ypatb0ockcb9tr6a-oci3--5173--96435430.local-credentialless.webcontainer-api.io/src/App.tsx:25:41) Consider adding an error boundary to your tree to customize error handling behavior. Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries."
+   at logCapturedError (/node_modules/.vite/deps/chunk-M324AGAM.js?v=0774df36:14030:31)
+   at update.callback (/node_modules/.vite/deps/chunk-M324AGAM.js?v=0774df36:14050:13)
+   at callCallback (/node_modules/.vite/deps/chunk-M324AGAM.js?v=0774df36:11246:20)
+   at commitUpdateQueue (/node_modules/.vite/deps/chunk-M324AGAM.js?v=0774df36:11263:17)
+   at commitLayoutEffectOnFiber (/node_modules/.vite/deps/chunk-M324AGAM.js?v=0774df36:17091:19)
+   at commitLayoutMountEffects_complete (/node_modules/.vite/deps/chunk-M324AGAM.js?v=0774df36:17978:17)
+   at commitLayoutEffects_begin (/node_modules/.vite/deps/chunk-M324AGAM.js?v=0774df36:17967:15)
+   at commitLayoutEffects (/node_modules/.vite/deps/chunk-M324
+
+
 jaise hi koi dublicate entry hai to single payment main to koi problem nahi but Agar payment group main hai to jo dublicate error show kar raha usme sirf ek single student ki kar raha ya problem hai e.g. student A,B,C ne group payment ki and A ka add student form add phir B student ke usme dublicacy A student ki hi hogi kyoki abhi Sirf A student ki hi form enter hai but ab maine B ka bhi enter kar diya hai and ab main C ka enter karna chahati hu jaise hi maine online ya offline main same utr/upi or reciept no. enter kiya to dublicacy ka message show kiya but usme sirf A ka hi show ho raha jabki A and B dono ko Add student se data successfuly enter kar chuke hai
 
 
