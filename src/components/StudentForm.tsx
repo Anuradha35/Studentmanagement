@@ -2669,7 +2669,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       console.log("🔍 Current course/batch/year:", selectedCourse, selectedBatch, selectedYear);
       console.log("🔍 Existing course/batch/year:", duplicateInfo.courseName, duplicateInfo.batchName, duplicateInfo.yearName);
       
-      // ✅ ENHANCED VALIDATION: Check multiple scenarios
+      // ✅ ENHANCED VALIDATION: Check multiple scenariosh
       let canProceed = false;
       let warningMessage = '';
       let proceedMessage = '';
