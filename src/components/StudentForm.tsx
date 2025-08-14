@@ -860,16 +860,14 @@ if (!paymentType) {
   }
   //n
 // ✅ ADD THIS DUPLICATE CHECK BEFORE setErrors(newErrors)
-// Check for duplicate students
+// ✅ ADD THIS DUPLICATE CHECK BEFORE setErrors(newErrors)
 if (
   formData.studentName.trim() &&
   formData.fatherName.trim() &&
-  formData.mobileNo.trim() &&
-  formData.email.trim() &&
   selectedYear &&
   selectedCourse
 ) {
-  const duplicateStudent = checkForDuplicateStudent(
+  const duplicateStudent = checkForDuplicateStudentFull(
     formData.studentName.trim(),
     formData.fatherName.trim(),
     selectedCourse,
@@ -877,21 +875,26 @@ if (
   );
 
   if (duplicateStudent) {
-   const { student, location } = duplicateStudent;
-    let message = `Student "${student.studentName}" with Father "${student.fatherName}" already exists in ${location}\n` +
-                  `📚 Course: ${student.courseName} | 📅 Year: ${student.yearName}`;
-   
-    let field = 'studentName';
+    const { student, location, isSameCourse } = duplicateStudent;
 
-    
-     
-     
-
-    newErrors[field] = message;
-    alert(`⚠️ Duplicate Entry Detected!\n\n${message}\n\nPlease verify the information and make necessary changes.`);
+    if (isSameCourse) {
+      // Same course → hard stop
+      alert(
+        `⚠️ Student "${student.studentName}" with Father "${student.fatherName}" already exists in ${location}\n📚 Course: ${student.courseName} | 📅 Year: ${student.yearName}`
+      );
+      return; // Stop submit
+    } else {
+      // Different course → confirmation
+      const proceed = window.confirm(
+        `ℹ️ Student "${student.studentName}" with Father "${student.fatherName}" is already enrolled in another course.\n📚 Existing: ${student.courseName} | 📅 Year: ${student.yearName}\n\nDo you want to proceed with admission to "${selectedCourse}"?`
+      );
+      if (!proceed) {
+        return; // User cancelled
+      }
+    }
   }
 }
-  
+
 
   setErrors(newErrors);
 
