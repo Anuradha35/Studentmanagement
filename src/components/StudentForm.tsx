@@ -644,30 +644,33 @@ useEffect(() => {
     setPaymentType(newPaymentType);
   };
 
-  const handleGroupCountConfirm = () => {
-    console.log("✅ Confirm button clicked");
-    console.log("✅ groupCount =", groupCount);
-    const value = groupInputRef.current?.value;
-    const count = parseInt(value || '0');
+ const handleGroupCountConfirm = () => {
+  console.log("✅ Confirm button clicked");
+  console.log("✅ groupCount =", groupCount);
+  const value = groupInputRef.current?.value;
+  const count = parseInt(value || '0');
 
-    if (isNaN(count) || count <= 0) {
-      alert('Please enter a valid number of students');
-      return;
-    }
-    const entries = Array.from({ length: groupCount }, () => ({
-      studentName: '',
-      onlineAmount: '',
-      offlineAmount: '',
-      utrId: '',
-      receiptNo: '',
-      paymentDate: ''
-    }));
-    setDynamicGroupEntries(entries);
-    setGroupCount(count);
+  if (isNaN(count) || count <= 0) {
+    alert('Please enter a valid number of students');
+    return;
+  }
 
-    setShowGroupModal(false);
-    setPaymentType('group');
-  };
+  // 🔧 SAFETY: Create proper entry structure
+  const entries = Array.from({ length: count }, (_, index) => ({
+    studentName: index === 0 ? formData.studentName.toUpperCase() : '',
+    amount: '',
+    onlineAmount: '',
+    offlineAmount: '',
+    utrId: '',
+    receiptNo: '',
+    paymentDate: ''
+  }));
+
+  setDynamicGroupEntries(entries);
+  setGroupCount(count);
+  setShowGroupModal(false);
+  setPaymentType('group');
+};
 
   // Load existing payments for validation
   useEffect(() => {
