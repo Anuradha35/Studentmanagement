@@ -108,18 +108,21 @@ const studentNameRef = useRef<HTMLInputElement>(null);
   }>({ utrIds: new Set(), receiptNos: new Set() });
 
 
-  // ✅ STEP 2: Add these state variables after existing useState declarations
-const [duplicateCheckModal, setDuplicateCheckModal] = useState(false);
-const [duplicateInfo, setDuplicateInfo] = useState<{
-  type: 'utr' | 'receipt';
-  value: string;
-  existingPayment: any;
-  studentInfo: any;
-  courseName: string;
-  batchName: string;
-  yearName: string;
-  paymentType: 'single' | 'group';
-} | null>(null);
+  // ✅ ENHANCED STATE: Now includes all group members info
+  const [duplicateCheckModal, setDuplicateCheckModal] = useState(false);
+  const [duplicateInfo, setDuplicateInfo] = useState<{
+    type: 'utr' | 'receipt';
+    value: string;
+    existingPayment: any;
+    allGroupMembers: Array<{
+      studentInfo: any;
+      courseName: string;
+      batchName: string;
+      yearName: string;
+    }>;
+    paymentType: 'single' | 'group';
+    totalStudentsInGroup: number;
+  } | null>(null);
 
   // Get course fee based on selected course and duration
   const getCourseFee = () => {
@@ -149,52 +152,114 @@ const validateGroupEntries = () => {
 
 const [dateFocusedOnce, setDateFocusedOnce] = useState(false);
 
-// ✅ STEP 3: Add this helper function before the useEffect hooks
-const findDuplicatePayment = (utrId?: string, receiptNo?: string) => {
-  // Search through all years, courses, batches, and students
-  for (const [yearKey, yearData] of Object.entries(appData.years)) {
-    for (const [courseKey, courseData] of Object.entries(yearData)) {
-      for (const [batchKey, batchData] of Object.entries(courseData)) {
-        for (const student of batchData.students) {
-          // Check payments for this student
-          const studentPayments = appData.payments?.filter(p => p.studentId === student.id) || [];
-          
-          for (const payment of studentPayments) {
-            // Check UTR ID match
-            if (utrId && payment.utrId === utrId) {
-              return {
-                type: 'utr' as const,
-                value: utrId,
-                existingPayment: payment,
-                studentInfo: student,
-                courseName: courseKey,
-                batchName: batchKey,
-                yearName: yearKey,
-                paymentType: payment.type || 'single'
-              };
-            }
+ // ✅ ENHANCED: Find ALL students who are part of the same group payment
+  const findDuplicatePaymentWithAllMembers = (utrId?: string, receiptNo?: string) => {
+    const allGroupMembers: Array<{
+      studentInfo: any;
+      courseName: string;
+      batchName: string;
+      yearName: string;
+      existingPayment: any;
+    }> = [];
+
+    let mainPayment: any = null;
+
+    // Search through all years, courses, batches, and students
+    for (const [yearKey, yearData] of Object.entries(appData.years)) {
+      for (const [courseKey, courseData] of Object.entries(yearData)) {
+        for (const [batchKey, batchData] of Object.entries(courseData)) {
+          for (const student of batchData.students) {
+            // Check payments for this student
+            const studentPayments = appData.payments?.filter(p => p.studentId === student.id) || [];
             
-            // Check Receipt Number match
-            if (receiptNo && payment.receiptNo === receiptNo) {
-              return {
-                type: 'receipt' as const,
-                value: receiptNo,
-                existingPayment: payment,
-                studentInfo: student,
-                courseName: courseKey,
-                batchName: batchKey,
-                yearName: yearKey,
-                paymentType: payment.type || 'single'
-              };
+            for (const payment of studentPayments) {
+              let isMatch = false;
+              let matchType: 'utr' | 'receipt' = 'utr';
+
+              // Check UTR ID match
+              if (utrId && payment.utrId === utrId) {
+                isMatch = true;
+                matchType = 'utr';
+              }
+              
+              // Check Receipt Number match
+              if (receiptNo && payment.receiptNo === receiptNo) {
+                isMatch = true;
+                matchType = 'receipt';
+              }
+
+              if (isMatch) {
+                // Store main payment info (first match found)
+                if (!mainPayment) {
+                  mainPayment = {
+                    type: matchType,
+                    value: matchType === 'utr' ? utrId : receiptNo,
+                    existingPayment: payment,
+                    paymentType: payment.type || 'single'
+                  };
+                }
+
+                // Add this student to group members list
+                allGroupMembers.push({
+                  studentInfo: student,
+                  courseName: courseKey,
+                  batchName: batchKey,
+                  yearName: yearKey,
+                  existingPayment: payment
+                });
+
+                // ✅ CRITICAL: For group payments, find all students with same groupId
+                if (payment.type === 'group' && payment.groupId) {
+                  // Search for all students with the same groupId
+                  const sameGroupPayments = appData.payments?.filter(p => 
+                    p.groupId === payment.groupId && p.studentId !== student.id
+                  ) || [];
+
+                  for (const groupPayment of sameGroupPayments) {
+                    // Find the student for this payment
+                    for (const [y, yData] of Object.entries(appData.years)) {
+                      for (const [c, cData] of Object.entries(yData)) {
+                        for (const [b, bData] of Object.entries(cData)) {
+                          const groupStudent = bData.students.find(s => s.id === groupPayment.studentId);
+                          if (groupStudent) {
+                            // Check if this student is not already added
+                            const alreadyAdded = allGroupMembers.some(member => 
+                              member.studentInfo.id === groupStudent.id
+                            );
+                            
+                            if (!alreadyAdded) {
+                              allGroupMembers.push({
+                                studentInfo: groupStudent,
+                                courseName: c,
+                                batchName: b,
+                                yearName: y,
+                                existingPayment: groupPayment
+                              });
+                            }
+                            break;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
       }
     }
-  }
-  return null;
-};
 
+    if (mainPayment && allGroupMembers.length > 0) {
+      return {
+        ...mainPayment,
+        allGroupMembers,
+        totalStudentsInGroup: allGroupMembers.length
+      };
+    }
+
+    return null;
+  };
 
 
   // ✅ ADD THIS NEW FUNCTION AFTER findDuplicatePayment
@@ -363,219 +428,245 @@ useEffect(() => {
   }
 }, [showGroupModal]);
 
-useEffect(() => {
-  const totalGroupPayment =
-    (parseInt(groupOnlineAmount || '0') || 0) +
-    (parseInt(groupOfflineAmount || '0') || 0);
+ useEffect(() => {
+    const totalGroupPayment =
+      (parseInt(groupOnlineAmount || '0') || 0) +
+      (parseInt(groupOfflineAmount || '0') || 0);
 
-  // ✅ Sirf Student #1 ka amount clear karo jab total payment change ho
-  setDynamicGroupEntries(prevEntries => {
-    const updated = [...prevEntries];
-    updated[0] = { ...updated[0], amount: '' };
-    return updated;
-  });
-  // Agar tum chaho to totalPaid reset kar sakte ho:
-  setFormData(prev => ({
-    ...prev,
-    totalPaid: 0,
-    remainingFee: prev.courseFee
-  }));
-}, [groupOnlineAmount, groupOfflineAmount]);
-
-// When Group Payment is selected or group entries created
-useEffect(() => {
-  if (dynamicGroupEntries.length > 0 && formData.studentName) {
-    const updated = [...dynamicGroupEntries];
-    updated[0].studentName = formData.studentName.toUpperCase();
-    setDynamicGroupEntries(updated);
-  }
-}, [dynamicGroupEntries.length, formData.studentName]);
-// ========================================
-// Find this existing useEffect and ADD this NEW useEffect AFTER it:
-
-useEffect(() => {
-  if (showGroupModal) {
-    const timer = setTimeout(() => {
-      if (groupInputRef.current) {
-        groupInputRef.current.focus();
-        groupInputRef.current.select(); // optional
-      }
-    }, 100); // delay helps after modal mounts
-    return () => clearTimeout(timer);
-  }
-}, [showGroupModal]);
-
-  // ✅ ADD THIS NEW useEffect RIGHT AFTER THE ABOVE ONE:
-useEffect(() => {
-  console.log("👁️ Dynamic Group Entries Changed:", dynamicGroupEntries.length);
-  
-  // Force re-render of the form section when entries change
-  if (dynamicGroupEntries.length > 0 && paymentType === 'group') {
-    // Update the group count to match entries
-    if (groupCount !== dynamicGroupEntries.length) {
-      setGroupCount(dynamicGroupEntries.length);
-      console.log("🔄 Updated group count to match entries:", dynamicGroupEntries.length);
-    }
+    setDynamicGroupEntries(prevEntries => {
+      const updated = [...prevEntries];
+      updated[0] = { ...updated[0], amount: '' };
+      return updated;
+    });
     
-    // Ensure Student #1 has current student name
-    if (dynamicGroupEntries[0] && dynamicGroupEntries[0].studentName !== formData.studentName.toUpperCase()) {
-      const updatedEntries = [...dynamicGroupEntries];
-      updatedEntries[0] = {
-        ...updatedEntries[0],
-        studentName: formData.studentName.toUpperCase()
-      };
-      setDynamicGroupEntries(updatedEntries);
-      console.log("🔄 Synced Student #1 with form student name");
-    }
-  }
-}, [dynamicGroupEntries.length, paymentType, formData.studentName, groupCount]);
-
-  // ✅ STEP 4: Add this handler function
-const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
-  if (!duplicateInfo) return;
-  
-  if (action === 'cancel') {
-    setDuplicateCheckModal(false);
-    setDuplicateInfo(null);
-     setPaymentType('single'); // Reset to single if cancelled
-    return;
-  }
-  
-  if (action === 'proceed' && duplicateInfo.paymentType === 'group' && paymentType === 'group') {
-    // Add existing student to current group
-    const existingStudent = duplicateInfo.studentInfo;
-    
-    
-    const existingPayment = duplicateInfo.existingPayment;
-    
-    // Set the existing student as Student #1
     setFormData(prev => ({
       ...prev,
-      studentName: existingStudent.studentName,
-      fatherName: existingStudent.fatherName,
-      gender: existingStudent.gender,
-      mobileNo: existingStudent.mobileNo,
-      email: existingStudent.email,
-      category: existingStudent.category,
-      hostler: existingStudent.hostler,
-      collegeName: existingStudent.collegeName,
-      branch: existingStudent.branch
+      totalPaid: 0,
+      remainingFee: prev.courseFee
     }));
-    
-    // Pre-fill group payment details from existing payment
-    if (existingPayment.onlineAmount > 0) {
-      setGroupOnlineAmount(existingPayment.onlineAmount.toString());
-      setGroupUtrId(existingPayment.utrId || '');
-    }
-    if (existingPayment.offlineAmount > 0) {
-      setGroupOfflineAmount(existingPayment.offlineAmount.toString());
-      setGroupReceiptNo(existingPayment.receiptNo || '');
-    }
-    setGroupPaymentDate(existingPayment.paymentDate || '');
-    
-    // Update group entries - Student #1 gets existing student info
-    if (dynamicGroupEntries.length > 0) {
-      const updatedEntries = [...dynamicGroupEntries];
-      updatedEntries[0] = {
-        ...updatedEntries[0],
-        studentName: existingStudent.studentName,
-        amount: '' // Amount will be blank as requested
-      };
-      setDynamicGroupEntries(updatedEntries);
-    }
-    
-    alert(`${existingStudent.studentName} has been added to Student #1 position with existing payment details. Please enter the amount for this student.`);
-  }
-  
-  setDuplicateCheckModal(false);
-  setDuplicateInfo(null);
-};
+  }, [groupOnlineAmount, groupOfflineAmount]);
 
-// Main handler function
-const handlePaymentTypeChange = (newPaymentType) => {
-  if (paymentType !== newPaymentType) {
+  useEffect(() => {
+    if (dynamicGroupEntries.length > 0 && formData.studentName) {
+      const updated = [...dynamicGroupEntries];
+      updated[0].studentName = formData.studentName.toUpperCase();
+      setDynamicGroupEntries(updated);
+    }
+  }, [dynamicGroupEntries.length, formData.studentName]);
+
+  useEffect(() => {
+    if (showGroupModal) {
+      const timer = setTimeout(() => {
+        if (groupInputRef.current) {
+          groupInputRef.current.focus();
+          groupInputRef.current.select();
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [showGroupModal]);
+
+  useEffect(() => {
+    console.log("👁️ Dynamic Group Entries Changed:", dynamicGroupEntries.length);
     
-    if (paymentType === 'single' && newPaymentType === 'group') {
-      // Single → Group: Clear single fields
-      setPaymentMode('');
-      setPaymentAmount('');
-      setPaymentDate('');
-      setUtrId('');
-      setReceiptNo('');
-      
-      // Setup group with student #1 pre-filled
-      const initialGroupEntries = [
-        {
-          studentName: formData.studentName.toUpperCase(),
-          amount: ''
-        },
-        {
-          studentName: '',
-          amount: ''
-        }
-      ];
-      setDynamicGroupEntries(initialGroupEntries);
-      setGroupCount(2);
-      
-    } else if (paymentType === 'group' && newPaymentType === 'single') {
-      // Group → Single: Clear group fields
-      setGroupPaymentDate('');
-      setGroupOnlineAmount('');
-      setGroupOfflineAmount('');
-      setGroupUtrId('');
-      setGroupReceiptNo('');
-      setGroupPayments([]);
-      setPaymentFieldsReadOnly(false);
-      
-      // Clear student entries except #1 name
-      const resetEntries = [...dynamicGroupEntries];
-      if (resetEntries.length > 0) {
-        resetEntries[0].amount = '';
-        // Clear student #2, #3, etc.
-        for (let i = 1; i < resetEntries.length; i++) {
-          resetEntries[i].studentName = '';
-          resetEntries[i].amount = '';
-        }
+    if (dynamicGroupEntries.length > 0 && paymentType === 'group') {
+      if (groupCount !== dynamicGroupEntries.length) {
+        setGroupCount(dynamicGroupEntries.length);
+        console.log("🔄 Updated group count to match entries:", dynamicGroupEntries.length);
       }
-      setDynamicGroupEntries(resetEntries);
       
-      // Reset form data summary
-      setFormData(prev => ({
-        ...prev,
-        totalPaid: 0,
-        remainingFee: prev.courseFee
-      }));
+      if (dynamicGroupEntries[0] && dynamicGroupEntries[0].studentName !== formData.studentName.toUpperCase()) {
+        const updatedEntries = [...dynamicGroupEntries];
+        updatedEntries[0] = {
+          ...updatedEntries[0],
+          studentName: formData.studentName.toUpperCase()
+        };
+        setDynamicGroupEntries(updatedEntries);
+        console.log("🔄 Synced Student #1 with form student name");
+      }
     }
-  }
-  
-  setPaymentType(newPaymentType);
-};
-  
+  }, [dynamicGroupEntries.length, paymentType, formData.studentName, groupCount]);
 
-    const handleGroupCountConfirm = () => {
-      console.log("✅ Confirm button clicked");
-  console.log("✅ groupCount =", groupCount);
-       const value = groupInputRef.current?.value;
-  const count = parseInt(value || '0');
+  // ✅ ENHANCED: Handle duplicate with better group member management
+  const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
+    if (!duplicateInfo) return;
+    
+    if (action === 'cancel') {
+      setDuplicateCheckModal(false);
+      setDuplicateInfo(null);
+      setPaymentType('single');
+      return;
+    }
+    
+    if (action === 'proceed' && duplicateInfo.paymentType === 'group' && paymentType === 'group') {
+      // Check if current student is part of existing group
+      const currentStudentName = formData.studentName.trim().toUpperCase();
+      const currentFatherName = formData.fatherName.trim().toUpperCase();
+      
+      // ✅ ENHANCED: Check if student is part of any group member
+      const isPartOfGroup = duplicateInfo.allGroupMembers.some(member => 
+        member.studentInfo.studentName.toUpperCase() === currentStudentName &&
+        member.studentInfo.fatherName.toUpperCase() === currentFatherName
+      );
+      
+      if (!isPartOfGroup) {
+        alert(`❌ ERROR: Cannot add to existing group!\n\nCurrent Student: ${currentStudentName}\nExisting Group Members: ${duplicateInfo.allGroupMembers.map(m => m.studentInfo.studentName).join(', ')}\n\n${currentStudentName} is not a member of the existing group payment. Each student can only be added to their own group payments.\n\nPlease use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
+        
+        // Clear the problematic field
+        if (paymentType === 'group') {
+          if (duplicateInfo.type === 'utr') {
+            setGroupUtrId('');
+            setGroupOnlineAmount('');
+          } else if (duplicateInfo.type === 'receipt') {
+            setGroupReceiptNo('');
+            setGroupOfflineAmount('');
+          }
+        }
+        
+        setDuplicateCheckModal(false);
+        setDuplicateInfo(null);
+        setPaymentType('single');
+        return;
+      }
 
-  if (isNaN(count) || count <= 0) {
-    alert('Please enter a valid number of students');
-    return;
-  }
-     const entries = Array.from({ length: groupCount }, () => ({
-  studentName: '',
-  onlineAmount: '',
-  offlineAmount: '',
-  utrId: '',
-  receiptNo: '',
-  paymentDate: ''
-}));
-setDynamicGroupEntries(entries);
-    setGroupCount(count); // Save the count to state
-  
-  setShowGroupModal(false); // Close modal
-  // ✅ Set this here (not in the radio button)
-  setPaymentType('group');
+      // ✅ Student is part of group - proceed with pre-filling
+      const mainMember = duplicateInfo.allGroupMembers.find(m => 
+        m.studentInfo.studentName.toUpperCase() === currentStudentName
+      );
+      
+      if (mainMember) {
+        const existingStudent = mainMember.studentInfo;
+        const existingPayment = mainMember.existingPayment;
+        
+        // Set the existing student as Student #1
+        setFormData(prev => ({
+          ...prev,
+          studentName: existingStudent.studentName,
+          fatherName: existingStudent.fatherName,
+          gender: existingStudent.gender,
+          mobileNo: existingStudent.mobileNo,
+          email: existingStudent.email,
+          category: existingStudent.category,
+          hostler: existingStudent.hostler,
+          collegeName: existingStudent.collegeName,
+          branch: existingStudent.branch
+        }));
+        
+        // Pre-fill group payment details from existing payment
+        if (existingPayment.onlineAmount > 0) {
+          setGroupOnlineAmount(existingPayment.onlineAmount.toString());
+          setGroupUtrId(existingPayment.utrId || '');
+        }
+        if (existingPayment.offlineAmount > 0) {
+          setGroupOfflineAmount(existingPayment.offlineAmount.toString());
+          setGroupReceiptNo(existingPayment.receiptNo || '');
+        }
+        setGroupPaymentDate(existingPayment.paymentDate || '');
+        
+        // ✅ ENHANCED: Create entries for all group members
+        const allGroupNames = duplicateInfo.allGroupMembers.map(m => m.studentInfo.studentName);
+        const currentIndex = allGroupNames.findIndex(name => name.toUpperCase() === currentStudentName);
+        
+        // Reorder so current student is first
+        if (currentIndex > 0) {
+          const temp = allGroupNames[0];
+          allGroupNames[0] = allGroupNames[currentIndex];
+          allGroupNames[currentIndex] = temp;
+        }
+
+        const newGroupEntries = allGroupNames.map((name, index) => ({
+          studentName: name.toUpperCase(),
+          amount: index === 0 ? '' : '' // All amounts will be blank as requested
+        }));
+
+        setDynamicGroupEntries(newGroupEntries);
+        setGroupCount(allGroupNames.length);
+        setPaymentFieldsReadOnly(true);
+        
+        alert(`✅ ${existingStudent.studentName} has been added to Student #1 position with existing payment details.\n\nTotal Group Members: ${duplicateInfo.totalStudentsInGroup}\nAll Members: ${allGroupNames.join(', ')}\n\nPlease enter the amount for each student.`);
+      }
+    }
+    
+    setDuplicateCheckModal(false);
+    setDuplicateInfo(null);
+  };
+
+  const handlePaymentTypeChange = (newPaymentType) => {
+    if (paymentType !== newPaymentType) {
+      
+      if (paymentType === 'single' && newPaymentType === 'group') {
+        setPaymentMode('');
+        setPaymentAmount('');
+        setPaymentDate('');
+        setUtrId('');
+        setReceiptNo('');
+        
+        const initialGroupEntries = [
+          {
+            studentName: formData.studentName.toUpperCase(),
+            amount: ''
+          },
+          {
+            studentName: '',
+            amount: ''
+          }
+        ];
+        setDynamicGroupEntries(initialGroupEntries);
+        setGroupCount(2);
+        
+      } else if (paymentType === 'group' && newPaymentType === 'single') {
+        setGroupPaymentDate('');
+        setGroupOnlineAmount('');
+        setGroupOfflineAmount('');
+        setGroupUtrId('');
+        setGroupReceiptNo('');
+        setGroupPayments([]);
+        setPaymentFieldsReadOnly(false);
+        
+        const resetEntries = [...dynamicGroupEntries];
+        if (resetEntries.length > 0) {
+          resetEntries[0].amount = '';
+          for (let i = 1; i < resetEntries.length; i++) {
+            resetEntries[i].studentName = '';
+            resetEntries[i].amount = '';
+          }
+        }
+        setDynamicGroupEntries(resetEntries);
+        
+        setFormData(prev => ({
+          ...prev,
+          totalPaid: 0,
+          remainingFee: prev.courseFee
+        }));
+      }
+    }
+    
+    setPaymentType(newPaymentType);
+  };
+
+  const handleGroupCountConfirm = () => {
+    console.log("✅ Confirm button clicked");
+    console.log("✅ groupCount =", groupCount);
+    const value = groupInputRef.current?.value;
+    const count = parseInt(value || '0');
+
+    if (isNaN(count) || count <= 0) {
+      alert('Please enter a valid number of students');
+      return;
+    }
+    const entries = Array.from({ length: groupCount }, () => ({
+      studentName: '',
+      onlineAmount: '',
+      offlineAmount: '',
+      utrId: '',
+      receiptNo: '',
+      paymentDate: ''
+    }));
+    setDynamicGroupEntries(entries);
+    setGroupCount(count);
+
+    setShowGroupModal(false);
+    setPaymentType('group');
   };
 
   // Load existing payments for validation
