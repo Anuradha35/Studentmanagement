@@ -855,22 +855,56 @@ if (
   );
 
   if (duplicateStudent) {
-  const { student, location, isSameCourse, courseName, yearName } = duplicateStudent;
+    const { student, location, isSameCourse, courseName, yearName } = duplicateStudent;
 
-  if (isSameCourse) {
-    alert( 'Same satudent Present in this course\n\n'+
-      `⚠️ Student "${student.studentName}" with Father "${student.fatherName}" already exists in ${location}\n📚 Course: ${courseName} | 📅 Year: ${yearName}`
-    );
-    return;
-  } else {
-    const proceed = window.confirm(
-      `ℹ️ Student "${student.studentName}" with Father "${student.fatherName}" is already enrolled in another course.\n📚 Existing: ${courseName} | 📅 Year: ${yearName}\n\nDo you want to proceed with admission to "${selectedCourse}"?`
-    );
-    if (!proceed) return;
+    if (isSameCourse && yearName === selectedYear) {
+      // ✅ Parse dates
+      const today = new Date();
+      const existingEndDateParts = (student.endDate || "").split(".");
+      const existingEndDate = new Date(
+        parseInt(existingEndDateParts[2]),
+        parseInt(existingEndDateParts[1]) - 1,
+        parseInt(existingEndDateParts[0])
+      );
+
+      // अगर पुराना admission अभी भी active है → block
+      if (existingEndDate >= today) {
+        alert(
+          `❌ Admission Already Active!\n\nStudent "${student.studentName}" with Father "${student.fatherName}" is already enrolled in ${location}.\n📚 Course: ${courseName} | 📅 Year: ${yearName}\n⏳ Current admission ends on: ${student.endDate}`
+        );
+        return;
+      }
+
+      // ✅ End date गुजर चुका → अब payment check करो
+      let paymentConflict = false;
+      if (paymentType === "single") {
+        paymentConflict = payments.some(
+          (p) =>
+            (p.utrId && p.utrId.trim() !== "" && p.utrId === utrId.trim()) ||
+            (p.receiptNo && p.receiptNo.trim() !== "" && p.receiptNo === receiptNo.trim())
+        );
+      } else if (paymentType === "group") {
+        paymentConflict =
+          (groupUtrId && groupUtrId.trim() !== "" && student.payments?.some(p => p.utrId === groupUtrId.trim())) ||
+          (groupReceiptNo && groupReceiptNo.trim() !== "" && student.payments?.some(p => p.receiptNo === groupReceiptNo.trim()));
+      }
+
+      if (paymentConflict) {
+        alert(
+          `❌ Duplicate Payment Detected!\n\nStudent "${student.studentName}" with Father "${student.fatherName}" already exists in ${location} with the same UTR/Receipt.\n📚 Course: ${courseName} | 📅 Year: ${yearName}`
+        );
+        return;
+      }
+    } else {
+      // Different course → confirm
+      const proceed = window.confirm(
+        `ℹ️ Student "${student.studentName}" with Father "${student.fatherName}" is already enrolled in another course.\n📚 Existing: ${courseName} | 📅 Year: ${yearName}\n\nDo you want to proceed with admission to "${selectedCourse}"?`
+      );
+      if (!proceed) return;
+    }
   }
 }
 
-}
 
 
   setErrors(newErrors);
