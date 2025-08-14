@@ -2328,32 +2328,50 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   <div className="bg-slate-900 p-4 rounded-lg space-y-2 shadow-lg">
     <div className="flex flex-wrap gap-2">
   {dynamicGroupEntries.slice(1).map((entry, index) => (
-    <div key={index + 1} className="flex-1 min-w-[120px]">
-      <input
-        id={`studentName-${index + 1}`}
-        type="text"
-         readOnly={paymentFieldsReadOnly} // ✅ यह line add करें
-        onChange={(e) => {
-          const updated = [...dynamicGroupEntries];
-          updated[index + 1].studentName = e.target.value.toUpperCase();
-          setDynamicGroupEntries(updated);
+  <div key={index + 1} className="flex-1 min-w-[120px]">
+    <input
+      id={`studentName-${index + 1}`}
+      type="text"
+      readOnly={paymentFieldsReadOnly}
+      onChange={(e) => {
+        const updated = [...dynamicGroupEntries];
+        
+        // 🔧 SAFETY: Ensure the entry exists before updating
+        if (!updated[index + 1]) {
+          updated[index + 1] = {
+            studentName: '',
+            amount: '',
+            onlineAmount: '',
+            offlineAmount: '',
+            utrId: '',
+            receiptNo: '',
+            paymentDate: ''
+          };
+        }
+        
+        updated[index + 1] = {
+          ...updated[index + 1],
+          studentName: e.target.value.toUpperCase()
+        };
+        setDynamicGroupEntries(updated);
 
-          // ✅ Error clear on typing
-          setErrors(prev => ({ ...prev, [`studentName_${index + 1}`]: '' }));
-        }}
-        value={entry.studentName}
-        className="w-full p-3 bg-gray-800 border border-white/30 rounded-lg text-white"
-        placeholder={`Student Name #${index + 2}`}
-      />
+        // ✅ Error clear on typing
+        setErrors(prev => ({ ...prev, [`studentName_${index + 1}`]: '' }));
+      }}
+      value={entry?.studentName || ''} // 🔧 SAFETY: Add fallback
+      className="w-full p-3 bg-gray-800 border border-white/30 rounded-lg text-white"
+      placeholder={`Student Name #${index + 2}`}
+    />
 
-      {/* 🔹 Validation error per student field */}
-      {errors[`studentName_${index + 1}`] && (
-        <p className="text-red-400 text-sm mt-1">
-          {errors[`studentName_${index + 1}`]}
-        </p>
-      )}
-    </div>
-  ))}
+    {/* 🔹 Validation error per student field */}
+    {errors[`studentName_${index + 1}`] && (
+      <p className="text-red-400 text-sm mt-1">
+        {errors[`studentName_${index + 1}`]}
+      </p>
+    )}
+  </div>
+))}
+
 </div>
 
 
