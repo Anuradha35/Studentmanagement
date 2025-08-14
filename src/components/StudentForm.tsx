@@ -73,14 +73,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [groupCount, setGroupCount] = useState(0);
   const [dynamicGroupEntries, setDynamicGroupEntries] = useState<any[]>([]);
-  const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
-const [duplicateInfo, setDuplicateInfo] = useState<{
-  studentName: string;
-  fatherName: string;
-  location: string;
-  courseName: string;
-  yearName: string;
-} | null>(null);
+  
 
 // ✅ NEW: Read-only state for payment fields
   const [paymentFieldsReadOnly, setPaymentFieldsReadOnly] = useState(false);
@@ -89,6 +82,15 @@ const [duplicateInfo, setDuplicateInfo] = useState<{
   const [groupCourseName, setGroupCourseName] = useState('');
 const [groupCourseDuration, setGroupCourseDuration] = useState('');
 const studentNameRef = useRef<HTMLInputElement>(null);
+// ✅ Duplicate modal control state
+const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
+const [duplicateInfo, setDuplicateInfo] = useState<{
+  studentName: string;
+  fatherName: string;
+  location: string;
+  courseName: string;
+  yearName: string;
+} | null>(null);
 
 
 
