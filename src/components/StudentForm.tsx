@@ -73,6 +73,14 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [groupCount, setGroupCount] = useState(0);
   const [dynamicGroupEntries, setDynamicGroupEntries] = useState<any[]>([]);
+  const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
+const [duplicateInfo, setDuplicateInfo] = useState<{
+  studentName: string;
+  fatherName: string;
+  location: string;
+  courseName: string;
+  yearName: string;
+} | null>(null);
 
 // ✅ NEW: Read-only state for payment fields
   const [paymentFieldsReadOnly, setPaymentFieldsReadOnly] = useState(false);
@@ -843,14 +851,7 @@ if (!paymentType) {
 // ✅ ADD THIS DUPLICATE CHECK BEFORE setErrors(newErrors)
 // ✅ ADD THIS DUPLICATE CHECK BEFORE setErrors(newErrors)
 // State for duplicate modal
-const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
-const [duplicateInfo, setDuplicateInfo] = useState<{
-  studentName: string;
-  fatherName: string;
-  location: string;
-  courseName: string;
-  yearName: string;
-} | null>(null);
+
 
 // ✅ Duplicate check before submit
 if (
