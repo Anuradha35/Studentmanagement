@@ -2688,32 +2688,53 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                   ))}
                   {duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
   (() => {
-    const members = duplicateInfo.existingPayment.groupStudents.split(', ').map(m => m.trim());
+    // UI modal se members (exactly waise hi jaise badges me dikh rahe)
+    const members = duplicateInfo.existingPayment.groupStudents
+      .split(', ')
+      .map(m => m.trim())
+      .filter(Boolean);
+
+    // Breakdown se paid amounts (X: 3000, B1: 3000, ...)
+    // NOTE: yeh मान रहा हूँ breakdown items { name, amount } hain
     const breakdown = duplicateInfo.existingPayment.breakdown || [];
 
-    // Paid members ka set banate hain
-    const paidMembers = breakdown.filter(b => b.amount > 0).map(b => b.name);
+    // Paid members map
+    const paidMap = new Map(
+      breakdown
+        .filter(b => (b?.amount || 0) > 0)
+        .map(b => [String(b?.name || '').trim(), Number(b?.amount || 0)])
+    );
 
-    // Pending members ka array
-    const pendingMembers = members.filter(m => !paidMembers.includes(m));
+    // Pending members = jo UI list me hain par paidMap me nahi
+    const pendingMembers = members.filter(m => !paidMap.has(m));
 
-    // Total paid amount
-    const totalPaid = breakdown.reduce((sum, b) => sum + (b.amount || 0), 0);
+    // Total paid = sab green amounts ka sum
+    const totalPaid = Array.from(paidMap.values()).reduce((s, a) => s + a, 0);
 
-    // Remaining amount from group payment
-    const remainingAmount = (duplicateInfo.existingPayment.totalGroupAmount || 0) - totalPaid;
+    // Group total — primary: totalGroupAmount, fallback 0 (zarurat ho to aur fallback add kar sakte ho)
+    const groupTotal =
+      Number(duplicateInfo?.existingPayment?.totalGroupAmount || 0);
 
-    return pendingMembers.length > 0 ? (
-      <div className="mt-2 text-sm border-t border-gray-700 pt-2">
-        <span className="text-gray-400">Other Members:</span>{' '}
-        <span className="text-purple-300">
-          {pendingMembers.join(', ')}
-        </span>
-        <span className="text-yellow-400 ml-2">
-          Remaining ₹{remainingAmount.toLocaleString()}
-        </span>
+    // Remaining = group total - total paid (never negative)
+    const remaining = Math.max(groupTotal - totalPaid, 0);
+
+    if (pendingMembers.length === 0) return null;
+
+    return (
+      <div className="mt-3 pt-3 border-t border-gray-700 text-sm">
+        <div className="flex justify-between">
+          <span className="text-gray-400">
+            {pendingMembers.length === 1 ? 'Other Member:' : 'Other Members:'}{' '}
+            <span className="text-purple-300">
+              {pendingMembers.join(', ')}
+            </span>
+          </span>
+          <span className="text-yellow-400">
+            Remaining ₹{remaining.toLocaleString()}
+          </span>
+        </div>
       </div>
-    ) : null;
+    );
   })()
 )}
 
