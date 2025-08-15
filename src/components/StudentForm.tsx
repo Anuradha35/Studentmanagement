@@ -2715,7 +2715,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     const groupTotal =
       Number(duplicateInfo?.existingPayment?.totalGroupAmount || 0);
 
-    // Remaining = group total - total paid (never negatives)
+    // Remaining = group total - total paid (never negative)
     const remaining = Math.max(groupTotal - totalPaid, 0);
 
     if (pendingMembers.length === 0) return null;
