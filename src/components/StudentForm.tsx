@@ -168,7 +168,12 @@ const [dateFocusedOnce, setDateFocusedOnce] = useState(false);
     for (const [yearKey, yearData] of Object.entries(appData.years)) {
       for (const [courseKey, courseData] of Object.entries(yearData)) {
         for (const [batchKey, batchData] of Object.entries(courseData)) {
+          // ✅ Agar batchData.students exist nahi karta to skip karo
+        if (!Array.isArray(batchData.students)) continue;
+
           for (const student of batchData.students) {
+             if (!student) continue; // safety check
+
             // Check payments for this student
             const studentPayments = appData.payments?.filter(p => p.studentId === student.id) || [];
             
@@ -220,7 +225,9 @@ const [dateFocusedOnce, setDateFocusedOnce] = useState(false);
                     for (const [y, yData] of Object.entries(appData.years)) {
                       for (const [c, cData] of Object.entries(yData)) {
                         for (const [b, bData] of Object.entries(cData)) {
-                          const groupStudent = bData.students.find(s => s.id === groupPayment.studentId);
+                          const groupStudent = Array.isArray(bData.students) 
+                          ? bData.students.find(s => s.id === groupPayment.studentId)  : null;
+
                           if (groupStudent) {
                             // Check if this student is not already added
                             const alreadyAdded = allGroupMembers.some(member => 
@@ -296,21 +303,6 @@ const checkForDuplicateStudentFull = (
   return null;
 };
 
-const checkForDuplicateReceiptOrUTR = (receipt: string, utr: string) => {
-  const currentBatch = appData?.years?.[selectedYear]?.[selectedCourse]?.[selectedBatch];
-
-  if (!currentBatch?.students || currentBatch.students.length === 0) {
-    return false; // no students to check
-  }
-
-  return currentBatch.students.some(student => {
-    if (!student) return false; // extra safety
-    return (
-      student.receiptNumber?.toLowerCase() === receipt.toLowerCase() ||
-      student.utrNumber?.toLowerCase() === utr.toLowerCase()
-    );
-  });
-};
 
 
 // ✅ ADD THIS NEW HELPER FUNCTION RIGHT AFTER findDuplicatePayment:
