@@ -154,57 +154,64 @@ const [dateFocusedOnce, setDateFocusedOnce] = useState(false);
 
  // ✅ ENHANCED: Find ALL students who are part of the same group payment
   const findDuplicatePaymentWithAllMembers = (utrId?: string, receiptNo?: string) => {
-    const allGroupMembers: Array<{
-      studentInfo: any;
-      courseName: string;
-      batchName: string;
-      yearName: string;
-      existingPayment: any;
-    }> = [];
+  const allGroupMembers: Array<{
+    studentInfo: any;
+    courseName: string;
+    batchName: string;
+    yearName: string;
+    existingPayment: any;
+  }> = [];
 
-    let mainPayment: any = null;
+  let mainPayment: any = null;
+  let firstMatchFound = false;
 
-    // Search through all years, courses, batches, and students
-    for (const [yearKey, yearData] of Object.entries(appData.years)) {
-      for (const [courseKey, courseData] of Object.entries(yearData)) {
-        for (const [batchKey, batchData] of Object.entries(courseData)) {
-          // ✅ Agar batchData.students exist nahi karta to skip karo
+  // Search through all years, courses, batches, and students
+  for (const [yearKey, yearData] of Object.entries(appData.years)) {
+    for (const [courseKey, courseData] of Object.entries(yearData)) {
+      for (const [batchKey, batchData] of Object.entries(courseData)) {
+        // ✅ Safety check for students array
         if (!Array.isArray(batchData.students)) continue;
 
-          for (const student of batchData.students) {
-             if (!student) continue; // safety check
+        for (const student of batchData.students) {
+          if (!student) continue; // safety check
 
-            // Check payments for this student
-            const studentPayments = appData.payments?.filter(p => p.studentId === student.id) || [];
+          // Check payments for this student
+          const studentPayments = appData.payments?.filter(p => p.studentId === student.id) || [];
+          
+          for (const payment of studentPayments) {
+            let isMatch = false;
+            let matchType: 'utr' | 'receipt' = 'utr';
+
+            // Check UTR ID match
+            if (utrId && payment.utrId === utrId) {
+              isMatch = true;
+              matchType = 'utr';
+            }
             
-            for (const payment of studentPayments) {
-              let isMatch = false;
-              let matchType: 'utr' | 'receipt' = 'utr';
+            // Check Receipt Number match
+            if (receiptNo && payment.receiptNo === receiptNo) {
+              isMatch = true;
+              matchType = 'receipt';
+            }
 
-              // Check UTR ID match
-              if (utrId && payment.utrId === utrId) {
-                isMatch = true;
-                matchType = 'utr';
+            if (isMatch) {
+              // Store main payment info (first match found)
+              if (!firstMatchFound) {
+                mainPayment = {
+                  type: matchType,
+                  value: matchType === 'utr' ? utrId : receiptNo,
+                  existingPayment: payment,
+                  paymentType: payment.type || 'single'
+                };
+                firstMatchFound = true;
               }
-              
-              // Check Receipt Number match
-              if (receiptNo && payment.receiptNo === receiptNo) {
-                isMatch = true;
-                matchType = 'receipt';
-              }
 
-              if (isMatch) {
-                // Store main payment info (first match found)
-                if (!mainPayment) {
-                  mainPayment = {
-                    type: matchType,
-                    value: matchType === 'utr' ? utrId : receiptNo,
-                    existingPayment: payment,
-                    paymentType: payment.type || 'single'
-                  };
-                }
+              // Add this student to group members list (avoid duplicates)
+              const alreadyExists = allGroupMembers.some(member => 
+                member.studentInfo.id === student.id
+              );
 
-                // Add this student to group members list
+              if (!alreadyExists) {
                 allGroupMembers.push({
                   studentInfo: student,
                   courseName: courseKey,
@@ -212,39 +219,40 @@ const [dateFocusedOnce, setDateFocusedOnce] = useState(false);
                   yearName: yearKey,
                   existingPayment: payment
                 });
+              }
 
-                // ✅ CRITICAL: For group payments, find all students with same groupId
-                if (payment.type === 'group' && payment.groupId) {
-                  // Search for all students with the same groupId
-                  const sameGroupPayments = appData.payments?.filter(p => 
-                    p.groupId === payment.groupId && p.studentId !== student.id
-                  ) || [];
+              // ✅ CRITICAL: For group payments, find all students with same groupId
+              if (payment.type === 'group' && payment.groupId) {
+                // Search for all students with the same groupId
+                const sameGroupPayments = appData.payments?.filter(p => 
+                  p.groupId === payment.groupId && p.studentId !== student.id
+                ) || [];
 
-                  for (const groupPayment of sameGroupPayments) {
-                    // Find the student for this payment
-                    for (const [y, yData] of Object.entries(appData.years)) {
-                      for (const [c, cData] of Object.entries(yData)) {
-                        for (const [b, bData] of Object.entries(cData)) {
-                          const groupStudent = Array.isArray(bData.students) 
-                          ? bData.students.find(s => s.id === groupPayment.studentId)  : null;
+                for (const groupPayment of sameGroupPayments) {
+                  // Find the student for this payment
+                  for (const [y, yData] of Object.entries(appData.years)) {
+                    for (const [c, cData] of Object.entries(yData)) {
+                      for (const [b, bData] of Object.entries(cData)) {
+                        const groupStudent = Array.isArray(bData.students) 
+                          ? bData.students.find(s => s && s.id === groupPayment.studentId)
+                          : null;
 
-                          if (groupStudent) {
-                            // Check if this student is not already added
-                            const alreadyAdded = allGroupMembers.some(member => 
-                              member.studentInfo.id === groupStudent.id
-                            );
-                            
-                            if (!alreadyAdded) {
-                              allGroupMembers.push({
-                                studentInfo: groupStudent,
-                                courseName: c,
-                                batchName: b,
-                                yearName: y,
-                                existingPayment: groupPayment
-                              });
-                            }
-                            break;
+                        if (groupStudent) {
+                          // Check if this student is not already added
+                          const alreadyAdded = allGroupMembers.some(member => 
+                            member.studentInfo.id === groupStudent.id
+                          );
+                          
+                          if (!alreadyAdded) {
+                            allGroupMembers.push({
+                              studentInfo: groupStudent,
+                              courseName: c,
+                              batchName: b,
+                              yearName: y,
+                              existingPayment: groupPayment
+                            });
                           }
+                          break;
                         }
                       }
                     }
@@ -256,18 +264,23 @@ const [dateFocusedOnce, setDateFocusedOnce] = useState(false);
         }
       }
     }
+  }
 
-    if (mainPayment && allGroupMembers.length > 0) {
-      return {
-        ...mainPayment,
-        allGroupMembers,
-        totalStudentsInGroup: allGroupMembers.length
-      };
-    }
+  if (mainPayment && allGroupMembers.length > 0) {
+    return {
+      ...mainPayment,
+      allGroupMembers,
+      totalStudentsInGroup: allGroupMembers.length,
+      // ✅ Add primary student info (first member for consistency)
+      studentInfo: allGroupMembers[0]?.studentInfo,
+      courseName: allGroupMembers[0]?.courseName,
+      batchName: allGroupMembers[0]?.batchName,
+      yearName: allGroupMembers[0]?.yearName
+    };
+  }
 
-    return null;
-  };
-
+  return null;
+};
 
   // ✅ ADD THIS NEW FUNCTION AFTER findDuplicatePaymentb
 const checkForDuplicateStudentFull = (
