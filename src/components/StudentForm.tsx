@@ -296,6 +296,21 @@ const checkForDuplicateStudentFull = (
   return null;
 };
 
+const checkForDuplicateReceiptOrUTR = (receipt: string, utr: string) => {
+  const currentBatch = appData?.years?.[selectedYear]?.[selectedCourse]?.[selectedBatch];
+
+  if (!currentBatch?.students || currentBatch.students.length === 0) {
+    return false; // no students to check
+  }
+
+  return currentBatch.students.some(student => {
+    if (!student) return false; // extra safety
+    return (
+      student.receiptNumber?.toLowerCase() === receipt.toLowerCase() ||
+      student.utrNumber?.toLowerCase() === utr.toLowerCase()
+    );
+  });
+};
 
 
 // ✅ ADD THIS NEW HELPER FUNCTION RIGHT AFTER findDuplicatePayment:
