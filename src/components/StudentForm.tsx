@@ -2541,8 +2541,8 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     setDuplicateInfo(null);
   }} 
   className="fixed z-50 inset-0 flex items-center justify-center">
-  <div className="bg-black bg-opacity-50 fixed inset-0"></div>
-  <Dialog.Panel className="bg-slate-800 border border-red-500/30 rounded-lg p-6 z-50 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
+   <div className="bg-black bg-opacity-50 fixed inset-0"></div>
+  <Dialog.Panel className="bg-slate-800 border border-red-500/30 rounded-lg p-6 z-50 w-full max-w-6xl mx-4 max-h-[90vh] overflow-y-auto">
     <div className="flex items-center gap-3 mb-6">
       <AlertTriangle className="w-6 h-6 text-red-400" />
       <Dialog.Title className="text-xl font-bold text-red-400">
@@ -2552,67 +2552,69 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     
     {duplicateInfo && (
       <div className="space-y-6 mb-6">
-        {/* Student Information Card */}
+        {/* ✅ ENHANCED: Show ALL Group Members */}
         <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/30 rounded-xl p-6">
           <h3 className="text-lg font-bold text-red-300 mb-4 flex items-center gap-2">
-            <User className="w-5 h-5" />
-            Existing Student Details
+            <Users className="w-5 h-5" />
+            Existing Group Members ({duplicateInfo.totalStudentsInGroup})
           </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <div>
-                <p className="text-gray-400 text-sm">Student Name</p>
-                <p className="text-white font-medium">{duplicateInfo.studentInfo.studentName}</p>
+          {/* ✅ Show all group members in a grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {duplicateInfo.allGroupMembers.map((member, index) => (
+              <div key={member.studentInfo.id} className="bg-slate-900/50 border border-slate-600 rounded-lg p-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 mb-3">
+                    <User className="w-4 h-4 text-blue-400" />
+                    <span className="text-blue-400 font-medium text-sm">Student #{index + 1}</span>
+                  </div>
+                  
+                  <div>
+                    <p className="text-gray-400 text-xs">Student Name</p>
+                    <p className="text-white font-medium text-sm">{member.studentInfo.studentName}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-xs">Father's Name</p>
+                    <p className="text-white text-sm">{member.studentInfo.fatherName}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-xs">Mobile Number</p>
+                    <p className="text-white text-sm">{member.studentInfo.mobileNo}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-xs">Course Location</p>
+                    <p className="text-white text-sm">{member.courseName} • {member.batchName} • {member.yearName}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-xs">Course Duration</p>
+                    <p className="text-white text-sm">{member.studentInfo.courseDuration}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-xs">Course Dates</p>
+                    <p className="text-white text-sm">{member.studentInfo.startDate} to {member.studentInfo.endDate}</p>
+                  </div>
+                  
+                  {/* ✅ Show individual payment details */}
+                  <div className="mt-3 pt-3 border-t border-gray-600">
+                    <p className="text-gray-400 text-xs">Payment Details</p>
+                    <div className="space-y-1 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Course Fee:</span>
+                        <span className="text-white">₹{member.studentInfo.courseFee?.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Individual Amount:</span>
+                        <span className="text-green-400 font-medium">₹{member.existingPayment.amount?.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-400">Remaining:</span>
+                        <span className="text-orange-400">₹{member.studentInfo.remainingFee?.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div>
-                <p className="text-gray-400 text-sm">Father's Name</p>
-                <p className="text-white">{duplicateInfo.studentInfo.fatherName}</p>
-              </div>
-              <div>
-                <p className="text-gray-400 text-sm">Mobile Number</p>
-                <p className="text-white">{duplicateInfo.studentInfo.mobileNo}</p>
-              </div>
-              <div>
-                <p className="text-gray-400 text-sm">Email</p>
-                <p className="text-white text-sm">{duplicateInfo.studentInfo.email}</p>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <div>
-                <p className="text-gray-400 text-sm">Course</p>
-                <p className="text-white font-medium">{duplicateInfo.courseName}</p>
-              </div>
-              <div>
-                <p className="text-gray-400 text-sm">Batch & Year</p>
-                <p className="text-white">{duplicateInfo.batchName} • {duplicateInfo.yearName}</p>
-              </div>
-              <div>
-                <p className="text-gray-400 text-sm">Duration</p>
-                <p className="text-white">{duplicateInfo.studentInfo.courseDuration}</p>
-              </div>
-              <div>
-                <p className="text-gray-400 text-sm">Course Dates</p>
-                <p className="text-white">{duplicateInfo.studentInfo.startDate} to {duplicateInfo.studentInfo.endDate}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Course Fee Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-blue-500/20 rounded-lg p-4 border border-blue-500/30">
-            <p className="text-blue-300 text-sm">Course Fee</p>
-            <p className="text-2xl font-bold text-white">₹{duplicateInfo.studentInfo.courseFee?.toLocaleString()}</p>
-          </div>
-          <div className="bg-green-500/20 rounded-lg p-4 border border-green-500/30">
-            <p className="text-green-300 text-sm">Total Paid</p>
-            <p className="text-2xl font-bold text-white">₹{duplicateInfo.studentInfo.totalPaid?.toLocaleString()}</p>
-          </div>
-          <div className="bg-orange-500/20 rounded-lg p-4 border border-orange-500/30">
-            <p className="text-orange-300 text-sm">Remaining</p>
-            <p className="text-2xl font-bold text-white">₹{duplicateInfo.studentInfo.remainingFee?.toLocaleString()}</p>
+            ))}
           </div>
         </div>
 
@@ -2623,7 +2625,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
             Duplicate Payment Information
           </h3>
 
-          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-4">
+         <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-4">
             <div className="flex items-center gap-2 mb-3">
               {duplicateInfo.type === 'utr' ? (
                 <CreditCard className="w-4 h-4 text-red-400" />
@@ -2661,84 +2663,53 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
               </div>
 
               <div className="space-y-2">
-                {/* Payment Amounts based on type */}
-                {duplicateInfo.paymentType === 'single' ? (
-                  <div>
-                    <p className="text-gray-400 text-sm">Payment Amount</p>
-                    <p className="text-2xl font-bold text-green-400">
-                      ₹{duplicateInfo.existingPayment.amount?.toLocaleString()}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <div>
-                      <p className="text-gray-400 text-sm">Total Group Payment</p>
-                      <p className="text-xl font-bold text-purple-400">
-                        ₹{duplicateInfo.existingPayment.totalGroupAmount?.toLocaleString()}
-                      </p>
+                <div>
+                  <p className="text-gray-400 text-sm">Total Group Payment</p>
+                  <p className="text-2xl font-bold text-purple-400">
+                    ₹{duplicateInfo.existingPayment.totalGroupAmount?.toLocaleString()}
+                  </p>
+                </div>
+                
+                {/* ✅ Show breakdown by member */}
+                <div className="space-y-1 text-sm">
+                  <p className="text-gray-400">Individual Breakdown:</p>
+                  {duplicateInfo.allGroupMembers.map((member, index) => (
+                    <div key={member.studentInfo.id} className="flex justify-between">
+                      <span className="text-gray-300 truncate mr-2">{member.studentInfo.studentName}:</span>
+                      <span className="text-green-400 font-medium">₹{member.existingPayment.amount?.toLocaleString()}</span>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div>
-                        <p className="text-gray-400">This Student's Share</p>
-                        <p className="text-green-400 font-medium">
-                          ₹{duplicateInfo.existingPayment.amount?.toLocaleString()}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-gray-400">Others' Share</p>
-                        <p className="text-blue-400 font-medium">
-                          ₹{(duplicateInfo.existingPayment.totalGroupAmount - duplicateInfo.existingPayment.amount)?.toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Online/Offline breakdown for group payments */}
-                {duplicateInfo.paymentType === 'group' && (
-                  <div className="text-sm space-y-1 mt-2 pt-2 border-t border-gray-600">
-                    {duplicateInfo.existingPayment.onlineAmount > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">💳 Online Amount:</span>
-                        <span className="text-white">₹{duplicateInfo.existingPayment.onlineAmount?.toLocaleString()}</span>
-                      </div>
-                    )}
-                    {duplicateInfo.existingPayment.offlineAmount > 0 && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">💵 Offline Amount:</span>
-                        <span className="text-white">₹{duplicateInfo.existingPayment.offlineAmount?.toLocaleString()}</span>
-                      </div>
-                    )}
-                    {duplicateInfo.existingPayment.utrId && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">UTR ID:</span>
-                        <span className="text-white font-mono">{duplicateInfo.existingPayment.utrId}</span>
-                      </div>
-                    )}
-                    {duplicateInfo.existingPayment.receiptNo && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-400">Receipt No:</span>
-                        <span className="text-white font-mono">{duplicateInfo.existingPayment.receiptNo}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Group Members for group payments */}
-            {duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
-              <div className="mt-4 pt-4 border-t border-gray-600">
-                <p className="text-gray-400 text-sm mb-2">Group Members</p>
-                <div className="flex flex-wrap gap-2">
-                  {duplicateInfo.existingPayment.groupStudents.split(', ').map((student, index) => (
-                    <span key={index} className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-sm">
-                      {student}
-                    </span>
                   ))}
                 </div>
+
+                {/* Online/Offline breakdown */}
+                <div className="text-sm space-y-1 mt-2 pt-2 border-t border-gray-600">
+                  {duplicateInfo.existingPayment.onlineAmount > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">💳 Total Online:</span>
+                      <span className="text-white">₹{duplicateInfo.existingPayment.onlineAmount?.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {duplicateInfo.existingPayment.offlineAmount > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">💵 Total Offline:</span>
+                      <span className="text-white">₹{duplicateInfo.existingPayment.offlineAmount?.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {duplicateInfo.existingPayment.utrId && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">UTR ID:</span>
+                      <span className="text-white font-mono">{duplicateInfo.existingPayment.utrId}</span>
+                    </div>
+                  )}
+                  {duplicateInfo.existingPayment.receiptNo && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Receipt No:</span>
+                      <span className="text-white font-mono">{duplicateInfo.existingPayment.receiptNo}</span>
+                    </div>
+                  )}
+                </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
 
@@ -2758,8 +2729,8 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
               <Users className="w-4 h-4" />
               <strong>Group Payment Option Available</strong>
             </div>
-            <p>Since both payments are group payments, you can add <strong>{duplicateInfo.studentInfo.studentName}</strong> to your current group as Student #1. 
-            The existing payment details will be pre-filled, but you'll need to enter the amount for this student.</p>
+            <p>Since both payments are group payments, you can add your current student to this existing group if they are a member. 
+            The existing payment details will be pre-filled, but you'll need to enter the amount for your student.</p>
           </div>
         )}
       </div>
@@ -2777,25 +2748,19 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
           }
           
           console.log("🚫 CANCEL ACTION - clearing payment fields");
-          console.log("🔍 Current paymentType:", paymentType);
-          console.log("🔍 duplicateInfo.type:", duplicateInfo.type);
           
           // Clear payment fields based on payment type and duplicate type
           if (paymentType === 'single') {
             if (duplicateInfo.type === 'utr') {
-              console.log("🧹 Clearing single UTR ID:", utrId);
               setUtrId('');
             } else if (duplicateInfo.type === 'receipt') {
-              console.log("🧹 Clearing single Receipt No:", receiptNo);
               setReceiptNo('');
             }
           } else if (paymentType === 'group') {
             if (duplicateInfo.type === 'utr') {
-              console.log("🧹 Clearing group UTR ID and online amount:", groupUtrId, groupOnlineAmount);
               setGroupUtrId('');
               setGroupOnlineAmount('');
             } else if (duplicateInfo.type === 'receipt') {
-              console.log("🧹 Clearing group Receipt No and offline amount:", groupReceiptNo, groupOfflineAmount);
               setGroupReceiptNo('');
               setGroupOfflineAmount('');
             }
