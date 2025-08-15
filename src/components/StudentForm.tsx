@@ -403,6 +403,13 @@ useEffect(() => {
   setExistingPayments(newExistingPayments);
 }, [payments, groupPayments]); // Jab bhi payments ya groupPayments change ho
 
+useEffect(() => {
+  if (paymentType === 'single') {
+    setPaymentMode('offline'); // Default to offline for single payment
+  } else if (paymentType === 'group') {
+    setPaymentMode('offline'); // Or your desired default for group payment
+  }
+}, [paymentType]);
 
   // Update course fee when duration changes
   useEffect(() => {
