@@ -2696,23 +2696,27 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
 
     const breakdown = duplicateInfo.existingPayment.breakdown || [];
 
-    // Paid members list (case-insensitive match)
+    // Paid members ka naam breakdown se nikalo
     const paidNames = breakdown
       .filter(b => (b?.amount || 0) > 0)
-      .map(b => (b?.name || '').trim().toLowerCase());
+      .map(b => 
+        String(b?.name || b?.studentInfo?.studentName || '')
+          .trim()
+          .toLowerCase()
+      );
 
-    // Pending = jo members paidNames me nahi hai
+    // Pending members = jo paid me nahi hai
     const pendingMembers = members.filter(
       m => !paidNames.includes(m.trim().toLowerCase())
     );
 
-    // Total paid amount
+    // Total paid
     const totalPaid = breakdown.reduce((sum, b) => sum + (b?.amount || 0), 0);
 
     // Group total
     const groupTotal = Number(duplicateInfo.existingPayment.totalGroupAmount || 0);
 
-    // Remaining = group total - total paid
+    // Remaining = groupTotal - totalPaid
     const remaining = Math.max(groupTotal - totalPaid, 0);
 
     if (pendingMembers.length === 0) return null;
@@ -2730,6 +2734,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     );
   })()
 )}
+
 
 
 
