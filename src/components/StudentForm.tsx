@@ -2686,36 +2686,31 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                       <span className="text-green-400 font-medium">₹{member.existingPayment.amount?.toLocaleString()}</span>
                     </div>
                   ))}
-                  {duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
+                 {duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
   (() => {
-    // UI modal se members (exactly waise hi jaise badges me dikh rahe)
     const members = duplicateInfo.existingPayment.groupStudents
       .split(', ')
       .map(m => m.trim())
       .filter(Boolean);
 
-    // Breakdown se paid amounts (X: 3000, B1: 3000, ...)
-    // NOTE: yeh मान रहा हूँ breakdown items { name, amount } hain
+    // Breakdown data
     const breakdown = duplicateInfo.existingPayment.breakdown || [];
 
-    // Paid members map
-    const paidMap = new Map(
-      breakdown
-        .filter(b => (b?.amount || 0) > 0)
-        .map(b => [String(b?.name || '').trim(), Number(b?.amount || 0)])
-    );
+    // Paid members ke naam list
+    const paidNames = breakdown
+      .filter(b => (b?.amount || 0) > 0)
+      .map(b => String(b?.name || '').trim());
 
-    // Pending members = jo UI list me hain par paidMap me nahi
-    const pendingMembers = members.filter(m => !paidMap.has(m));
+    // Sirf unhi members ko pending me lo jo paidNames me nahi hain
+    const pendingMembers = members.filter(m => !paidNames.includes(m));
 
-    // Total paid = sab green amounts ka sum
-    const totalPaid = Array.from(paidMap.values()).reduce((s, a) => s + a, 0);
+    // Total paid = sab paid ka sum
+    const totalPaid = breakdown.reduce((sum, b) => sum + (b?.amount || 0), 0);
 
-    // Group total — primary: totalGroupAmount, fallback 0 (zarurat ho to aur fallback add kar sakte ho)
-    const groupTotal =
-      Number(duplicateInfo?.existingPayment?.totalGroupAmount || 0);
+    // Group total
+    const groupTotal = Number(duplicateInfo?.existingPayment?.totalGroupAmount || 0);
 
-    // Remaining = group total - total paid (never negative)
+    // Remaining = group total - total paid
     const remaining = Math.max(groupTotal - totalPaid, 0);
 
     if (pendingMembers.length === 0) return null;
@@ -2725,9 +2720,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
         <div className="flex justify-between">
           <span className="text-gray-400">
             {pendingMembers.length === 1 ? 'Other Member:' : 'Other Members:'}{' '}
-            <span className="text-purple-300">
-              {pendingMembers.join(', ')}
-            </span>
+            <span className="text-purple-300">{pendingMembers.join(', ')}</span>
           </span>
           <span className="text-yellow-400">
             Remaining ₹{remaining.toLocaleString()}
@@ -2737,6 +2730,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     );
   })()
 )}
+
 
                 </div>
 
