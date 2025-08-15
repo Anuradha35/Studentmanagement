@@ -2726,6 +2726,29 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                 </div>
               </div>
             )}
+                  {duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
+  <div className="mt-4 pt-4 border-t border-gray-600">
+    <p className="text-gray-400 text-sm mb-2">Individual Breakdown</p>
+    <div className="space-y-1 text-sm">
+      {duplicateInfo.existingPayment.groupStudents.split(', ').map((studentName, idx) => {
+        const paid = duplicateInfo.existingPayment.breakdown?.find(b => b.name === studentName)?.amount || 0;
+        const remaining = (duplicateInfo.existingPayment.perMemberFee || 0) - paid;
+
+        return (
+          <div key={idx} className="flex justify-between">
+            <span className="text-gray-300">{studentName}:</span>
+            {paid > 0 ? (
+              <span className="text-green-400">₹{paid.toLocaleString()}</span>
+            ) : (
+              <span className="text-yellow-400">Remaining ₹{remaining.toLocaleString()}</span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  </div>
+)}
+
                 </div>
               </div>
             </div>
