@@ -269,7 +269,7 @@ const [dateFocusedOnce, setDateFocusedOnce] = useState(false);
   };
 
 
-  // ✅ ADD THIS NEW FUNCTION AFTER findDuplicatePayment
+  // ✅ ADD THIS NEW FUNCTION AFTER findDuplicatePaymentb
 const checkForDuplicateStudentFull = (
   studentName: string,
   fatherName: string,
