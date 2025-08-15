@@ -2686,25 +2686,26 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                       <span className="text-green-400 font-medium">₹{member.existingPayment.amount?.toLocaleString()}</span>
                     </div>
                   ))}
-                 {duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
+                {duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
   (() => {
     const members = duplicateInfo.existingPayment.groupStudents
       .split(', ')
       .map(m => m.trim())
       .filter(Boolean);
 
-    // Breakdown data
     const breakdown = duplicateInfo.existingPayment.breakdown || [];
 
-    // Paid members ke naam list
+    // Paid members names (lowercase, trimmed for matching)
     const paidNames = breakdown
       .filter(b => (b?.amount || 0) > 0)
-      .map(b => String(b?.name || '').trim());
+      .map(b => String(b?.name || '').trim().toLowerCase());
 
-    // Sirf unhi members ko pending me lo jo paidNames me nahi hain
-    const pendingMembers = members.filter(m => !paidNames.includes(m));
+    // Sirf un members ko pending me rakho jo paid list me nahi milte (case-insensitive)
+    const pendingMembers = members.filter(
+      m => !paidNames.includes(m.trim().toLowerCase())
+    );
 
-    // Total paid = sab paid ka sum
+    // Total paid = sum of amounts
     const totalPaid = breakdown.reduce((sum, b) => sum + (b?.amount || 0), 0);
 
     // Group total
@@ -2730,6 +2731,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     );
   })()
 )}
+
 
 
                 </div>
