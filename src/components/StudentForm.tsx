@@ -2707,6 +2707,20 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                       <span className="text-white font-mono">{duplicateInfo.existingPayment.receiptNo}</span>
                     </div>
                   )}
+                   {/* Group Members for group payments */}
+            {duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
+              <div className="mt-4 pt-4 border-t border-gray-600">
+                <p className="text-gray-400 text-sm mb-2">Group Members</p>
+                <div className="flex flex-wrap gap-2">
+                  {duplicateInfo.existingPayment.groupStudents.split(', ').map((student, index) => (
+                    <span key={index} className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-sm">
+                      {student}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
                 </div>
               </div>
             </div>
