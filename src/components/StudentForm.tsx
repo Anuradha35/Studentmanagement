@@ -2686,7 +2686,8 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                       <span className="text-green-400 font-medium">₹{member.existingPayment.amount?.toLocaleString()}</span>
                     </div>
                   ))}
-                {duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
+                {/* ✅ Show pending members & remaining */}
+{duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
   (() => {
     const members = duplicateInfo.existingPayment.groupStudents
       .split(', ')
@@ -2695,21 +2696,21 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
 
     const breakdown = duplicateInfo.existingPayment.breakdown || [];
 
-    // Paid members names (lowercase, trimmed for matching)
+    // Paid members list (case-insensitive match)
     const paidNames = breakdown
       .filter(b => (b?.amount || 0) > 0)
-      .map(b => String(b?.name || '').trim().toLowerCase());
+      .map(b => (b?.name || '').trim().toLowerCase());
 
-    // Sirf un members ko pending me rakho jo paid list me nahi milte (case-insensitive)
+    // Pending = jo members paidNames me nahi hai
     const pendingMembers = members.filter(
       m => !paidNames.includes(m.trim().toLowerCase())
     );
 
-    // Total paid = sum of amounts
+    // Total paid amount
     const totalPaid = breakdown.reduce((sum, b) => sum + (b?.amount || 0), 0);
 
     // Group total
-    const groupTotal = Number(duplicateInfo?.existingPayment?.totalGroupAmount || 0);
+    const groupTotal = Number(duplicateInfo.existingPayment.totalGroupAmount || 0);
 
     // Remaining = group total - total paid
     const remaining = Math.max(groupTotal - totalPaid, 0);
@@ -2717,20 +2718,19 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     if (pendingMembers.length === 0) return null;
 
     return (
-      <div className="mt-3 pt-3 border-t border-gray-700 text-sm">
-        <div className="flex justify-between">
-          <span className="text-gray-400">
-            {pendingMembers.length === 1 ? 'Other Member:' : 'Other Members:'}{' '}
-            <span className="text-purple-300">{pendingMembers.join(', ')}</span>
-          </span>
-          <span className="text-yellow-400">
-            Remaining ₹{remaining.toLocaleString()}
-          </span>
-        </div>
+      <div className="mt-1 text-sm flex justify-between border-t border-gray-700 pt-2">
+        <span className="text-gray-400">
+          {pendingMembers.length === 1 ? 'Other Member:' : 'Other Members:'}{' '}
+          <span className="text-purple-300">{pendingMembers.join(', ')}</span>
+        </span>
+        <span className="text-yellow-400">
+          Remaining ₹{remaining.toLocaleString()}
+        </span>
       </div>
     );
   })()
 )}
+
 
 
 
