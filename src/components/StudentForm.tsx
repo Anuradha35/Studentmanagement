@@ -2686,6 +2686,37 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                       <span className="text-green-400 font-medium">₹{member.existingPayment.amount?.toLocaleString()}</span>
                     </div>
                   ))}
+                  {duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
+  (() => {
+    const members = duplicateInfo.existingPayment.groupStudents.split(', ').map(m => m.trim());
+    const breakdown = duplicateInfo.existingPayment.breakdown || [];
+
+    // Paid members ka set banate hain
+    const paidMembers = breakdown.filter(b => b.amount > 0).map(b => b.name);
+
+    // Pending members ka array
+    const pendingMembers = members.filter(m => !paidMembers.includes(m));
+
+    // Total paid amount
+    const totalPaid = breakdown.reduce((sum, b) => sum + (b.amount || 0), 0);
+
+    // Remaining amount from group payment
+    const remainingAmount = (duplicateInfo.existingPayment.totalGroupAmount || 0) - totalPaid;
+
+    return pendingMembers.length > 0 ? (
+      <div className="mt-2 text-sm border-t border-gray-700 pt-2">
+        <span className="text-gray-400">Other Members:</span>{' '}
+        <span className="text-purple-300">
+          {pendingMembers.join(', ')}
+        </span>
+        <span className="text-yellow-400 ml-2">
+          Remaining ₹{remainingAmount.toLocaleString()}
+        </span>
+      </div>
+    ) : null;
+  })()
+)}
+
                 </div>
 
                 {/* Online/Offline breakdown */}
@@ -2726,29 +2757,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                 </div>
               </div>
             )}
-                  {duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
-  <div className="mt-4 pt-4 border-t border-gray-600">
-    <p className="text-gray-400 text-sm mb-2">Individual Breakdown</p>
-    <div className="space-y-1 text-sm">
-      {duplicateInfo.existingPayment.groupStudents.split(', ').map((studentName, idx) => {
-        const paid = duplicateInfo.existingPayment.breakdown?.find(b => b.name === studentName)?.amount || 0;
-        const remaining = (duplicateInfo.existingPayment.perMemberFee || 0) - paid;
-
-        return (
-          <div key={idx} className="flex justify-between">
-            <span className="text-gray-300">{studentName}:</span>
-            {paid > 0 ? (
-              <span className="text-green-400">₹{paid.toLocaleString()}</span>
-            ) : (
-              <span className="text-yellow-400">Remaining ₹{remaining.toLocaleString()}</span>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  </div>
-)}
-
+                  
                 </div>
               </div>
             </div>
