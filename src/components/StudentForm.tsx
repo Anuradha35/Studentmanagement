@@ -2725,7 +2725,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     !currentPaidMemberNames.includes(memberName)
   );
   
-  // Calculate remaining amount from the existing payment
+  // Calculate remaining amount from the existing payments
   const actualTotalPayment = duplicateInfo.existingPayment.totalGroupAmount || 0;
   const actualPaidAmount = existingPaymentMembers.reduce((sum, member) => 
     sum + (member.existingPayment.amount || 0), 0
@@ -2736,7 +2736,8 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     return (
       <div className="flex justify-between items-center">
          <p className="text-yellow-400 font-bold text-lg">Other Members: </p>
-        <span className="flex justify-between items-center">
+        <span className="text-blue-200">
+          
           {unpaidMembers.join(', ')}
         </span>
         <span className="text-orange-400 font-medium">
