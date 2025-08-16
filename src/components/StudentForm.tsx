@@ -2770,18 +2770,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
 {groupPayments.length >= 0 && (
   <>
     {/* Paid Students */}
-    {dynamicGroupEntries.map((entry, index) => {
-      const amount = parseInt(entry.amount || '0');
-      if (amount > 0) {
-        return (
-          <div key={index} className="flex justify-between items-center">
-            <span className="text-gray-300">{entry.studentName}:</span>
-            <span className="text-green-400 font-medium">₹{amount.toLocaleString()}</span>
-          </div>
-        );
-      }
-      return null;
-    })}
+   
      <div className="mt-1 pt-3 border-t border-gray-700 text-sm"></div>
 
     {/* Unpaid Members */}
