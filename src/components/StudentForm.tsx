@@ -3110,11 +3110,31 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       let proceedMessage = '';
       
       // Check if current student is part of existing group
-      const isStudentNameInGroup = existingStudentNames.includes(currentStudentName);
-      const isFatherNameMatching = currentFatherName === existingFatherName;
-      
-      // ✅ Both conditions must be true for a valid match
-     // ✅ NEW CODE (REPLACE WITH THIS):
+      // Check if current student is part of existing group
+const isStudentNameInGroup = existingStudentNames.includes(currentStudentName);
+
+// ✅ NEW LOGIC: Check father name validation based on group structure
+let isFatherNameMatching = false;
+let validationMessage = '';
+
+if (isStudentNameInGroup) {
+  // Check if current student is the main paid student
+  const isMainPaidStudent = currentStudentName === duplicateInfo.studentInfo.studentName.trim().toUpperCase();
+  
+  if (isMainPaidStudent) {
+    // For main paid student, check father name
+    isFatherNameMatching = currentFatherName === existingFatherName;
+    if (!isFatherNameMatching) {
+      validationMessage = `Father name mismatch for main paid student.\nExpected: ${existingFatherName}\nEntered: ${currentFatherName}`;
+    }
+  } else {
+    // For other group members, allow with warning
+    console.log("⚠️ WARNING: Cannot validate father name for non-main group member");
+    isFatherNameMatching = true; // Allow but show warning
+    validationMessage = `⚠️ Note: Father name validation not available for group member "${currentStudentName}".\nOnly main paid student's father name is verified.\n\nProceed with caution.`;
+  }
+}
+
 const isStudentInExistingGroup = isStudentNameInGroup && isFatherNameMatching;
 
 console.log("🔍 Student name in group:", isStudentNameInGroup);
