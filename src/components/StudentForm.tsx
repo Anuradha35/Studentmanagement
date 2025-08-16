@@ -2755,10 +2755,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                 </div>*/}
                 
                 {/* ✅ Show breakdown by member */}
-                <div className="space-y-1 text-sm">
-                 <p className="text-yellow-400 font-bold text-lg">Individual Paid Student:</p>
-
-                  
+                
                  
 
 
