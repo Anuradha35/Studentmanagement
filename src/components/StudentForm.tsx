@@ -2686,7 +2686,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                       <span className="text-gray-300 truncate mr-2">{member.studentInfo.studentName}:</span>
                       <span className="text-green-400 font-medium">₹{member.existingPayment.amount?.toLocaleString()}</span>
                     </div>
-                  ))}
+                  ))}</div>
                 {/* ✅ Show pending members & remaining */}
 {groupPayments.length >= 0 && (
   <div className="mb-6 p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
@@ -2704,10 +2704,9 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
               <span className="text-green-400 font-medium">₹{amount.toLocaleString()}</span>
             </div>
           );
-        } </div>
+        }
         return null;
       })}
-   
 
       {/* Other Members who haven't paid yet - FIXED LOGIC */}
 {(() => {
