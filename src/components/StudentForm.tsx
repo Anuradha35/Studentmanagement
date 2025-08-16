@@ -2742,7 +2742,14 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       }
       return null;
     })()}
-    
+
+     {/* ✅ Now show Total Group Payment at the end */}
+        <div className="mt-3 pt-3 border-t border-gray-700">
+          <p className="text-gray-400 text-sm">Total Group Payment</p>
+          <p className="text-2xl font-bold text-purple-400">
+            ₹{actualTotalPayment.toLocaleString()}
+          </p>
+        </div>
   </>
                   
 )}
