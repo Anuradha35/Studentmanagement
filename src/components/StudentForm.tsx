@@ -2950,10 +2950,10 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       
       // CRITICAL CHECK: Verify if current student is member of existing group
       const isStudentInGroup = existingStudentNames.includes(currentStudentName);
-      const isFatherMatching = currentFatherName === existingFatherName;
+     
       
       console.log("🔍 Student in group:", isStudentInGroup);
-      console.log("🔍 Father matching:", isFatherMatching);
+      
       
       if (!isStudentInGroup) {
         // Student is NOT a member of existing group - REJECT
