@@ -2732,6 +2732,18 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   })()}
 </div>
 
+{/* ✅ Footer payment amount */}
+<div className="mt-1 pt-3 border-t border-gray-700 text-sm">
+  <span className="text-purple-400 font-bold text-lg mb-1">
+    {duplicateInfo.paymentType === 'single'
+      ? 'Single Payment:'
+      : 'Total Group Payment:'}
+  </span>
+  <span className="float-right text-purple-400 font-bold">
+    ₹{duplicateInfo.existingPayment.totalGroupAmount?.toLocaleString() ||
+      duplicateInfo.existingPayment.amount?.toLocaleString()}
+  </span>
+</div>
 
 
               <div className="space-y-2">
@@ -2748,7 +2760,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
 
 
 
-                {/* ✅ Footer payment amount */}
+                {/* ✅ Footer payment amounts */}
 <div className="mt-1 pt-3 border-t border-gray-700 text-sm">
   <span className="text-purple-400 font-bold text-lg mb-1">
     {duplicateInfo.paymentType === 'single'
@@ -2761,7 +2773,12 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   </span>
 </div>
 
-              
+                <div className="mt-1 pt-3 border-t border-gray-700 text-sm">
+          <span className="text-purple-400 font-bold text-lg mb-1">Total Group Payment:</span>
+          <span className="float-right text-purple-400 font-bold">
+             ₹{duplicateInfo.existingPayment.totalGroupAmount?.toLocaleString()}
+          </span>
+        </div>
                 
 
                 {/* Online/Offline breakdown */}
