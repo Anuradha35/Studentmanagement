@@ -1294,7 +1294,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     }
   };
 
-  // Get available durations for the selected course from course fees
+  // Get available durations for the selected course from course feess
   const getAvailableDurations = () => {
     if (!appData.courseFees) return [];
     
