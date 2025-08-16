@@ -2754,7 +2754,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                   </p>
                 </div>*/}
                 
-                {/* ✅ Show breakdown by member */}
+                {/* ✅ Show breakdown by members */}
                
 
 
