@@ -2752,7 +2752,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
 
                 </div>
                  <div className="mt-3 pt-3 border-t border-gray-700 text-sm">
-                   n
+                   <p className="text-gray-400 text-sm">Total Group Payment</p>
         </div>
 
                 {/* Online/Offline breakdown */}
