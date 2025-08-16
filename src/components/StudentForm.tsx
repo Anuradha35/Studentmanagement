@@ -2709,31 +2709,37 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
 
       {/* Other Members who haven't paid yet */}
       {(() => {
-        const unpaidMembers = dynamicGroupEntries
-          .filter(entry => entry.studentName.trim() && parseInt(entry.amount || '0') === 0)
-          .map(entry => entry.studentName.trim())
-          .filter(name => name !== '');
-        
-        const totalGroupPayment = parseInt(groupOnlineAmount || '0') + parseInt(groupOfflineAmount || '0');
-        const totalPaidByMembers = dynamicGroupEntries.reduce((sum, entry) => 
-          sum + parseInt(entry.amount || '0'), 0
-        );
-        const remainingAmount = totalGroupPayment - totalPaidByMembers;
+  const unpaidMembers = dynamicGroupEntries
+    .filter(entry => entry.studentName.trim() && parseInt(entry.amount || '0') === 0)
+    .map(entry => entry.studentName.trim())
+    .filter(name => name !== '');
+  
+  const totalGroupPayment = parseInt(groupOnlineAmount || '0') + parseInt(groupOfflineAmount || '0');
+  const totalPaidByMembers = dynamicGroupEntries.reduce((sum, entry) => 
+    sum + parseInt(entry.amount || '0'), 0
+  );
+  
+  // ✅ FIXED: Use the existing payment's total amount instead of current form values
+  const actualTotalPayment = duplicateInfo.existingPayment.totalGroupAmount || 0;
+  const actualPaidAmount = duplicateInfo.allGroupMembers.reduce((sum, member) => 
+    sum + (member.existingPayment.amount || 0), 0
+  );
+  const remainingAmount = actualTotalPayment - actualPaidAmount;
 
-        if (unpaidMembers.length > 0 && remainingAmount > 0) {
-          return (
-            <div className="flex justify-between items-center">
-              <span className="text-blue-200">
-                Other Members: {unpaidMembers.join(', ')}
-              </span>
-              <span className="text-orange-400 font-medium">
-                Remaining Amount ₹{remainingAmount.toLocaleString()}
-              </span>
-            </div>
-          );
-        }
-        return null;
-      })()}
+  if (unpaidMembers.length > 0 && remainingAmount > 0) {
+    return (
+      <div className="flex justify-between items-center">
+        <span className="text-blue-200">
+          Other Members: {unpaidMembers.join(', ')}
+        </span>
+        <span className="text-orange-400 font-medium">
+          Remaining Amount ₹{remainingAmount.toLocaleString()}
+        </span>
+      </div>
+    );
+  }
+  return null;
+})()}
     </div>
 
   </div>
