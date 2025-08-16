@@ -2925,14 +2925,14 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       console.log("🔍 Student in group:", isStudentInGroup);
       console.log("🔍 Father matching:", isFatherMatching);
       
-      if (!isStudentInGroup || !isFatherMatching) {
+      if (!isStudentInGroup) {
         // Student is NOT a member of existing group - REJECT
         console.log("❌ Student is not a member of existing group");
         
         setTimeout(() => {
           alert(`❌ INVALID OPERATION!\n\n` +
                 `Current Student: ${formData.studentName}\n` +
-                `Father Name: ${formData.fatherName}\n\n` +
+                
                 `Existing Group Members: ${existingGroupStudents}\n` +
                 `Existing Father Name: ${duplicateInfo.studentInfo.fatherName}\n\n` +
                 `❌ This student is NOT a member of the existing group payment.\n` +
@@ -2962,7 +2962,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
         console.log("✅ EXACT MATCH: Same course, batch, year, duration");
         proceedMessage = `✅ EXACT MATCH FOUND!\n\n` +
                         `Student: ${formData.studentName}\n` +
-                        `Father: ${formData.fatherName}\n` +
+                       
                         `Course: ${selectedCourse}\n` +
                         `Batch: ${selectedBatch}\n` +
                         `Year: ${selectedYear}\n` +
