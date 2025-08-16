@@ -2697,7 +2697,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                       <span className="text-green-400 font-medium">₹{member.existingPayment.amount?.toLocaleString()}</span>
                     </div>
                   ))}
-                  {/* ✅ Only show unpaid members if group */}
+                  {/* ✅ Only show unpaid members if groups */}
   {duplicateInfo.paymentType === 'group' && (() => {
     const existingPaymentMembers = duplicateInfo.allGroupMembers || [];
     const currentPaidMemberNames = existingPaymentMembers.map(m => m.studentInfo.studentName.trim());
