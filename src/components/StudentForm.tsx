@@ -2689,15 +2689,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                 {/* ✅ Show pending members & remaining */}
 {groupPayments.length >= 0 && (
   <div className="mb-6 p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
-    <h4 className="text-blue-300 font-medium mb-2">Group Payment Summary</h4>
-
-    {/* Total Payment */}
-    <div className="text-right mb-2">
-      <span className="text-2xl font-bold text-white">
-        Total: ₹
-        {(parseInt(groupOnlineAmount || '0') + parseInt(groupOfflineAmount || '0')).toLocaleString()}
-      </span>
-    </div>
+  
 
     {/* Individual Breakdown */}
     <div className="space-y-2 text-sm">
