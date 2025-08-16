@@ -2680,6 +2680,17 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                 {/* ✅ Show breakdown by member */}
                 <div className="space-y-1 text-sm">
                  <p className="text-yellow-400 font-bold text-lg">Individual Paid Student:</p>
+                   {/* ✅ Single or Group both handled */}
+  {duplicateInfo.paymentType === 'single' ? (
+    <div className="flex justify-between">
+      <span className="text-gray-300 truncate mr-2">
+        {duplicateInfo.existingPayment.studentName}:
+      </span>
+      <span className="text-green-400 font-medium">
+        ₹{duplicateInfo.existingPayment.amount?.toLocaleString()}
+      </span>
+    </div>
+  ) : (
                   {duplicateInfo.allGroupMembers.map((member, index) => (
                     <div key={member.studentInfo.id} className="flex justify-between">
                       <span className="text-gray-300 truncate mr-2">{member.studentInfo.studentName}:</span>
