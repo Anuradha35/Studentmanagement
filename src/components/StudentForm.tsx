@@ -2743,6 +2743,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
         }
         return null;
       })()}
+      )}
     </div>
 
     {/* Payment Method Details */}
