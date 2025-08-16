@@ -3114,13 +3114,14 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       const isFatherNameMatching = currentFatherName === existingFatherName;
       
       // ✅ Both conditions must be true for a valid match
-      const isStudentInExistingGroup = isStudentNameInGroup;
-      
-       console.log("🔍 Student name in group:", isStudentNameInGroup);
-      console.log("🔍 Father name matching:", isFatherNameMatching);
-      console.log("🔍 Final match result:", isStudentInExistingGroup);
-      
-      if (isStudentInExistingGroup ) {
+     // ✅ NEW CODE (REPLACE WITH THIS):
+const isStudentInExistingGroup = isStudentNameInGroup && isFatherNameMatching;
+
+console.log("🔍 Student name in group:", isStudentNameInGroup);
+console.log("🔍 Father name matching:", isFatherNameMatching);
+console.log("🔍 Final match result:", isStudentInExistingGroup);
+
+if (isStudentInExistingGroup) {
         // ✅ SCENARIO 1: Student is already in the group payment
         console.log("✅ SCENARIO 1: Current student IS part of existing group");
         
@@ -3143,10 +3144,19 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
         }
       } else {
         // ✅ SCENARIO 2: Student is NOT in existing group - this should not be allowed
-        console.log("❌ SCENARIO 2: Current student is NOT part of existing group");
-       setTimeout(() => {
-          alert(`❌ ERROR: Cannot add to existing group!\n\nCurrent Student: ${currentStudentName}\nExisting Group Members: ${existingGroupStudents}\n\n${currentStudentName} is not a member of the existing group payment. Each student can only be added to their own group payments.\n\nPlease use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
-        }, 100);
+       / ✅ NEW CODE (REPLACE WITH THIS):
+console.log("❌ SCENARIO 2: Current student is NOT part of existing group OR father name mismatch");
+
+let errorReason = '';
+if (!isStudentNameInGroup) {
+  errorReason = `Student "${currentStudentName}" is not a member of the existing group payment.`;
+} else if (!isFatherNameMatching) {
+  errorReason = `Student name "${currentStudentName}" exists in group but Father's name doesn't match.\n\nCurrent Father: ${currentFatherName}\nPaid Father: ${existingFatherName}\n\nThis indicates either:\n1. Different student with same name\n2. Father's name was entered differently`;
+}
+
+setTimeout(() => {
+  alert(`❌ CANNOT ADD TO EXISTING GROUP!\n\n${errorReason}\n\nExisting Group Members: ${existingGroupStudents}\n\nOnly the exact same student (name + father) who was part of the original payment can be added.\n\nPlease use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
+}, 100);
         
         // Clear the problematic field
         if (paymentType === 'group') {
