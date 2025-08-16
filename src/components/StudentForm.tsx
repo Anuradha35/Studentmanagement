@@ -3144,7 +3144,7 @@ if (isStudentInExistingGroup) {
         }
       } else {
         // ✅ SCENARIO 2: Student is NOT in existing group - this should not be allowed
-       / ✅ NEW CODE (REPLACE WITH THIS):
+       // ✅ NEW CODE (REPLACE WITH THIS):
 console.log("❌ SCENARIO 2: Current student is NOT part of existing group OR father name mismatch");
 
 let errorReason = '';
