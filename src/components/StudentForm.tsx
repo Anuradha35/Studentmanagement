@@ -2679,14 +2679,13 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                 
                 {/* ✅ Show breakdown by member */}
                 <div className="space-y-1 text-sm">
-                   <div className="flex justify-between items-center">
                   <p className="text-gray-400">Individual Paid Student:</p>
                   {duplicateInfo.allGroupMembers.map((member, index) => (
                     <div key={member.studentInfo.id} className="flex justify-between">
                       <span className="text-gray-300 truncate mr-2">{member.studentInfo.studentName}:</span>
                       <span className="text-green-400 font-medium">₹{member.existingPayment.amount?.toLocaleString()}</span>
                     </div>
-                  ))}</div>
+                  ))}
                 {/* ✅ Show pending members & remaining */}
 {groupPayments.length >= 0 && (
   <div className="mb-6 p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
@@ -2738,7 +2737,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       <div className="flex justify-between items-center">
        
         <span className="text-blue-200">
-           <p className="text-gray-400"> Unpaid Group Members:</p>
+           <p className="text-gray-400">  Group Members:</p>
           {unpaidMembers.join(', ')}
         </span>
         <span className="text-orange-400 font-medium">
