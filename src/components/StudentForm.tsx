@@ -2735,15 +2735,18 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   if (unpaidMembers.length > 0 && remainingAmount > 0) {
     return (
       <div className="mt-3 pt-3 border-t border-gray-700 text-sm">
+  {/* Title */}
+  <p className="text-yellow-400 font-bold text-lg mb-1">Other Members:</p>
+  
+  {/* Names & Amount in same row */}
   <div className="flex justify-between items-center">
-    <p className="text-yellow-400 font-bold text-lg">Other Members:</p>
-     <p className="text-yellow-400 font-bold text-lg"></p>
+    <span className="text-blue-200">{unpaidMembers.join(', ')}</span>
     <span className="text-orange-400 font-medium">
       ₹{remainingAmount.toLocaleString()}
     </span>
   </div>
-  <p className="text-blue-200 mt-1">{unpaidMembers.join(', ')}</p>
 </div>
+
 
     );
   }
