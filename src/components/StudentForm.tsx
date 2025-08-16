@@ -2737,6 +2737,14 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
      
     
   <p className="text-yellow-400 font-bold text-lg mb-2">Unpaid Group Members:</p>
+{unpaidMembers.map((member, index) => (
+    <div key={index} className="flex justify-between items-center">
+      <span className="text-blue-200">{member}</span>
+      <span className="text-orange-400 font-medium">
+        ₹{remainingAmount.toLocaleString()}
+      </span>
+    </div>
+  ))}
 
   
 
