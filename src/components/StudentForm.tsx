@@ -3208,7 +3208,7 @@ if (isStudentInExistingGroup) {
         return;
       }
       
-      // ✅ If we reach here, student is in existing group - show warning if different course details
+      // ✅ If we reach here, student is in existing group - show warning if different course detail
 
 // ✅ If we reach here, student is in existing group - show warning if different course details
     // ✅ If we reach here, student is in existing group - show warning if different course details
