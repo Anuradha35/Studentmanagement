@@ -657,10 +657,12 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
 
 
     // 🆕 NEW FUNCTION: Reset form to clean state
+// Add this function inside your StudentForm component (after all the useEffect hooks)
+
 const resetFormToCleanState = () => {
-  console.log("🧹 Resetting form to clean state");
+  console.log("🔄 Resetting form to clean state...");
   
-  // Calculate end date manually for clean reset
+  // Calculate end date manually based on preSelected values
   let calculatedEndDate = '';
   if (preSelectedStartDate && preSelectedDuration) {
     const [day, month, year] = preSelectedStartDate.split('.');
@@ -676,9 +678,17 @@ const resetFormToCleanState = () => {
     calculatedEndDate = `${endDay}.${endMonth}.${endYear}`;
   }
 
-  const fee = getCourseFee();
-  
-  // Reset form data
+  // Get course fee based on preSelected values
+  let calculatedFee = 0;
+  if (appData.courseFees && selectedCourse && preSelectedDuration) {
+    const courseFee = appData.courseFees.find(fee => 
+      fee.courseName === selectedCourse && 
+      fee.courseDuration === preSelectedDuration
+    );
+    calculatedFee = courseFee ? courseFee.fee : 0;
+  }
+
+  // Reset main form data with preSelected values preserved
   setFormData({
     studentName: '',
     fatherName: '',
@@ -689,15 +699,15 @@ const resetFormToCleanState = () => {
     hostler: 'No',
     collegeName: '',
     branch: '',
-    courseDuration: preSelectedDuration || '',
-    startDate: preSelectedStartDate || '',
+    courseDuration: preSelectedDuration || '', // Keep preSelected
+    startDate: preSelectedStartDate || '',      // Keep preSelected  
     endDate: calculatedEndDate,
-    courseFee: fee,
+    courseFee: calculatedFee,
     totalPaid: 0,
-    remainingFee: fee
+    remainingFee: calculatedFee
   });
 
-  // Reset payment fields
+  // Reset all payment related states
   setPayments([]);
   setPaymentAmount('');
   setPaymentDate('');
@@ -705,7 +715,7 @@ const resetFormToCleanState = () => {
   setUtrId('');
   setPaymentMode('offline');
   
-  // Reset group payment fields
+  // Reset group payment states
   setGroupPayments([]);
   setPaymentType('single');
   setGroupStudentName('');
@@ -717,28 +727,46 @@ const resetFormToCleanState = () => {
   setGroupReceiptNo('');
   setGroupPaymentDate('');
   setDynamicGroupEntries([]);
-  setGroupCount(0);
-  setPaymentFieldsReadOnly(false);
+  setGroupCount(2);
+  setGroupRemainingAmount('');
   
-  // Reset other states
-  setNewCollegeName('');
-  setNewBranch('');
+  // Reset modal and UI states
+  setShowGroupModal(false);
+  setPaymentFieldsReadOnly(false);
   setShowNewCollegeInput(false);
   setShowNewBranchInput(false);
+  setNewCollegeName('');
+  setNewBranch('');
+  
+  // Reset error states
   setErrors({});
-  setShowGroupModal(false);
-  setGroupRemainingAmount('');
+  
+  // Reset duplicate check states
+  setDuplicateModalOpen(false);
+  setDuplicateInfo(null);
+  setDuplicateCheckModal(false);
+  
+  // Reset focus states
   setDateFocusedOnce(false);
   
-  // Focus on student name
+  // Focus back to student name input
   setTimeout(() => {
     if (studentNameRef.current) {
       studentNameRef.current.focus();
     }
   }, 100);
   
-  console.log("✅ Form reset to clean state completed");
+  console.log("✅ Form reset completed with preSelected values:", {
+    duration: preSelectedDuration,
+    startDate: preSelectedStartDate,
+    courseFee: calculatedFee
+  });
 };
+
+// Usage example - you can call this function anywhere:
+// resetFormToCleanState();
+
+    
     // ✅ If student hasn't already paid, proceed with existing logic
     const existingStudent = duplicateInfo.studentInfo;
     const existingPayment = duplicateInfo.existingPayment;
