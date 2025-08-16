@@ -2688,7 +2688,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                   ))}
                 {/* ✅ Show pending members & remaining */}
 {duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
-  {groupPayments.length > 0 && (
+  
   <div className="mb-6 p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
     <h4 className="text-blue-300 font-medium mb-2">Group Payment Summary</h4>
 
@@ -2743,7 +2743,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
         }
         return null;
       })()}
-      )}
+      
     </div>
 
     {/* Payment Method Details */}
