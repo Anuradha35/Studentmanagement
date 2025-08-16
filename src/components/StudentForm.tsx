@@ -124,6 +124,86 @@ const studentNameRef = useRef<HTMLInputElement>(null);
     totalStudentsInGroup: number;
   } | null>(null);
 
+// Add this function after your state declarations (around line 100)
+const resetFormToCleanState = () => {
+  console.log("🔄 Resetting form to clean state");
+  
+  // Calculate end date manually for reset
+  let calculatedEndDate = '';
+  if (preSelectedStartDate && preSelectedDuration) {
+    const [day, month, year] = preSelectedStartDate.split('.');
+    const startDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    const durationDays = parseInt(preSelectedDuration.replace(' Days', ''));
+    
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + durationDays - 1);
+    
+    const endDay = endDate.getDate().toString().padStart(2, '0');
+    const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
+    const endYear = endDate.getFullYear();
+    calculatedEndDate = `${endDay}.${endMonth}.${endYear}`;
+  }
+
+  // Reset form data
+  const fee = getCourseFee();
+  setFormData({
+    studentName: '',
+    fatherName: '',
+    gender: 'Male',
+    mobileNo: '',
+    email: '',
+    category: 'GEN',
+    hostler: 'No',
+    collegeName: '',
+    branch: '',
+    courseDuration: preSelectedDuration || '',
+    startDate: preSelectedStartDate || '',
+    endDate: calculatedEndDate,
+    courseFee: fee,
+    totalPaid: 0,
+    remainingFee: fee
+  });
+
+  // Clear payment fields
+  setPayments([]);
+  setPaymentAmount('');
+  setPaymentDate('');
+  setReceiptNo('');
+  setUtrId('');
+  setPaymentMode('offline');
+  
+  // Clear group payment fields
+  setGroupPayments([]);
+  setGroupStudentName('');
+  setGroupOnlineAmount('');
+  setGroupOfflineAmount('');
+  setGroupUtrId('');
+  setGroupReceiptNo('');
+  setGroupPaymentDate('');
+  setDynamicGroupEntries([]);
+  setGroupCount(0);
+  
+  // Reset payment type
+  setPaymentType('single');
+  setPaymentFieldsReadOnly(false);
+  
+  // Clear errors
+  setErrors({});
+  
+  // Clear college/branch inputs
+  setNewCollegeName('');
+  setNewBranch('');
+  setShowNewCollegeInput(false);
+  setShowNewBranchInput(false);
+
+  // Focus on student name
+  setTimeout(() => {
+    if (studentNameRef.current) {
+      studentNameRef.current.focus();
+    }
+  }, 100);
+};
+  
   // Get course fee based on selected course and duration
   const getCourseFee = () => {
     if (!appData.courseFees || !selectedCourse || !formData.courseDuration) return 0;
@@ -659,109 +739,7 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
     // 🆕 NEW FUNCTION: Reset form to clean state
 // Add this function inside your StudentForm component (after all the useEffect hooks)
 
-const resetFormToCleanState = () => {
-  console.log("🔄 Resetting form to clean state...");
-  
-  // Calculate end date manually based on preSelected values
-  let calculatedEndDate = '';
-  if (preSelectedStartDate && preSelectedDuration) {
-    const [day, month, year] = preSelectedStartDate.split('.');
-    const startDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-    const durationDays = parseInt(preSelectedDuration.replace(' Days', ''));
 
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + durationDays - 1);
-
-    const endDay = endDate.getDate().toString().padStart(2, '0');
-    const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
-    const endYear = endDate.getFullYear();
-    calculatedEndDate = `${endDay}.${endMonth}.${endYear}`;
-  }
-
-  // Get course fee based on preSelected values
-  let calculatedFee = 0;
-  if (appData.courseFees && selectedCourse && preSelectedDuration) {
-    const courseFee = appData.courseFees.find(fee => 
-      fee.courseName === selectedCourse && 
-      fee.courseDuration === preSelectedDuration
-    );
-    calculatedFee = courseFee ? courseFee.fee : 0;
-  }
-
-  // Reset main form data with preSelected values preserved
-  setFormData({
-    studentName: '',
-    fatherName: '',
-    gender: 'Male',
-    mobileNo: '',
-    email: '',
-    category: 'GEN',
-    hostler: 'No',
-    collegeName: '',
-    branch: '',
-    courseDuration: preSelectedDuration || '', // Keep preSelected
-    startDate: preSelectedStartDate || '',      // Keep preSelected  
-    endDate: calculatedEndDate,
-    courseFee: calculatedFee,
-    totalPaid: 0,
-    remainingFee: calculatedFee
-  });
-
-  // Reset all payment related states
-  setPayments([]);
-  setPaymentAmount('');
-  setPaymentDate('');
-  setReceiptNo('');
-  setUtrId('');
-  setPaymentMode('offline');
-  
-  // Reset group payment states
-  setGroupPayments([]);
-  setPaymentType('single');
-  setGroupStudentName('');
-  setGroupCourseName('');
-  setGroupCourseDuration('');
-  setGroupOnlineAmount('');
-  setGroupOfflineAmount('');
-  setGroupUtrId('');
-  setGroupReceiptNo('');
-  setGroupPaymentDate('');
-  setDynamicGroupEntries([]);
-  setGroupCount(2);
-  setGroupRemainingAmount('');
-  
-  // Reset modal and UI states
-  setShowGroupModal(false);
-  setPaymentFieldsReadOnly(false);
-  setShowNewCollegeInput(false);
-  setShowNewBranchInput(false);
-  setNewCollegeName('');
-  setNewBranch('');
-  
-  // Reset error states
-  setErrors({});
-  
-  // Reset duplicate check states
-  setDuplicateModalOpen(false);
-  setDuplicateInfo(null);
-  setDuplicateCheckModal(false);
-  
-  // Reset focus states
-  setDateFocusedOnce(false);
-  
-  // Focus back to student name input
-  setTimeout(() => {
-    if (studentNameRef.current) {
-      studentNameRef.current.focus();
-    }
-  }, 100);
-  
-  console.log("✅ Form reset completed with preSelected values:", {
-    duration: preSelectedDuration,
-    startDate: preSelectedStartDate,
-    courseFee: calculatedFee
-  });
-};
 
 // Usage example - you can call this function anywhere:
 // resetFormToCleanState();
