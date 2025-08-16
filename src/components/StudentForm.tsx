@@ -3173,37 +3173,20 @@ if (isStudentInExistingGroup) {
           canProceed = true; // Allow but with warning
           warningMessage = `⚠️ DIFFERENT COURSE DETAILS DETECTED!\n\nCurrent Entry:\n- Course: ${selectedCourse}\n- Batch: ${selectedBatch}\n- Year: ${selectedYear}\n- Duration: ${formData.courseDuration}\n\nExisting Payment:\n- Course: ${duplicateInfo.courseName}\n- Batch: ${duplicateInfo.batchName}\n- Year: ${duplicateInfo.yearName}\n- Duration: ${duplicateInfo.studentInfo.courseDuration}\n\nThis student (${currentStudentName}) appears to be enrolled in multiple courses/batches. Do you want to proceed with creating a separate payment entry for the current course?`;
         }
-      } else {
-        // ✅ SCENARIO 2: Student is NOT in existing group - this should not be allowed
-       // ✅ NEW CODE (REPLACE WITH THIS):
-console.log("❌ SCENARIO 2: Current student is NOT part of existing group OR father name mismatch");
-
-let errorReason = '';
-if (!isStudentNameInGroup) {
-  errorReason = `Student "${currentStudentName}" is not a member of the existing group payment.`;
-} else if (!isFatherNameMatching) {
-  errorReason = `Student name "${currentStudentName}" exists in group but Father's name doesn't match.\n\nCurrent Father: ${currentFatherName}\nPaid Father: ${existingFatherName}\n\nThis indicates either:\n1. Different student with same name\n2. Father's name was entered differently`;
-}
-
-setTimeout(() => {
-  alert(`❌ CANNOT ADD TO EXISTING GROUP!\n\n${errorReason}\n\nExisting Group Members: ${existingGroupStudents}\n\nOnly the exact same student (name + father) who was part of the original payment can be added.\n\nPlease use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
-}, 100);
-        
-        // Clear the problematic field
-        if (paymentType === 'group') {
-          if (duplicateInfo.type === 'utr') {
-            setGroupUtrId('');
-            setGroupOnlineAmount('');
-          } else if (duplicateInfo.type === 'receipt') {
-            setGroupReceiptNo('');
-            setGroupOfflineAmount('');
-          }
-        }
-        
-        setDuplicateCheckModal(false);
-        setDuplicateInfo(null);
-        return;
-      }
+     } else {
+  // Error handling
+  console.log("❌ SCENARIO 2: Validation failed");
+  
+  let errorReason = '';
+  if (!isStudentNameInGroup) {
+    errorReason = `Student "${currentStudentName}" is not a member of the existing group payment.`;
+  } else if (!isFatherNameMatching) {
+    errorReason = validationMessage;
+  }
+  
+  setTimeout(() => {
+    alert(`❌ CANNOT ADD TO EXISTING GROUP!\n\n${errorReason}\n\nExisting Group Members: ${existingGroupStudents}\n\nPlease verify the details or use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
+  }, 100);
       
       // ✅ If we reach here, student is in existing group - show warning if different course details
 
