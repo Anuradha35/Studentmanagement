@@ -2742,8 +2742,8 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
           {unpaidMembers.join(', ')}
         </span>
         <span className="text-orange-400 font-medium">
-          <p className="text-yellow-400 font-bold "></p>
-          Remaining Amount ₹{remainingAmount.toLocaleString()}
+          <p > Remaining Amount</p>
+          ₹{remainingAmount.toLocaleString()}
         </span>
       </div>
     );
