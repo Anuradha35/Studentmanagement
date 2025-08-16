@@ -2725,7 +2725,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     }
     return null;
   })()}
-</div>
+
 
 {/* ✅ Footer payment amount */}
 <div className="mt-1 pt-3 border-t border-gray-700 text-sm">
