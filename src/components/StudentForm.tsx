@@ -2705,45 +2705,45 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     })}
 
     {/* Unpaid Members */}
-    {(() => {
-      const existingPaymentMembers = duplicateInfo.allGroupMembers || [];
-      const currentPaidMemberNames = existingPaymentMembers.map(member => 
-        member.studentInfo.studentName.trim()
-      );
+    {/* Other Members who haven't paid yet - FIXED LOGIC */}
+{(() => {
+  // ✅ FIXED: Only get members from the exact same payment record
+  const existingPaymentMembers = duplicateInfo.allGroupMembers || [];
+  const currentPaidMemberNames = existingPaymentMembers.map(member => 
+    member.studentInfo.studentName.trim()
+  );
+  
+  // Get all group members from the existing payment record
+  const allMembersInExistingPayment = duplicateInfo.existingPayment.groupStudents
+    ? duplicateInfo.existingPayment.groupStudents.split(', ').map(name => name.trim())
+    : [];
+  
+  // Find unpaid members = members in group but not in paid list
+  const unpaidMembers = allMembersInExistingPayment.filter(memberName => 
+    !currentPaidMemberNames.includes(memberName)
+  );
+  
+  // Calculate remaining amount from the existing payment
+  const actualTotalPayment = duplicateInfo.existingPayment.totalGroupAmount || 0;
+  const actualPaidAmount = existingPaymentMembers.reduce((sum, member) => 
+    sum + (member.existingPayment.amount || 0), 0
+  );
+  const remainingAmount = actualTotalPayment - actualPaidAmount;
 
-      const allMembersInExistingPayment = duplicateInfo.existingPayment.groupStudents
-        ? duplicateInfo.existingPayment.groupStudents.split(', ').map(name => name.trim())
-        : [];
-
-      const unpaidMembers = allMembersInExistingPayment.filter(memberName => 
-        !currentPaidMemberNames.includes(memberName)
-      );
-
-      const actualTotalPayment = duplicateInfo.existingPayment.totalGroupAmount || 0;
-      const actualPaidAmount = existingPaymentMembers.reduce((sum, member) => 
-        sum + (member.existingPayment.amount || 0), 0
-      );
-      const remainingAmount = actualTotalPayment - actualPaidAmount;
-
-      if (unpaidMembers.length > 0 && remainingAmount > 0) {
-        return (
-          <div className="mt-3 pt-3 border-t border-gray-700 text-sm">
-            <p className="text-yellow-400 font-bold text-lg mb-1">Unpaid Group Members:</p>
-            {unpaidMembers.map((member, index) => (
-              <div key={index} className="flex justify-between items-center">
-                <span className="text-gray-300">{member}:</span>
-                <span className="text-orange-400 font-medium">
-                  ₹{remainingAmount.toLocaleString()}
-                </span>
-              </div>
-            ))}
-          </div>
-        );
-      }
-       
-        
-      return null;
-    })()}
+  if (unpaidMembers.length > 0 && remainingAmount > 0) {
+    return (
+      <div className="flex justify-between items-center">
+        <span className="text-blue-200">
+          Other Members: {unpaidMembers.join(', ')}
+        </span>
+        <span className="text-orange-400 font-medium">
+          Remaining Amount ₹{remainingAmount.toLocaleString()}
+        </span>
+      </div>
+    );
+  }
+  return null;
+})()}
   </>
 )}
 
