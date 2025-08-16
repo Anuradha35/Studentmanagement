@@ -2954,7 +2954,7 @@ console.log("=== END DEBUG ===");
       // Get existing payment infos
       const existingPayment = duplicateInfo.existingPayment;
       const existingGroupStudents = existingPayment.groupStudents || '';
-      const existingFatherName = duplicateInfo.studentInfo.fatherName.trim().toUpperCase();
+      
       
       // Parse existing group members
       const existingStudentNames = existingGroupStudents
@@ -2963,9 +2963,9 @@ console.log("=== END DEBUG ===");
         .filter(name => name.length > 0);
       
       console.log("🔍 Current student:", currentStudentName);
-      console.log("🔍 Current father:", currentFatherName);
+      
       console.log("🔍 Existing group members:", existingStudentNames);
-      console.log("🔍 Existing father:", existingFatherName);
+      
       
       // CRITICAL CHECK: Verify if current student is member of existing group
       const isStudentInGroup = existingStudentNames.includes(currentStudentName);
@@ -3082,7 +3082,7 @@ console.log("=== END DEBUG ===");
           if (isSameCourse && isSameBatch && isSameYear && isSameDuration) {
             setFormData(prev => ({
               ...prev,
-              fatherName: duplicateInfo.studentInfo.fatherName,
+              
               gender: duplicateInfo.studentInfo.gender,
               mobileNo: duplicateInfo.studentInfo.mobileNo,
               email: duplicateInfo.studentInfo.email,
