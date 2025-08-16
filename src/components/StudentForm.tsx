@@ -2725,7 +2725,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     !currentPaidMemberNames.includes(memberName)
   );
   
-  // Calculate remaining amount from the existing payment
+  // Calculate remaining amount from the existing payments
   const actualTotalPayment = duplicateInfo.existingPayment.totalGroupAmount || 0;
   const actualPaidAmount = existingPaymentMembers.reduce((sum, member) => 
     sum + (member.existingPayment.amount || 0), 0
@@ -2744,15 +2744,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
         <span className="text-orange-400 font-medium">
           Remaining Amount ₹{remainingAmount.toLocaleString()}
         </span>
-        <div className="mt-3 pt-3 border-t border-gray-700 text-sm">
-  <div className="flex justify-between items-center">
-    <p className="text-yellow-400 font-bold text-lg">Other Members:</p>
-    <span className="text-orange-400 font-medium">
-      Remaining Amount ₹{remainingAmount.toLocaleString()}
-    </span>
-  </div>
-  <p className="text-blue-200 mt-1">{unpaidMembers.join(', ')}</p>
-</div>
+        
       </div>
     );
   }
