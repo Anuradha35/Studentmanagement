@@ -2752,7 +2752,8 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
 
                 </div>
                  <div className="mt-3 pt-3 border-t border-gray-700 text-sm">
-                   <p className="text-gray-400 text-sm">Total Group Payment</p>
+                   <p className="text-yellow-400 font-bold text-lg mb-1">Total Group Payment</p>
+                    ₹{duplicateInfo.existingPayment.totalGroupAmount?.toLocaleString()}
         </div>
 
                 {/* Online/Offline breakdown */}
