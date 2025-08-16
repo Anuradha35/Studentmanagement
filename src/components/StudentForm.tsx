@@ -2736,13 +2736,6 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       })()}
     </div>
 
-    {/* Payment Method Details */}
-    <div className="mt-4 pt-3 border-t border-blue-500/30 space-y-1 text-xs">
-     
-      
-     
-      
-    </div>
   </div>
 )}
 
