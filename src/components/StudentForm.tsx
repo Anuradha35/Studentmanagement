@@ -2679,6 +2679,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                 
                 {/* ✅ Show breakdown by member */}
                 <div className="space-y-1 text-sm">
+                   <div className="flex justify-between items-center">
                   <p className="text-gray-400">Individual Paid Student:</p>
                   {duplicateInfo.allGroupMembers.map((member, index) => (
                     <div key={member.studentInfo.id} className="flex justify-between">
@@ -2706,6 +2707,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
         }
         return null;
       })}
+    </div>
 
       {/* Other Members who haven't paid yet - FIXED LOGIC */}
 {(() => {
