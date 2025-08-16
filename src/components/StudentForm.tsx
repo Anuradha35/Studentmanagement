@@ -2707,21 +2707,27 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
         return null;
       })}
 
-      {/* Other Members who haven't paid yet */}
-      {(() => {
-  const unpaidMembers = dynamicGroupEntries
-    .filter(entry => entry.studentName.trim() && parseInt(entry.amount || '0') === 0)
-    .map(entry => entry.studentName.trim())
-    .filter(name => name !== '');
-  
-  const totalGroupPayment = parseInt(groupOnlineAmount || '0') + parseInt(groupOfflineAmount || '0');
-  const totalPaidByMembers = dynamicGroupEntries.reduce((sum, entry) => 
-    sum + parseInt(entry.amount || '0'), 0
+      {/* Other Members who haven't paid yet - FIXED LOGIC */}
+{(() => {
+  // ✅ FIXED: Only get members from the exact same payment record
+  const existingPaymentMembers = duplicateInfo.allGroupMembers || [];
+  const currentPaidMemberNames = existingPaymentMembers.map(member => 
+    member.studentInfo.studentName.trim()
   );
   
-  // ✅ FIXED: Use the existing payment's total amount instead of current form values
+  // Get all group members from the existing payment record
+  const allMembersInExistingPayment = duplicateInfo.existingPayment.groupStudents
+    ? duplicateInfo.existingPayment.groupStudents.split(', ').map(name => name.trim())
+    : [];
+  
+  // Find unpaid members = members in group but not in paid list
+  const unpaidMembers = allMembersInExistingPayment.filter(memberName => 
+    !currentPaidMemberNames.includes(memberName)
+  );
+  
+  // Calculate remaining amount from the existing payment
   const actualTotalPayment = duplicateInfo.existingPayment.totalGroupAmount || 0;
-  const actualPaidAmount = duplicateInfo.allGroupMembers.reduce((sum, member) => 
+  const actualPaidAmount = existingPaymentMembers.reduce((sum, member) => 
     sum + (member.existingPayment.amount || 0), 0
   );
   const remainingAmount = actualTotalPayment - actualPaidAmount;
