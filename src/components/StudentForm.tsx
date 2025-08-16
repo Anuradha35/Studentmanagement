@@ -2886,7 +2886,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
         Cancel
       </button>
       
-     {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
+    {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
   <button 
     type="button"
     onClick={() => {
@@ -2895,6 +2895,36 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       if (!duplicateInfo) {
         console.log("❌ No duplicateInfo found");
         alert("❌ No duplicate information available. Please try again.");
+        return;
+      }
+      
+      // ✅ CRITICAL CHECK: Verify if current UTR/Receipt matches existing payment
+      const currentUTR = groupUtrId || '';
+      const currentReceipt = groupReceiptNo || '';
+      const duplicateUTR = duplicateInfo.existingPayment.utrId || '';
+      const duplicateReceipt = duplicateInfo.existingPayment.receiptNo || '';
+      
+      const isSameUTR = currentUTR && duplicateUTR && currentUTR === duplicateUTR;
+      const isSameReceipt = currentReceipt && duplicateReceipt && currentReceipt === duplicateReceipt;
+      
+      console.log("🔍 Current UTR:", currentUTR);
+      console.log("🔍 Duplicate UTR:", duplicateUTR);
+      console.log("🔍 Current Receipt:", currentReceipt);
+      console.log("🔍 Duplicate Receipt:", duplicateReceipt);
+      console.log("🔍 UTR Match:", isSameUTR);
+      console.log("🔍 Receipt Match:", isSameReceipt);
+      
+      // Must have exact UTR or Receipt match
+      if (!isSameUTR && !isSameReceipt) {
+        console.log("❌ UTR/Receipt does not match existing payment");
+        setTimeout(() => {
+          alert(`❌ INVALID OPERATION!\n\n` +
+                `This ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'} belongs to a different group payment.\n\n` +
+                `Current ${duplicateInfo.type === 'utr' ? 'UTR' : 'Receipt'}: ${duplicateInfo.type === 'utr' ? currentUTR : currentReceipt}\n` +
+                `Existing ${duplicateInfo.type === 'utr' ? 'UTR' : 'Receipt'}: ${duplicateInfo.type === 'utr' ? duplicateUTR : duplicateReceipt}\n\n` +
+                `You can only add students to the exact same payment transaction.\n\n` +
+                `Please use the correct ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'} for this group.`);
+        }, 100);
         return;
       }
       
@@ -2925,14 +2955,14 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       console.log("🔍 Student in group:", isStudentInGroup);
       console.log("🔍 Father matching:", isFatherMatching);
       
-      if (!isStudentInGroup) {
+      if (!isStudentInGroup || !isFatherMatching) {
         // Student is NOT a member of existing group - REJECT
         console.log("❌ Student is not a member of existing group");
         
         setTimeout(() => {
           alert(`❌ INVALID OPERATION!\n\n` +
                 `Current Student: ${formData.studentName}\n` +
-                
+                `Father Name: ${formData.fatherName}\n\n` +
                 `Existing Group Members: ${existingGroupStudents}\n` +
                 `Existing Father Name: ${duplicateInfo.studentInfo.fatherName}\n\n` +
                 `❌ This student is NOT a member of the existing group payment.\n` +
@@ -2962,7 +2992,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
         console.log("✅ EXACT MATCH: Same course, batch, year, duration");
         proceedMessage = `✅ EXACT MATCH FOUND!\n\n` +
                         `Student: ${formData.studentName}\n` +
-                       
+                        `Father: ${formData.fatherName}\n` +
                         `Course: ${selectedCourse}\n` +
                         `Batch: ${selectedBatch}\n` +
                         `Year: ${selectedYear}\n` +
