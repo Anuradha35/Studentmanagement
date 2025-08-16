@@ -3121,6 +3121,26 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       // Helper function to clear duplicate fields
       function clearDuplicateFields() {
         console.log("🧹 Clearing duplicate fields and resetting...");
+        // Debug करने के लिए console में ये values check करें:
+
+console.log("=== DUPLICATE CHECK DEBUG ===");
+console.log("🔍 Current UTR (groupUtrId):", groupUtrId);
+console.log("🔍 Current Receipt (groupReceiptNo):", groupReceiptNo);
+console.log("🔍 Duplicate UTR (duplicateInfo.existingPayment.utrId):", duplicateInfo?.existingPayment?.utrId);
+console.log("🔍 Duplicate Receipt (duplicateInfo.existingPayment.receiptNo):", duplicateInfo?.existingPayment?.receiptNo);
+console.log("🔍 Duplicate Type:", duplicateInfo?.type);
+console.log("🔍 Duplicate Value:", duplicateInfo?.value);
+
+// Check करें कि कौन सा field duplicate detect कर रहा है
+if (duplicateInfo?.type === 'utr') {
+  console.log("🔍 UTR duplicate detected");
+  console.log("🔍 Should match:", groupUtrId, "===", duplicateInfo.existingPayment.utrId);
+} else if (duplicateInfo?.type === 'receipt') {
+  console.log("🔍 Receipt duplicate detected");  
+  console.log("🔍 Should match:", groupReceiptNo, "===", duplicateInfo.existingPayment.receiptNo);
+}
+
+console.log("=== END DEBUG ===");
         
         // Clear group payment fields
         setGroupStudentName('');
