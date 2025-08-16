@@ -2748,13 +2748,18 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       </div>
       <div className="mt-3 pt-3 border-t border-gray-700 text-sm">
   <p className="text-yellow-400 font-bold text-lg mb-2">Unpaid Group Members:</p>
-  {pendingMembers.map((member, index) => (
-    <div key={index} className="flex justify-between">
-      <span className="text-purple-300">{member}</span>
-      <span className="text-yellow-400 font-medium">₹{remaining.toLocaleString()}</span>
+
+  {unpaidMembers.map((member, index) => (
+    <div key={index} className="flex justify-between items-center">
+      <span className="text-blue-200">{member}</span>
+      <span className="text-orange-400 font-medium">
+        ₹{remainingAmount.toLocaleString()}
+      </span>
     </div>
   ))}
 </div>
+
+      
     );
   }
   return null;
