@@ -2708,7 +2708,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     {/* Other Members who haven't paid yet - FIXED LOGIC */}
 {(() => {
   // ✅ FIXED: Only get members from the exact same payment record
- 
+  <div className="mt-1 pt-3 border-t border-gray-700 text-sm"></div>
   const existingPaymentMembers = duplicateInfo.allGroupMembers || [];
   const currentPaidMemberNames = existingPaymentMembers.map(member => 
     member.studentInfo.studentName.trim()
