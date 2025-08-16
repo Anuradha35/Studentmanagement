@@ -2736,8 +2736,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     return (
       <div className="flex justify-between items-center">
          <p className="text-yellow-400 font-bold text-lg">Other Members: </p>
-        <span className="text-blue-200">
-          
+        <span className="flex justify-between items-center">
           {unpaidMembers.join(', ')}
         </span>
         <span className="text-orange-400 font-medium">
