@@ -2720,9 +2720,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     const remaining = Math.max(groupTotal - totalPaid, 0);
 
     if (pendingMembers.length === 0) return null;
-
-    return (
-{groupPayments.length > 0 && (
+    {groupPayments.length > 0 && (
   <div className="mb-6 p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
     <h4 className="text-blue-300 font-medium mb-2">Group Payment Summary</h4>
 
@@ -2808,6 +2806,9 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     </div>
   </div>
 )}
+
+    return (
+
       
       <div className="mt-1 text-sm flex justify-between border-t border-gray-700 pt-2">
         <span className="text-gray-400">
