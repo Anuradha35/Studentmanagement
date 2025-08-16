@@ -2740,12 +2740,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     <div className="mt-4 pt-3 border-t border-blue-500/30 space-y-1 text-xs">
      
       
-      {groupUtrId && (
-        <div className="flex justify-between text-gray-300">
-          <span>UTR ID:</span>
-          <span className="font-mono">{groupUtrId}</span>
-        </div>
-      )}
+     
       {groupReceiptNo && (
         <div className="flex justify-between text-gray-300">
           <span>Receipt No:</span>
