@@ -2725,7 +2725,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     !currentPaidMemberNames.includes(memberName)
   );
   
-  // Calculate remaining amount from the existing payments
+  // Calculate remaining amount from the existing payment
   const actualTotalPayment = duplicateInfo.existingPayment.totalGroupAmount || 0;
   const actualPaidAmount = existingPaymentMembers.reduce((sum, member) => 
     sum + (member.existingPayment.amount || 0), 0
