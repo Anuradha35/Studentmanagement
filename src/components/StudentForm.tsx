@@ -2735,8 +2735,9 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   if (unpaidMembers.length > 0 && remainingAmount > 0) {
     return (
       <div className="flex justify-between items-center">
-        <p className="text-gray-400">Individual Paid Student:\n</p>
+       
         <span className="text-blue-200">
+           <p className="text-gray-400">Individual Paid Student:</p>
           Other Members: {unpaidMembers.join(', ')}
         </span>
         <span className="text-orange-400 font-medium">
