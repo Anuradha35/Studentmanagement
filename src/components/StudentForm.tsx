@@ -3039,9 +3039,47 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       
       if (!duplicateInfo) {
         console.log("❌ No duplicateInfo found, returning");
-        alert("❌ No duplicate information available. Please try again.");
+      
         return;
       }
+
+       // 🆕 ENHANCED CHECK: Verify current student hasn't already paid
+  const currentStudentCheck = hasCurrentStudentAlreadyPaid(
+    duplicateInfo.type === 'utr' ? duplicateInfo.value : undefined,
+    duplicateInfo.type === 'receipt' ? duplicateInfo.value : undefined
+  );
+  
+  if (currentStudentCheck.hasAlreadyPaid) {
+    // 🚫 Current student has already paid with this payment method
+    console.log("❌ Current student already paid with this method, blocking operation");
+    
+    // Close modal first
+    setDuplicateCheckModal(false);
+    setDuplicateInfo(null);
+    
+    // Show detailed error message
+    const errorMessage = `❌ PAYMENT ALREADY USED BY YOU!\n\n` +
+      `Student: ${formData.studentName.toUpperCase()}\n` +
+      `Father: ${formData.fatherName.toUpperCase()}\n\n` +
+      `You have already paid using this ${currentStudentCheck.paymentType === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}: ${currentStudentCheck.paymentValue}\n\n` +
+      `Previous Payment Details:\n` +
+      `• Course: ${currentStudentCheck.courseName}\n` +
+      `• Batch: ${currentStudentCheck.batchName}\n` +
+      `• Year: ${currentStudentCheck.yearName}\n` +
+      `• Amount: ₹${currentStudentCheck.existingPayment.amount?.toLocaleString()}\n` +
+      `• Date: ${currentStudentCheck.existingPayment.paymentDate}\n\n` +
+      `⚠️ You cannot use the same payment details twice. Please use a different ${currentStudentCheck.paymentType === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`;
+    
+    // Reset form to clean state
+    setTimeout(() => {
+      alert(errorMessage);
+      
+      // Reset all form fields to clean state
+      resetFormToCleanState();
+    }, 300);
+    
+    return;
+  }
       
       // Get current form data
       const currentStudentName = formData.studentName.trim().toUpperCase();
