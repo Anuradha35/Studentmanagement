@@ -3176,18 +3176,21 @@ if (isStudentInExistingGroup) {
       } else {
         // ✅ SCENARIO 2: Student is NOT in existing group - this should not be alloweds
        // ✅ NEW CODE (REPLACE WITH THIS):
-console.log("❌ SCENARIO 2: Current student is NOT part of existing group OR father name mismatch");
+// Error handling
+  console.log("❌ SCENARIO 2: Validation failed");
+  
+  let errorReason = '';
+  if (!isStudentNameInGroup) {
+    errorReason = `Student "${currentStudentName}" is not a member of the existing group payment.`;
+  } else if (!isFatherNameMatching) {
+    errorReason = validationMessage;
+  }
+  
+  setTimeout(() => {
+    alert(`❌ CANNOT ADD TO EXISTING GROUP!\n\n${errorReason}\n\nExisting Group Members: ${existingGroupStudents}\n\nPlease verify the details or use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
+  }, 100);
 
-let errorReason = '';
-if (!isStudentNameInGroup) {
-  errorReason = `Student "${currentStudentName}" is not a member of the existing group payment.`;
-} else if (!isFatherNameMatching) {
-  errorReason = `Student name "${currentStudentName}" exists in group but Father's name doesn't match.\n\nCurrent Father: ${currentFatherName}\nPaid Father: ${existingFatherName}\n\nThis indicates either:\n1. Different student with same name\n2. Father's name was entered differently`;
-}
 
-setTimeout(() => {
-  alert(`❌ CANNOT ADD TO EXISTING GROUP!\n\n${errorReason}\n\nExisting Group Members: ${existingGroupStudents}\n\nOnly the exact same student (name + father) who was part of the original payment can be added.\n\nPlease use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
-}, 100);
         
         // Clear the problematic field
         if (paymentType === 'group') {
