@@ -2704,10 +2704,10 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
               <span className="text-green-400 font-medium">₹{amount.toLocaleString()}</span>
             </div>
           );
-        }
+        } </div>
         return null;
       })}
-    </div>
+   
 
       {/* Other Members who haven't paid yet - FIXED LOGIC */}
 {(() => {
