@@ -3103,7 +3103,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       alert(errorMessage);
       
       // Reset all form fields to clean state
-      resetFormToCleanState();
+     // resetFormToCleanState();
     }, 300);
     
     return;
