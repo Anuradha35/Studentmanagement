@@ -3142,6 +3142,17 @@ console.log("🔍 Father name matching:", isFatherNameMatching);
 console.log("🔍 Final match result:", isStudentInExistingGroup);
 
 if (isStudentInExistingGroup) {
+// Show warning message if exists
+        if (validationMessage && validationMessage.includes('⚠️')) {
+              const proceedWithWarning = confirm(`${validationMessage}\n\nDo you want to proceed?`);
+        if (!proceedWithWarning) {
+              console.log("🚫 User cancelled due to validation warning");
+              setDuplicateCheckModal(false);
+              setDuplicateInfo(null);
+              return;
+          }
+        }
+  
         // ✅ SCENARIO 1: Student is already in the group payment
         console.log("✅ SCENARIO 1: Current student IS part of existing group");
         
