@@ -2739,12 +2739,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     {/* Payment Method Details */}
     <div className="mt-4 pt-3 border-t border-blue-500/30 space-y-1 text-xs">
      
-      {parseInt(groupOfflineAmount || '0') > 0 && (
-        <div className="flex justify-between text-gray-300">
-          <span>💵 Total Offline:</span>
-          <span>₹{parseInt(groupOfflineAmount).toLocaleString()}</span>
-        </div>
-      )}
+      
       {groupUtrId && (
         <div className="flex justify-between text-gray-300">
           <span>UTR ID:</span>
