@@ -2687,76 +2687,64 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                     </div>
                   ))}
                 {/* ✅ Show pending members & remaining */}
+{/* ✅ Show pending members & remaining */}
 {groupPayments.length >= 0 && (
-  <div className="mb-6 p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
-  
+  <>
+    {/* Paid Students */}
+    {dynamicGroupEntries.map((entry, index) => {
+      const amount = parseInt(entry.amount || '0');
+      if (amount > 0) {
+        return (
+          <div key={index} className="flex justify-between items-center">
+            <span className="text-gray-300">{entry.studentName}:</span>
+            <span className="text-green-400 font-medium">₹{amount.toLocaleString()}</span>
+          </div>
+        );
+      }
+      return null;
+    })}
 
-    {/* Individual Breakdown */}
-    <div className="space-y-2 text-sm">
-      {/* Students who have paid (with green amounts) */}
-      {dynamicGroupEntries.map((entry, index) => {
-        const amount = parseInt(entry.amount || '0');
-        if (amount > 0) {
-          return (
-            <div key={index} className="flex justify-between items-center">
-              <span className="text-blue-200">{entry.studentName}:</span>
-              <span className="text-green-400 font-medium">₹{amount.toLocaleString()}</span>
-            </div>
-          );
-        }
-        return null;
-      })}
+    {/* Unpaid Members */}
+    {(() => {
+      const existingPaymentMembers = duplicateInfo.allGroupMembers || [];
+      const currentPaidMemberNames = existingPaymentMembers.map(member => 
+        member.studentInfo.studentName.trim()
+      );
 
-      {/* Other Members who haven't paid yet - FIXED LOGIC */}
-{(() => {
-  // ✅ FIXED: Only get members from the exact same payment record
-  const existingPaymentMembers = duplicateInfo.allGroupMembers || [];
-  const currentPaidMemberNames = existingPaymentMembers.map(member => 
-    member.studentInfo.studentName.trim()
-  );
-  
-  // Get all group members from the existing payment record
-  const allMembersInExistingPayment = duplicateInfo.existingPayment.groupStudents
-    ? duplicateInfo.existingPayment.groupStudents.split(', ').map(name => name.trim())
-    : [];
-  
-  // Find unpaid members = members in group but not in paid list
-  const unpaidMembers = allMembersInExistingPayment.filter(memberName => 
-    !currentPaidMemberNames.includes(memberName)
-  );
-  
-  // Calculate remaining amount from the existing payment
-  const actualTotalPayment = duplicateInfo.existingPayment.totalGroupAmount || 0;
-  const actualPaidAmount = existingPaymentMembers.reduce((sum, member) => 
-    sum + (member.existingPayment.amount || 0), 0
-  );
-  const remainingAmount = actualTotalPayment - actualPaidAmount;
+      const allMembersInExistingPayment = duplicateInfo.existingPayment.groupStudents
+        ? duplicateInfo.existingPayment.groupStudents.split(', ').map(name => name.trim())
+        : [];
 
-  if (unpaidMembers.length > 0 && remainingAmount > 0) {
-    return (
-     
-    <div className="mt-3 pt-3 border-t border-gray-700 text-sm"> 
-      <p className="text-yellow-400 font-bold text-lg mb-2">Unpaid Group Members:</p>
-{unpaidMembers.map((member, index) => (
-    <div key={index} className="flex justify-between items-center">
-      <span className="text-blue-200">{member}</span>
-      <span className="text-orange-400 font-medium">
-        ₹{remainingAmount.toLocaleString()}
-      </span>
-    </div>
-  ))}
+      const unpaidMembers = allMembersInExistingPayment.filter(memberName => 
+        !currentPaidMemberNames.includes(memberName)
+      );
 
-    </div>
+      const actualTotalPayment = duplicateInfo.existingPayment.totalGroupAmount || 0;
+      const actualPaidAmount = existingPaymentMembers.reduce((sum, member) => 
+        sum + (member.existingPayment.amount || 0), 0
+      );
+      const remainingAmount = actualTotalPayment - actualPaidAmount;
 
-      
-    );
-  }
-  return null;
-})()}
-    </div>
-
-  </div>
+      if (unpaidMembers.length > 0 && remainingAmount > 0) {
+        return (
+          <div className="mt-3 pt-3 border-t border-gray-700 text-sm">
+            <p className="text-yellow-400 font-bold text-lg mb-1">Unpaid Group Members:</p>
+            {unpaidMembers.map((member, index) => (
+              <div key={index} className="flex justify-between items-center">
+                <span className="text-gray-300">{member}:</span>
+                <span className="text-orange-400 font-medium">
+                  ₹{remainingAmount.toLocaleString()}
+                </span>
+              </div>
+            ))}
+          </div>
+        );
+      }
+      return null;
+    })()}
+  </>
 )}
+
 
 
 
