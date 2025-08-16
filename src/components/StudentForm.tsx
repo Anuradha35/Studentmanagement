@@ -2703,7 +2703,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
       }
       return null;
     })}
-     <div className="mt-1 pt-3 border-t border-gray-700 text-sm"></div>
+     <div className="mt-1 pt-3 border-t border-gray-700 text-sm">
 
     {/* Unpaid Members */}
     {/* Other Members who haven't paid yet - FIXED LOGIC */}
@@ -2749,7 +2749,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
   </>
 )}
 
-
+</div>
 
 
                 </div>
