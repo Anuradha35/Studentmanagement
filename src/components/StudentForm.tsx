@@ -2687,95 +2687,6 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                     </div>
                   ))}
                 {/* ✅ Show pending members & remaining */}
-{duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
-  
-  <div className="mb-6 p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
-    <h4 className="text-blue-300 font-medium mb-2">Group Payment Summary</h4>
-
-    {/* Total Payment */}
-    <div className="text-right mb-2">
-      <span className="text-2xl font-bold text-white">
-        Total: ₹
-        {(parseInt(groupOnlineAmount || '0') + parseInt(groupOfflineAmount || '0')).toLocaleString()}
-      </span>
-    </div>
-
-    {/* Individual Breakdown */}
-    <div className="space-y-2 text-sm">
-      {/* Students who have paid (with green amounts) */}
-      {dynamicGroupEntries.map((entry, index) => {
-        const amount = parseInt(entry.amount || '0');
-        if (amount > 0) {
-          return (
-            <div key={index} className="flex justify-between items-center">
-              <span className="text-blue-200">{entry.studentName}:</span>
-              <span className="text-green-400 font-medium">₹{amount.toLocaleString()}</span>
-            </div>
-          );
-        }
-        return null;
-      })}
-
-      {/* Other Members who haven't paid yet */}
-      {(() => {
-        const unpaidMembers = dynamicGroupEntries
-          .filter(entry => entry.studentName.trim() && parseInt(entry.amount || '0') === 0)
-          .map(entry => entry.studentName.trim())
-          .filter(name => name !== '');
-        
-        const totalGroupPayment = parseInt(groupOnlineAmount || '0') + parseInt(groupOfflineAmount || '0');
-        const totalPaidByMembers = dynamicGroupEntries.reduce((sum, entry) => 
-          sum + parseInt(entry.amount || '0'), 0
-        );
-        const remainingAmount = totalGroupPayment - totalPaidByMembers;
-
-        if (unpaidMembers.length > 0 && remainingAmount > 0) {
-          return (
-            <div className="flex justify-between items-center">
-              <span className="text-blue-200">
-                Other Members: {unpaidMembers.join(', ')}
-              </span>
-              <span className="text-orange-400 font-medium">
-                Remaining ₹{remainingAmount.toLocaleString()}
-              </span>
-            </div>
-          );
-        }
-        return null;
-      })()}
-      
-    </div>
-
-    {/* Payment Method Details */}
-    <div className="mt-4 pt-3 border-t border-blue-500/30 space-y-1 text-xs">
-      {parseInt(groupOnlineAmount || '0') > 0 && (
-        <div className="flex justify-between text-gray-300">
-          <span>💳 Total Online:</span>
-          <span>₹{parseInt(groupOnlineAmount).toLocaleString()}</span>
-        </div>
-      )}
-      {parseInt(groupOfflineAmount || '0') > 0 && (
-        <div className="flex justify-between text-gray-300">
-          <span>💵 Total Offline:</span>
-          <span>₹{parseInt(groupOfflineAmount).toLocaleString()}</span>
-        </div>
-      )}
-      {groupUtrId && (
-        <div className="flex justify-between text-gray-300">
-          <span>UTR ID:</span>
-          <span className="font-mono">{groupUtrId}</span>
-        </div>
-      )}
-      {groupReceiptNo && (
-        <div className="flex justify-between text-gray-300">
-          <span>Receipt No:</span>
-          <span className="font-mono">{groupReceiptNo}</span>
-        </div>
-      )}
-    </div>
-  </div>
-)}
-)}
 
 
 
@@ -2818,11 +2729,9 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                       {student}
                     </span>
                   ))}
-                  
                 </div>
               </div>
             )}
-                  
                   
                 </div>
               </div>
