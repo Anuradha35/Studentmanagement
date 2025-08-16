@@ -2886,7 +2886,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
         Cancel
       </button>
       
-    {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
+   {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
   <button 
     type="button"
     onClick={() => {
@@ -2898,55 +2898,21 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
         return;
       }
 
-      // Debug करने के लिए console में ये values check करें:
-
-console.log("=== DUPLICATE CHECK DEBUG ===");
-console.log("🔍 Current UTR (groupUtrId):", groupUtrId);
-console.log("🔍 Current Receipt (groupReceiptNo):", groupReceiptNo);
-console.log("🔍 Duplicate UTR (duplicateInfo.existingPayment.utrId):", duplicateInfo?.existingPayment?.utrId);
-console.log("🔍 Duplicate Receipt (duplicateInfo.existingPayment.receiptNo):", duplicateInfo?.existingPayment?.receiptNo);
-console.log("🔍 Duplicate Type:", duplicateInfo?.type);
-console.log("🔍 Duplicate Value:", duplicateInfo?.value);
-
-// Check करें कि कौन सा field duplicate detect कर रहा है
-if (duplicateInfo?.type === 'utr') {
-  console.log("🔍 UTR duplicate detected");
-  console.log("🔍 Should match:", groupUtrId, "===", duplicateInfo.existingPayment.utrId);
-} else if (duplicateInfo?.type === 'receipt') {
-  console.log("🔍 Receipt duplicate detected");  
-  console.log("🔍 Should match:", groupReceiptNo, "===", duplicateInfo.existingPayment.receiptNo);
-}
-
-console.log("=== END DEBUG ===");
-      // ✅ CRITICAL CHECK: Verify if current UTR/Receipt matches existing payment
-      const currentUTR = groupUtrId || '';
-      const currentReceipt = groupReceiptNo || '';
-      const duplicateUTR = duplicateInfo.existingPayment.utrId || '';
-      const duplicateReceipt = duplicateInfo.existingPayment.receiptNo || '';
+      // ✅ FRESH VALIDATION CHECK: Clear any stale modal data
+      console.log("🔄 Performing fresh validation check...");
       
-      const isSameUTR = currentUTR && duplicateUTR && currentUTR === duplicateUTR;
-      const isSameReceipt = currentReceipt && duplicateReceipt && currentReceipt === duplicateReceipt;
+      // Force close any existing modals to prevent stale data issues
+      setDuplicateCheckModal(false);
       
-      console.log("🔍 Current UTR:", currentUTR);
-      console.log("🔍 Duplicate UTR:", duplicateUTR);
-      console.log("🔍 Current Receipt:", currentReceipt);
-      console.log("🔍 Duplicate Receipt:", duplicateReceipt);
-      console.log("🔍 UTR Match:", isSameUTR);
-      console.log("🔍 Receipt Match:", isSameReceipt);
+      // Wait for modal to close then perform fresh validation
+      setTimeout(() => {
+        console.log("🔍 Starting fresh duplicate validation...");
+        
+        // Re-validate current UTR/Receipt against the duplicate info
+        performFreshValidation();
+      }, 150);
       
-      // Must have exact UTR or Receipt match
-      if (!isSameUTR && !isSameReceipt) {
-        console.log("❌ UTR/Receipt does not match existing payment");
-        setTimeout(() => {
-          alert(`❌ INVALID OPERATION!\n\n` +
-                `This ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'} belongs to a different group payment.\n\n` +
-                `Current ${duplicateInfo.type === 'utr' ? 'UTR' : 'Receipt'}: ${duplicateInfo.type === 'utr' ? currentUTR : currentReceipt}\n` +
-                `Existing ${duplicateInfo.type === 'utr' ? 'UTR' : 'Receipt'}: ${duplicateInfo.type === 'utr' ? duplicateUTR : duplicateReceipt}\n\n` +
-                `You can only add students to the exact same payment transaction.\n\n` +
-                `Please use the correct ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'} for this group.`);
-        }, 100);
-        return;
-      }
+      function performFreshValidation() {
       
       // Get current student and father name
       const currentStudentName = formData.studentName.trim().toUpperCase();
@@ -2970,19 +2936,19 @@ console.log("=== END DEBUG ===");
       
       // CRITICAL CHECK: Verify if current student is member of existing group
       const isStudentInGroup = existingStudentNames.includes(currentStudentName);
-     
+      const isFatherMatching = currentFatherName === existingFatherName;
       
       console.log("🔍 Student in group:", isStudentInGroup);
+      console.log("🔍 Father matching:", isFatherMatching);
       
-      
-      if (!isStudentInGroup) {
+      if (!isStudentInGroup || !isFatherMatching) {
         // Student is NOT a member of existing group - REJECT
         console.log("❌ Student is not a member of existing group");
         
         setTimeout(() => {
           alert(`❌ INVALID OPERATION!\n\n` +
                 `Current Student: ${formData.studentName}\n` +
-                
+                `Father Name: ${formData.fatherName}\n\n` +
                 `Existing Group Members: ${existingGroupStudents}\n` +
                 `Existing Father Name: ${duplicateInfo.studentInfo.fatherName}\n\n` +
                 `❌ This student is NOT a member of the existing group payment.\n` +
@@ -3012,7 +2978,7 @@ console.log("=== END DEBUG ===");
         console.log("✅ EXACT MATCH: Same course, batch, year, duration");
         proceedMessage = `✅ EXACT MATCH FOUND!\n\n` +
                         `Student: ${formData.studentName}\n` +
-                       
+                        `Father: ${formData.fatherName}\n` +
                         `Course: ${selectedCourse}\n` +
                         `Batch: ${selectedBatch}\n` +
                         `Year: ${selectedYear}\n` +
@@ -3142,7 +3108,6 @@ console.log("=== END DEBUG ===");
       function clearDuplicateFields() {
         console.log("🧹 Clearing duplicate fields and resetting...");
         
-        
         // Clear group payment fields
         setGroupStudentName('');
         setGroupOnlineAmount('');
@@ -3160,6 +3125,8 @@ console.log("=== END DEBUG ===");
       
       // Call the main duplicate confirmation handler
       handleDuplicateConfirmation('proceed');
+      
+      } // End of performFreshValidation function
     }}
     className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
   >
