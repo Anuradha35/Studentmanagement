@@ -2688,39 +2688,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
                   ))}
                 {/* ✅ Show pending members & remaining */}
 {duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
-  (() => {
-    const members = duplicateInfo.existingPayment.groupStudents
-      .split(', ')
-      .map(m => m.trim())
-      .filter(Boolean);
-
-    const breakdown = duplicateInfo.existingPayment.breakdown || [];
-
-    // Paid members ka naam breakdown se nikalo
-    const paidNames = breakdown
-      .filter(b => (b?.amount || 0) > 0)
-      .map(b => 
-        String(b?.name || b?.studentInfo?.studentName || '')
-          .trim()
-          .toLowerCase()
-      );
-
-    // Pending members = jo paid me nahi hai
-    const pendingMembers = members.filter(
-      m => !paidNames.includes(m.trim().toLowerCase())
-    );
-
-    // Total paid
-    const totalPaid = breakdown.reduce((sum, b) => sum + (b?.amount || 0), 0);
-
-    // Group total
-    const groupTotal = Number(duplicateInfo.existingPayment.totalGroupAmount || 0);
-
-    // Remaining = groupTotal - totalPaid
-    const remaining = Math.max(groupTotal - totalPaid, 0);
-
-    if (pendingMembers.length === 0) return null;
-    {groupPayments.length > 0 && (
+  {groupPayments.length > 0 && (
   <div className="mb-6 p-4 bg-blue-500/20 border border-blue-500/30 rounded-lg">
     <h4 className="text-blue-300 font-medium mb-2">Group Payment Summary</h4>
 
@@ -2806,21 +2774,6 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
     </div>
   </div>
 )}
-
-    return (
-
-      
-      <div className="mt-1 text-sm flex justify-between border-t border-gray-700 pt-2">
-        <span className="text-gray-400">
-          {pendingMembers.length === 1 ? 'Other Member:' : 'Other Members:'}{' '}
-          <span className="text-purple-300">{pendingMembers.join(', ')}</span>
-        </span>
-        <span className="text-yellow-400">
-          Remaining ₹{remaining.toLocaleString()}
-        </span>
-      </div>
-    );
-  })()
 )}
 
 
