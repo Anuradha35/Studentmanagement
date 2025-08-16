@@ -2741,12 +2741,7 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
      
       
      
-      {groupReceiptNo && (
-        <div className="flex justify-between text-gray-300">
-          <span>Receipt No:</span>
-          <span className="font-mono">{groupReceiptNo}</span>
-        </div>
-      )}
+      
     </div>
   </div>
 )}
