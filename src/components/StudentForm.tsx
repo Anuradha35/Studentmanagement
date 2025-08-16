@@ -2751,6 +2751,12 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
 
 
                 </div>
+                <div className="mt-1 pt-3 border-t border-gray-700 text-sm">
+          <span className="text-purple-400 font-bold">Total Group Payment:</span>
+          <span className="float-right text-purple-400 font-bold">
+             ₹{duplicateInfo.existingPayment.totalGroupAmount?.toLocaleString()}
+          </span>
+        </div>
                  <div className="mt-3 pt-3 border-t border-gray-700 text-sm">
                    <p className="text-purple-400 font-bold text-lg mb-1">Total Group Payment</p>
                    <p className="text-2xl font-bold text-purple-400"> ₹{duplicateInfo.existingPayment.totalGroupAmount?.toLocaleString()}</p>
