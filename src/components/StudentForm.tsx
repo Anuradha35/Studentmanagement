@@ -2670,12 +2670,12 @@ setPaymentFieldsReadOnly(false); // Reset read-only state
               </div>
 
               <div className="space-y-2">
-                <div>
+                {/*    <div>
                   <p className="text-gray-400 text-sm">Total Group Payment</p>
                   <p className="text-2xl font-bold text-purple-400">
                     ₹{duplicateInfo.existingPayment.totalGroupAmount?.toLocaleString()}
                   </p>
-                </div>
+                </div>*/}
                 
                 {/* ✅ Show breakdown by member */}
                 <div className="space-y-1 text-sm">
