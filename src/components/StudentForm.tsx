@@ -3078,7 +3078,27 @@ const handleSubmit = (e: React.FormEvent) => {
         console.log("❌ No duplicateInfo found, returning");
         return;
       }
-
+ // 🆕 ADD THIS NEW CODE HERE (after line 7)
+      const currentStudentName = formData.studentName.trim().toUpperCase();
+      const existingGroupStudents = duplicateInfo.existingPayment.groupStudents || '';
+      const existingStudentNames = existingGroupStudents
+        .split(', ')
+        .map(name => name.trim().toUpperCase())
+        .filter(name => name.length > 0);
+      
+      // CRITICAL: Validate duplicate info integrity
+      if (!existingStudentNames.includes(currentStudentName)) {
+        console.log("❌ INVALID DUPLICATE: Current student not in existing group");
+        console.log("🔍 Current student:", currentStudentName);
+        console.log("🔍 Existing group:", existingGroupStudents);
+        
+        alert(`❌ SYSTEM ERROR: Invalid duplicate detection!\n\nThe UTR/Receipt ID belongs to a different group:\n"${existingGroupStudents}"\n\nBut you entered: "${formData.studentName}"\n\nThis student is NOT part of that group payment.\nPlease verify your UTR/Receipt number.`);
+        
+        setDuplicateCheckModal(false);
+        setDuplicateInfo(null);
+        return;
+      }
+      // END OF NEW CODE
       // 🆕 ENHANCED CHECK: Verify current student hasn't already paid
   const currentStudentCheck = hasCurrentStudentAlreadyPaid(
     duplicateInfo.type === 'utr' ? duplicateInfo.value : undefined,
@@ -3118,17 +3138,11 @@ const handleSubmit = (e: React.FormEvent) => {
   }
       
       // ✅ REPLACE THE ENTIRE onClick FUNCTION WITH THIS:
-      const currentStudentName = formData.studentName.trim().toUpperCase();
-       const currentFatherName = formData.fatherName.trim().toUpperCase();
+     // ✅ SIMPLIFIED - We already have these variables from above
+      const currentFatherName = formData.fatherName.trim().toUpperCase();
       const existingPayment = duplicateInfo.existingPayment;
-      const existingGroupStudents = existingPayment.groupStudents || '';
       const enteredFatherName = formData.fatherName.trim().toUpperCase();
       const existingFatherName = duplicateInfo.studentInfo.fatherName.trim().toUpperCase();
-
-      const existingStudentNames = existingGroupStudents
-        .split(', ')
-        .map(name => name.trim().toUpperCase())
-        .filter(name => name.length > 0);
       
       console.log("🔍 Current student name:", currentStudentName);
       console.log("🔍 Existing group students:", existingStudentNames);
@@ -3205,21 +3219,14 @@ if (isStudentInExistingGroup) {
           warningMessage = `⚠️ DIFFERENT COURSE DETAILS DETECTED!\n\nCurrent Entry:\n- Course: ${selectedCourse}\n- Batch: ${selectedBatch}\n- Year: ${selectedYear}\n- Duration: ${formData.courseDuration}\n\nExisting Payment:\n- Course: ${duplicateInfo.courseName}\n- Batch: ${duplicateInfo.batchName}\n- Year: ${duplicateInfo.yearName}\n- Duration: ${duplicateInfo.studentInfo.courseDuration}\n\nThis student (${currentStudentName}) appears to be enrolled in multiple courses/batches. Do you want to proceed with creating a separate payment entry for the current course?`;
         }
       } else {
-        // ✅ SCENARIO 2: Student is NOT in existing group - this should not be alloweds
-       // ✅ NEW CODE (REPLACE WITH THIS):
-// Error handling
-  console.log("❌ SCENARIO 2: Validation failed");
+  // ✅ THIS CASE SHOULD NEVER OCCUR NOW due to our early validation
+  console.log("❌ CRITICAL ERROR: This case should not occur after early validation");
   
-  let errorReason = '';
-  if (!isStudentNameInGroup) {
-    errorReason = `Student "${currentStudentName}" is not a member of the existing group payment.`;
-  } else if (!isFatherNameMatching) {
-    errorReason = validationMessage;
-  }
+  alert("❌ SYSTEM ERROR: Unexpected validation state. Please refresh and try again.");
   
-  setTimeout(() => {
-    alert(`❌ CANNOT ADD TO EXISTING GROUP!\n\n${errorReason}\n\nExisting Group Members: ${existingGroupStudents}\n\nPlease verify the details or use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
-  }, 100);
+  setDuplicateCheckModal(false);
+  setDuplicateInfo(null);
+  return;
 
 
         
