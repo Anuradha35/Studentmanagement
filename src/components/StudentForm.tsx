@@ -1309,7 +1309,7 @@ if (
     }
   }
 }
-  }
+  
 
   setErrors(newErrors);
 
