@@ -918,16 +918,6 @@ const existingMember = duplicateInfo.allGroupMembers.find(member =>
   } 
       
       
-      // 🔧 FIX: Show error message for non-matching student
-      setTimeout(() => {
-        alert(`❌ STUDENT NOT IN GROUP!\n\n` +
-          `Current Student: ${formData.studentName.toUpperCase()}\n` +
-          `Father: ${formData.fatherName.toUpperCase()}\n\n` +
-          `This student is not part of the existing group payment.\n` +
-          `Group Members: ${duplicateInfo.allGroupMembers.map(m => m.studentInfo.studentName).join(', ')}\n\n` +
-          `Please use a different payment method or verify the student details.`);
-        resetFormToCleanState();
-      }, 100);
     }
   }
 };
