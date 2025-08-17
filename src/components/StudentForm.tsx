@@ -2862,7 +2862,20 @@ const handleSubmit = (e: React.FormEvent) => {
                         return null;
                       })()}
                     </div>
+{/* ✅ Footer payment amount */}
+<div className="mt-1 pt-3 border-t border-gray-700 text-sm">
+ 
+</div>
 
+
+              <div className="space-y-2">
+                {/*    <div>
+                  <p className="text-gray-400 text-sm">Total Group Payment</p>
+                  <p className="text-2xl font-bold text-purple-400">
+                    ₹{duplicateInfo.existingPayment.totalGroupAmount?.toLocaleString()}
+                  </p>
+                </div>*/}
+                
                     {/* Footer payment amounts */}
                     <div className="mt-1 pt-3 border-t border-gray-700 text-sm">
                       <span className="text-purple-400 font-bold text-lg mb-1">
