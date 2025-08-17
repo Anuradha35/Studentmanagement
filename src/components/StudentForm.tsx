@@ -134,6 +134,14 @@ const checkStudentCourseEnrollment = (studentName, fatherName, courseName, batch
     year: yearName
   });
 
+  const [duplicateModalOpen, setDuplicateModalOpen] = useState(false);
+const [duplicateInfo, setDuplicateInfo] = useState({
+  studentName: '',
+  fatherName: '',
+  location: '',
+  courseName: '',
+  yearName: ''
+});
 // Add this function after your state declarations (around line 100)
 const resetFormToCleanState = () => {
   console.log("🔄 Resetting form to clean state");
