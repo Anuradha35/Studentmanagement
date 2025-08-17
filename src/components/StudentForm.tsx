@@ -3172,6 +3172,17 @@ if (isStudentInExistingGroup) {
               console.log("🚫 User cancelled due to validation warning");
               setDuplicateCheckModal(false);
               setDuplicateInfo(null);
+           // Clear previous group data
+                setGroupStudentName('');
+                setGroupOnlineAmount('');
+                setGroupOfflineAmount('');
+                setGroupUtrId('');
+                setGroupReceiptNo('');
+                setGroupPaymentDate('');
+                setGroupPayments([]);
+                setDynamicGroupEntries([]);
+                setErrors({});
+                setPaymentType('single');
               return;
           }
         }
