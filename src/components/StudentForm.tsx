@@ -884,7 +884,7 @@ const existingMember = duplicateInfo.allGroupMembers.find(member =>
       }, 100);
       
     } else {
-      // 🆕 Check for unpaid member match
+     // 🆕 Check for unpaid member match
   const unpaidMatch = duplicateInfo.allGroupMembers.find(member =>
     member.studentInfo.studentName.trim().toUpperCase() === formData.studentName.trim().toUpperCase()
     && member.isPaid === false
@@ -915,7 +915,7 @@ const existingMember = duplicateInfo.allGroupMembers.find(member =>
         `Please use a different payment method or verify the student details.`);
       resetFormToCleanState();
     }, 100);
-  
+    }
   }
 };
 
