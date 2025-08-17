@@ -480,13 +480,23 @@ const hasCurrentStudentAlreadyPaid = (utrId?: string, receiptNo?: string) => {
   const currentStudentName = formData.studentName.trim().toUpperCase();
   const currentFatherName = formData.fatherName.trim().toUpperCase();
   
-  console.log("🔍 Checking if current student already paid with:", { utrId, receiptNo, currentStudentName, currentFatherName });
+  console.log("🔍 Checking if current student already paid with:", { 
+    utrId, 
+    receiptNo, 
+    currentStudentName, 
+    currentFatherName 
+  });
   
   // Search through all payments to find if current student used this payment method
   for (const [yearKey, yearData] of Object.entries(appData.years)) {
     for (const [courseKey, courseData] of Object.entries(yearData)) {
       for (const [batchKey, batchData] of Object.entries(courseData)) {
+        // 🔧 FIX: Add safety check for students array
+        if (!Array.isArray(batchData.students)) continue;
+        
         for (const student of batchData.students) {
+          if (!student) continue; // Safety check
+          
           // Check if this is the same student (name + father name match)
           const isCurrentStudent = 
             student.studentName.trim().toUpperCase() === currentStudentName &&
@@ -498,8 +508,8 @@ const hasCurrentStudentAlreadyPaid = (utrId?: string, receiptNo?: string) => {
             
             for (const payment of studentPayments) {
               // Check if payment uses the same UTR/Receipt
-              const usedSameUTR = utrId && payment.utrId === utrId;
-              const usedSameReceipt = receiptNo && payment.receiptNo === receiptNo;
+              const usedSameUTR = utrId && payment.utrId === utrId.trim();
+              const usedSameReceipt = receiptNo && payment.receiptNo === receiptNo.trim();
               
               if (usedSameUTR || usedSameReceipt) {
                 console.log("❌ Current student already used this payment method:", {
