@@ -440,6 +440,7 @@ const hasCurrentStudentAlreadyPaid = (utrId?: string, receiptNo?: string) => {
 };
 
 // Replace the checkForDuplicateStudentFull function with this enhanced version
+// Fixed checkForDuplicateStudentFull function
 const checkForDuplicateStudentFull = (
   studentName: string,
   fatherName: string,
@@ -448,35 +449,48 @@ const checkForDuplicateStudentFull = (
 ) => {
   const duplicates = []; // Array to store all duplicates found
   
-  for (const yearKey in appData.years) {
-    for (const courseKey in appData.years[yearKey]) {
-      for (const batchKey in appData.years[yearKey][courseKey]) {
-        const batch = appData.years[yearKey][courseKey][batchKey];
-        if (!batch.students) continue;
-
-        const found = batch.students.find(
-          (s) =>
-            s.studentName.toLowerCase() === studentName.toLowerCase() &&
-            s.fatherName.toLowerCase() === fatherName.toLowerCase()
-        );
-
-        if (found) {
-          duplicates.push({
-            student: found,
-            location: `Year ${yearKey}, Batch ${batchKey}`,
-            isSameCourse: courseKey === courseName,
-            courseName: courseKey,
-            yearName: yearKey,
-            batchName: batchKey
-          });
+  try {
+    for (const yearKey in appData.years) {
+      for (const courseKey in appData.years[yearKey]) {
+        for (const batchKey in appData.years[yearKey][courseKey]) {
+          const batch = appData.years[yearKey][courseKey][batchKey];
+          if (!batch.students) continue;
+          
+          const found = batch.students.find(
+            (s) =>
+              s.studentName?.toLowerCase().trim() === studentName.toLowerCase().trim() &&
+              s.fatherName?.toLowerCase().trim() === fatherName.toLowerCase().trim()
+          );
+          
+          if (found) {
+            // Normalize course names for comparison (remove extra spaces, convert to lowercase)
+            const normalizedCourseKey = courseKey.toLowerCase().trim().replace(/\s+/g, ' ');
+            const normalizedCourseName = courseName.toLowerCase().trim().replace(/\s+/g, ' ');
+            
+            duplicates.push({
+              student: found,
+              location: `Year ${yearKey}, Batch ${batchKey}`,
+              isSameCourse: normalizedCourseKey === normalizedCourseName,
+              courseName: courseKey,
+              yearName: yearKey,
+              batchName: batchKey
+            });
+            
+            console.log('Duplicate found:', {
+              courseKey: normalizedCourseKey,
+              courseName: normalizedCourseName,
+              isSameCourse: normalizedCourseKey === normalizedCourseName
+            });
+          }
         }
       }
     }
+  } catch (error) {
+    console.error('Error in checkForDuplicateStudentFull:', error);
   }
   
-  return duplicates; // Return all duplicates, not just first one
+  return duplicates; // Return all duplicates
 };
-
   
  
 
@@ -1190,219 +1204,270 @@ const handleSubmit = (e: React.FormEvent) => {
     }
   }
 
-  // ✅ ENHANCED DUPLICATE CHECK - REPLACE THE OLD ONE WITH THIS
+  // Enhanced duplicate check with proper error handling
   if (
     formData.studentName.trim() &&
     formData.fatherName.trim() &&
     selectedYear &&
     selectedCourse
   ) {
-    // 🔍 Check for duplicate students (returns array now)
-    const duplicateStudents = checkForDuplicateStudentFull(
-      formData.studentName.trim(),
-      formData.fatherName.trim(),
-      selectedCourse,
-      selectedYear
-    );
+    try {
+      // Check for duplicate students
+      const duplicateStudents = checkForDuplicateStudentFull(
+        formData.studentName.trim(),
+        formData.fatherName.trim(),
+        selectedCourse,
+        selectedYear
+      );
 
-    // Helper: Payment conflict check (checks all students/payments)
-    const isPaymentDuplicate = (utr: string, receipt: string) => {
-      return Object.values(appData.years).some((courses) =>
-        Object.values(courses).some((batches) =>
-          Object.values(batches).some((batch) =>
-            batch.students?.some((s) =>
-              s.payments?.some(
-                (p) =>
-                  (utr && utr.trim() !== "" && p.utrId === utr.trim()) ||
-                  (receipt && receipt.trim() !== "" && p.receiptNo === receipt.trim())
+      // Debug logging
+      console.log('Checking duplicates for:', {
+        studentName: formData.studentName.trim(),
+        fatherName: formData.fatherName.trim(),
+        selectedCourse,
+        selectedYear,
+        duplicatesFound: duplicateStudents
+      });
+
+      // Helper: Payment conflict check
+      const isPaymentDuplicate = (utr: string, receipt: string) => {
+        try {
+          return Object.values(appData.years).some((courses) =>
+            Object.values(courses).some((batches) =>
+              Object.values(batches).some((batch) =>
+                batch.students?.some((s) =>
+                  s.payments?.some(
+                    (p) =>
+                      (utr && utr.trim() !== "" && p.utrId === utr.trim()) ||
+                      (receipt && receipt.trim() !== "" && p.receiptNo === receipt.trim())
+                  )
+                )
               )
             )
-          )
-        )
-      );
-    };
-
-    // Extract payment IDs for current admission
-    const currentUtr = paymentType === "single" ? utrId.trim() : groupUtrId.trim();
-    const currentReceipt = paymentType === "single" ? receiptNo.trim() : groupReceiptNo.trim();
-
-    // Check global payment duplication
-    if (isPaymentDuplicate(currentUtr, currentReceipt)) {
-      alert(`❌ Duplicate Payment Detected!\n\nUTR or Receipt number is already used for another admission.`);
-      return;
-    }
-
-    // 🆕 ENHANCED: Handle multiple duplicatess
-    if (duplicateStudents.length > 0) {
-      // Check if any duplicate is in the same course
-      const sameCourseStudent = duplicateStudents.find(dup => dup.isSameCourse);
-      
-      if (sameCourseStudent) {
-        const { student, location, courseName, yearName } = sameCourseStudent;
-        
-        // ✅ Same course/year check end date
-        if (yearName === selectedYear) {
-          const today = new Date();
-          const existingEndDateParts = (student.endDate || "").split(".");
-          const existingEndDate = new Date(
-            parseInt(existingEndDateParts[2]),
-            parseInt(existingEndDateParts[1]) - 1,
-            parseInt(existingEndDateParts[0])
           );
-
-          if (existingEndDate >= today) {
-            // Show blocking modal and prevent submission
-            setDuplicateInfo({
-              studentName: student.studentName,
-              fatherName: student.fatherName,
-              location: location,
-              courseName: courseName,
-              yearName: yearName
-            });
-            setDuplicateModalOpen(true);
-            return; // Stop submission
-          }
-
-          // ✅ End date passed → allow re-admission
-          console.log("✅ Same course/year allowed after end date passed");
+        } catch (error) {
+          console.error('Error checking payment duplicates:', error);
+          return false;
         }
-      } else {
-        // Different course(s) → Show detailed confirmation with all courses
-        const coursesList = duplicateStudents
-          .map(dup => `📚 ${dup.courseName} (Year: ${dup.yearName}, Batch: ${dup.batchName})`)
-          .join('\n');
+      };
+
+      // Extract payment IDs for current admission
+      const currentUtr = paymentType === "single" ? utrId.trim() : groupUtrId.trim();
+      const currentReceipt = paymentType === "single" ? receiptNo.trim() : groupReceiptNo.trim();
+
+      // Check global payment duplication
+      if (isPaymentDuplicate(currentUtr, currentReceipt)) {
+        alert(`❌ Duplicate Payment Detected!\n\nUTR or Receipt number is already used for another admission.`);
+        return;
+      }
+
+      // Handle multiple duplicates
+      if (duplicateStudents.length > 0) {
+        console.log('Found duplicates:', duplicateStudents);
         
-        const proceed = window.confirm(
-          `ℹ️ Student "${duplicateStudents[0].student.studentName}" with Father "${duplicateStudents[0].student.fatherName}" is already enrolled in other course(s):\n\n${coursesList}\n\n🔄 Current Entry: ${selectedCourse} (Year: ${selectedYear}, Batch: ${selectedBatch})\n\n✅ Do you want to proceed with admission to "${selectedCourse}"?\n\n💡 Note: Same student can be enrolled in multiple different courses.`
-        );
+        // Check if any duplicate is in the same course
+        const sameCourseStudent = duplicateStudents.find(dup => {
+          console.log('Comparing courses:', {
+            dupCourse: dup.courseName,
+            selectedCourse: selectedCourse,
+            isSame: dup.isSameCourse
+          });
+          return dup.isSameCourse;
+        });
         
-        if (!proceed) {
-          return; // Stop submission if user cancelss
+        if (sameCourseStudent) {
+          const { student, location, courseName, yearName } = sameCourseStudent;
+          console.log('Same course student found:', sameCourseStudent);
+          
+          // Same course/year check end date
+          if (yearName === selectedYear) {
+            try {
+              const today = new Date();
+              const existingEndDate = student.endDate || "";
+              
+              if (existingEndDate) {
+                const existingEndDateParts = existingEndDate.split(".");
+                if (existingEndDateParts.length === 3) {
+                  const endDate = new Date(
+                    parseInt(existingEndDateParts[2]),
+                    parseInt(existingEndDateParts[1]) - 1,
+                    parseInt(existingEndDateParts[0])
+                  );
+
+                  if (endDate >= today) {
+                    // Show blocking modal and prevent submission
+                    setDuplicateInfo({
+                      studentName: student.studentName,
+                      fatherName: student.fatherName,
+                      location: location,
+                      courseName: courseName,
+                      yearName: yearName
+                    });
+                    setDuplicateModalOpen(true);
+                    return; // Stop submission
+                  }
+                }
+              }
+              
+              // End date passed → allow re-admission
+              console.log("✅ Same course/year allowed after end date passed");
+            } catch (dateError) {
+              console.error('Error parsing end date:', dateError);
+              // If date parsing fails, show the blocking modal to be safe
+              setDuplicateInfo({
+                studentName: student.studentName,
+                fatherName: student.fatherName,
+                location: location,
+                courseName: courseName,
+                yearName: yearName
+              });
+              setDuplicateModalOpen(true);
+              return;
+            }
+          }
+        } else {
+          // Different course(s) → Show detailed confirmation
+          const coursesList = duplicateStudents
+            .map(dup => `📚 ${dup.courseName} (Year: ${dup.yearName}, Batch: ${dup.batchName})`)
+            .join('\n');
+          
+          const proceed = window.confirm(
+            `ℹ️ Student "${duplicateStudents[0].student.studentName}" with Father "${duplicateStudents[0].student.fatherName}" is already enrolled in other course(s):\n\n${coursesList}\n\n🔄 Current Entry: ${selectedCourse} (Year: ${selectedYear}, Batch: ${selectedBatch})\n\n✅ Do you want to proceed with admission to "${selectedCourse}"?\n\n💡 Note: Same student can be enrolled in multiple different courses.`
+          );
+          
+          if (!proceed) {
+            return; // Stop submission if user cancels
+          }
         }
       }
+    } catch (duplicateError) {
+      console.error('Error in duplicate check:', duplicateError);
+      // Continue with submission if duplicate check fails
+      alert('Warning: Unable to check for duplicates. Proceeding with admission.');
     }
   }
 
   setErrors(newErrors);
 
   if (Object.keys(newErrors).length === 0) {
-    const student: Student = {
-      id: Date.now().toString(),
-      ...formData,
-      createdAt: new Date().toISOString()
-    };
+    try {
+      const student: Student = {
+        id: Date.now().toString(),
+        ...formData,
+        createdAt: new Date().toISOString()
+      };
 
-    // ✅ FIXED: सिर्फ main student को batch में add करें
-    onAddStudent(selectedYear, selectedCourse, selectedBatch, student);
+      // Add main student to batch
+      onAddStudent(selectedYear, selectedCourse, selectedBatch, student);
 
-    // ✅ SINGLE PAYMENT SAVE (unchanged)
-    if (paymentType === 'single') {
-      payments.forEach(payment => {
-        onAddPayment(student.id, {
-          ...payment,
-          paymentDate: payment.paymentDate,
-          type: 'single'
+      // Single payment save
+      if (paymentType === 'single') {
+        payments.forEach(payment => {
+          onAddPayment(student.id, {
+            ...payment,
+            paymentDate: payment.paymentDate,
+            type: 'single'
+          });
         });
-      });
-    }
-
-    // ✅ FIXED: GROUP PAYMENT SAVE - Replace this section in your StudentForm.tsx handleSubmit function
-
-// Find this section in your StudentForm.tsx (around line 540-565):
-// ✅ FIXED: GROUP PAYMENT SAVE - Single Student Record with Group Detailss
-if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
-  const groupId = `group_${Date.now()}`;
-  const totalOnlineAmount = parseInt(groupOnlineAmount || '0');
-  const totalOfflineAmount = parseInt(groupOfflineAmount || '0');
-  const mainStudentAmount = parseInt(dynamicGroupEntries[0]?.amount || '0');
-
-  // Update main student's payment info
-  student.totalPaid = mainStudentAmount;
-  student.remainingFee = student.courseFee - mainStudentAmount;
-
-  // ✅ CREATE ONE GROUP PAYMENT ENTRY for main student with all group info
-  onAddPayment(student.id, {
-    groupId,
-    studentName: student.studentName,
-    amount: mainStudentAmount, // Main student का share
-    totalGroupAmount: totalOnlineAmount + totalOfflineAmount,
-    onlineAmount: totalOnlineAmount,
-    offlineAmount: totalOfflineAmount,
-    utrId: totalOnlineAmount > 0 ? groupUtrId : '',
-    receiptNo: totalOfflineAmount > 0 ? groupReceiptNo : '',
-    paymentDate: groupPaymentDate,
-    type: 'group',
-    // ✅ FIXED: Store all group students as comma-separated string
-    groupStudents: dynamicGroupEntries.map(e => e.studentName).join(', '),
-    studentIndex: 0
-  });
-
-  // ✅ NO MORE: Don't create separate student records for other group members
-  // They will only appear in the group payment details as comma-separated names
-}
-    
-// Calculate end date manually after reset
-      let calculatedEndDate = '';
-      if (preSelectedStartDate && preSelectedDuration) {
-        const [day, month, year] = preSelectedStartDate.split('.');
-        const startDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-        const durationDays = parseInt(preSelectedDuration.replace(' Days', ''));
-
-        const endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + durationDays - 1); // Include start date
-
-        const endDay = endDate.getDate().toString().padStart(2, '0');
-        const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
-        const endYear = endDate.getFullYear();
-        calculatedEndDate = `${endDay}.${endMonth}.${endYear}`;
       }
 
-    // Reset form logic...
-    const fee = getCourseFee();
-    setFormData({
-      studentName: '',
-      fatherName: '',
-      gender: 'Male',
-      mobileNo: '',
-      email: '',
-      category: 'GEN',
-      hostler: 'No',
-      collegeName: '',
-      branch: '',
-      courseDuration: preSelectedDuration || '',
-      startDate: preSelectedStartDate || '',
-      endDate: calculatedEndDate,
-      courseFee: fee,
-      totalPaid: 0,
-      remainingFee: fee
-    });
+      // Group payment save
+      if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
+        const groupId = `group_${Date.now()}`;
+        const totalOnlineAmount = parseInt(groupOnlineAmount || '0');
+        const totalOfflineAmount = parseInt(groupOfflineAmount || '0');
+        const mainStudentAmount = parseInt(dynamicGroupEntries[0]?.amount || '0');
 
-    // Clear payment fields
-    setPayments([]);
-    setPaymentAmount('');
-    setPaymentDate('');
-    setReceiptNo('');
-    setUtrId('');
-    setGroupPayments([]);
-    setPaymentType('single');
-    setGroupStudentName('');
-    setGroupCourseName('');
-    setGroupCourseDuration('');
-    setGroupOnlineAmount('');
-    setGroupOfflineAmount('');
-    setGroupUtrId('');
-    setGroupReceiptNo('');
-    setGroupPaymentDate('');
-    setDynamicGroupEntries([]);
-    // ✅ ADD THIS LINE in the form reset section
-setPaymentFieldsReadOnly(false); // Reset read-only state
+        // Update main student's payment info
+        student.totalPaid = mainStudentAmount;
+        student.remainingFee = student.courseFee - mainStudentAmount;
 
-    // Focus on Student Name after adding
-    if (studentNameRef.current) {
-      studentNameRef.current.focus();
+        // Create one group payment entry for main student with all group info
+        onAddPayment(student.id, {
+          groupId,
+          studentName: student.studentName,
+          amount: mainStudentAmount,
+          totalGroupAmount: totalOnlineAmount + totalOfflineAmount,
+          onlineAmount: totalOnlineAmount,
+          offlineAmount: totalOfflineAmount,
+          utrId: totalOnlineAmount > 0 ? groupUtrId : '',
+          receiptNo: totalOfflineAmount > 0 ? groupReceiptNo : '',
+          paymentDate: groupPaymentDate,
+          type: 'group',
+          groupStudents: dynamicGroupEntries.map(e => e.studentName).join(', '),
+          studentIndex: 0
+        });
+      }
+      
+      // Calculate end date after reset
+      let calculatedEndDate = '';
+      if (preSelectedStartDate && preSelectedDuration) {
+        try {
+          const [day, month, year] = preSelectedStartDate.split('.');
+          const startDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+          const durationDays = parseInt(preSelectedDuration.replace(' Days', ''));
+
+          const endDate = new Date(startDate);
+          endDate.setDate(startDate.getDate() + durationDays - 1);
+
+          const endDay = endDate.getDate().toString().padStart(2, '0');
+          const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
+          const endYear = endDate.getFullYear();
+          calculatedEndDate = `${endDay}.${endMonth}.${endYear}`;
+        } catch (dateError) {
+          console.error('Error calculating end date:', dateError);
+        }
+      }
+
+      // Reset form
+      const fee = getCourseFee();
+      setFormData({
+        studentName: '',
+        fatherName: '',
+        gender: 'Male',
+        mobileNo: '',
+        email: '',
+        category: 'GEN',
+        hostler: 'No',
+        collegeName: '',
+        branch: '',
+        courseDuration: preSelectedDuration || '',
+        startDate: preSelectedStartDate || '',
+        endDate: calculatedEndDate,
+        courseFee: fee,
+        totalPaid: 0,
+        remainingFee: fee
+      });
+
+      // Clear payment fields
+      setPayments([]);
+      setPaymentAmount('');
+      setPaymentDate('');
+      setReceiptNo('');
+      setUtrId('');
+      setGroupPayments([]);
+      setPaymentType('single');
+      setGroupStudentName('');
+      setGroupCourseName('');
+      setGroupCourseDuration('');
+      setGroupOnlineAmount('');
+      setGroupOfflineAmount('');
+      setGroupUtrId('');
+      setGroupReceiptNo('');
+      setGroupPaymentDate('');
+      setDynamicGroupEntries([]);
+      setPaymentFieldsReadOnly(false);
+
+      // Focus on Student Name after adding
+      if (studentNameRef.current) {
+        studentNameRef.current.focus();
+      }
+
+      alert('Student added successfully!');
+    } catch (submitError) {
+      console.error('Error during form submission:', submitError);
+      alert('Error occurred while adding student. Please try again.');
     }
-
-    alert('Student added successfully!');
   }
 };
 
