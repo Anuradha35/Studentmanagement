@@ -3177,11 +3177,7 @@ if (isStudentNameInGroup) {
   }
 }
 
-const isStudentInExistingGroup = isStudentNameInGroup && isFatherNameMatching;
 
-console.log("🔍 Student name in group:", isStudentNameInGroup);
-console.log("🔍 Father name matching:", isFatherNameMatching);
-console.log("🔍 Final match result:", isStudentInExistingGroup);
 
       // 🆕 Add these two checks at the top
 const isStudentInExistingGroup = duplicateInfo.allGroupMembers.some(member =>
