@@ -1301,7 +1301,7 @@ const handleSubmit = (e: React.FormEvent) => {
     // ✅ FIXED: GROUP PAYMENT SAVE - Replace this section in your StudentForm.tsx handleSubmit function
 
 // Find this section in your StudentForm.tsx (around line 540-565):
-// ✅ FIXED: GROUP PAYMENT SAVE - Single Student Record with Group Details
+// ✅ FIXED: GROUP PAYMENT SAVE - Single Student Record with Group Detailss
 if (paymentType === 'group' && dynamicGroupEntries.length > 0) {
   const groupId = `group_${Date.now()}`;
   const totalOnlineAmount = parseInt(groupOnlineAmount || '0');
