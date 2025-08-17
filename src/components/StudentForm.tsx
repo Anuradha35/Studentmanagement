@@ -891,7 +891,7 @@ const existingMember = duplicateInfo.allGroupMembers.find(member =>
   );
 
   if (unpaidMatch) {
-    // 🔧 FIX: Close modal BEFORE showing alert
+    // 🔧 FIX: Close modal BEFORE showing alerts
     setDuplicateCheckModal(false);
     setDuplicateInfo(null);
 
