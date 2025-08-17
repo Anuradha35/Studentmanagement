@@ -915,7 +915,7 @@ const existingMember = duplicateInfo.allGroupMembers.find(member =>
         `Please use a different payment method or verify the student details.`);
       resetFormToCleanState();
     }, 100);
-  }
+  
   }
 };
 
