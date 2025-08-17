@@ -3149,6 +3149,17 @@ if (isStudentNameInGroup) {
     isFatherNameMatching = currentFatherName === existingFatherName;
     if (!isFatherNameMatching) {
       validationMessage = ` ${currentStudentName} Is Not Member of this Group. Father name mismatch for main paid student.\nExpected: ${existingFatherName}\nEntered: ${currentFatherName}`;
+       // ✅ FIXED: Reset all group payment fields as requested
+            setGroupStudentName('');
+            setGroupOnlineAmount('');
+            setGroupOfflineAmount('');
+            setGroupUtrId('');
+            setGroupReceiptNo('');
+            setGroupPaymentDate('');
+            setGroupPayments([]);
+            setDynamicGroupEntries([]);
+            setErrors({});
+            setPaymentType('single'); // Reset to single if cancelled
     }
   } else {
     // For other group members, allow with warning
