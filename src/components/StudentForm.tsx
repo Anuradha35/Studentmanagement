@@ -2364,7 +2364,7 @@ const handleSubmit = (e: React.FormEvent) => {
                           />
                         </div>
                       </div>
-
+<div className="flex-1 min-w-[200px]"></div>
                       <div className="flex-1 min-w-[200px]">
                         {parseInt(groupOnlineAmount) > 0 && (
                           <div>
