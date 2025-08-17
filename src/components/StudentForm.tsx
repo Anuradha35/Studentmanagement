@@ -2875,6 +2875,7 @@ const handleSubmit = (e: React.FormEvent) => {
                     ₹{duplicateInfo.existingPayment.totalGroupAmount?.toLocaleString()}
                   </p>
                 </div>*/}
+              </div>
                 
                     {/* Footer payment amounts */}
                     <div className="mt-1 pt-3 border-t border-gray-700 text-sm">
