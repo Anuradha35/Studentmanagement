@@ -3220,46 +3220,62 @@ if (isStudentInExistingGroup) {
     warningMessage = `⚠️ DIFFERENT COURSE DETAILS DETECTED!\n\nCurrent Entry:\n- Course: ${selectedCourse}\n- Batch: ${selectedBatch}\n- Year: ${selectedYear}\n- Duration: ${formData.courseDuration}\n\nExisting Payment:\n- Course: ${duplicateInfo.courseName}\n- Batch: ${duplicateInfo.batchName}\n- Year: ${duplicateInfo.yearName}\n- Duration: ${duplicateInfo.studentInfo.courseDuration}\n\nThis student (${currentStudentName}) appears to be enrolled in multiple courses/batches. Do you want to proceed with creating a separate payment entry for the current course?`;
   }
       } 
-else {
-        // ✅ SCENARIO 2: Student is NOT in existing group - this should  not be allowedss
+      else if (isUnpaidGroupMember) {
+  // ⚠️ SCENARIO: Student exists in group but is unpaid
+  console.log("⚠️ Current student is an UNPAID group member");
+
+  setDuplicateCheckModal(false);
+  setDuplicateInfo(null);
+
+  setTimeout(() => {
+    alert(`⚠️ ${currentStudentName} is an UNPAID group member.\n\n` +
+          `This student exists in the group but has not made any payment yet.\n` +
+          `Please record a payment before trying to link.`);
+  }, 100);
+
+  return;
+
+} else {
+  // ❌ SCENARIO 2: Student is NOT in existing group
   console.log("❌ SCENARIO 2: Validation failed");
-  
+
   let errorReason = '';
   if (!isStudentNameInGroup) {
     errorReason = `Student "${currentStudentName}" is not a member of the existing group payment.`;
   } else if (!isFatherNameMatching) {
     errorReason = validationMessage;
   }
-  
+
   setTimeout(() => {
     alert(`❌ CANNOT ADD TO EXISTING GROUP!\n\n${errorReason}\n\nExisting Group Members: ${existingGroupStudents}\n\nPlease verify the details or use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
-      // ✅ FIXED: Reset all group payment fields as requested
-            setGroupStudentName('');
-            setGroupOnlineAmount('');
-            setGroupOfflineAmount('');
-            setGroupUtrId('');
-            setGroupReceiptNo('');
-            setGroupPaymentDate('');
-            setGroupPayments([]);
-            setDynamicGroupEntries([]);
-            setErrors({});
-            setPaymentType('single'); // Reset to single if cancelled
-  }, 100);    
-        // Clear the problematic field
-        if (paymentType === 'group') {
-          if (duplicateInfo.type === 'utr') {
-            setGroupUtrId('');
-            setGroupOnlineAmount('');
-          } else if (duplicateInfo.type === 'receipt') {
-            setGroupReceiptNo('');
-            setGroupOfflineAmount('');
-          }
-        }
-        
-        setDuplicateCheckModal(false);
-        setDuplicateInfo(null);
-        return;
-      }     
+    // Reset all group payment fields
+    setGroupStudentName('');
+    setGroupOnlineAmount('');
+    setGroupOfflineAmount('');
+    setGroupUtrId('');
+    setGroupReceiptNo('');
+    setGroupPaymentDate('');
+    setGroupPayments([]);
+    setDynamicGroupEntries([]);
+    setErrors({});
+    setPaymentType('single');
+  }, 100);
+
+  if (paymentType === 'group') {
+    if (duplicateInfo.type === 'utr') {
+      setGroupUtrId('');
+      setGroupOnlineAmount('');
+    } else if (duplicateInfo.type === 'receipt') {
+      setGroupReceiptNo('');
+      setGroupOfflineAmount('');
+    }
+  }
+
+  setDuplicateCheckModal(false);
+  setDuplicateInfo(null);
+  return;
+}
+
       // ✅ If we reach here, student is in existing group - show warning if different course detail
 
 // ✅ If we reach here, student is in existing group - show warning if different course details
