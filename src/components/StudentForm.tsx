@@ -782,6 +782,7 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
   if (!duplicateInfo) return;
   
   if (action === 'cancel') {
+    console.log("🚫 User cancelled duplicate payment");
     setDuplicateCheckModal(false);
     setDuplicateInfo(null);
     setPaymentType('single');
@@ -789,6 +790,8 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
   }
   
   if (action === 'proceed' && duplicateInfo.paymentType === 'group' && paymentType === 'group') {
+    console.log("✅ Processing 'Add to Current Group' action");
+    
     // 🆕 ENHANCED CHECK: Before adding to group, verify current student hasn't already paid
     const currentStudentCheck = hasCurrentStudentAlreadyPaid(
       duplicateInfo.type === 'utr' ? duplicateInfo.value : undefined,
@@ -796,10 +799,9 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
     );
     
     if (currentStudentCheck.hasAlreadyPaid) {
-      // 🚫 Current student has already paid with this payment method
       console.log("❌ Current student already paid with this method, blocking operation");
       
-      // Close modal first
+      // 🔧 FIX: Close modal IMMEDIATELY before showing alert
       setDuplicateCheckModal(false);
       setDuplicateInfo(null);
       
@@ -816,60 +818,90 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
         `• Date: ${currentStudentCheck.existingPayment.paymentDate}\n\n` +
         `⚠️ You cannot use the same payment details twice. Please use a different ${currentStudentCheck.paymentType === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`;
       
-      // Reset form to clean state
+      // 🔧 FIX: Use setTimeout to ensure modal closes before alert
       setTimeout(() => {
         alert(errorMessage);
         resetFormToCleanState();
-      }, 300);
+      }, 100); // Small delay to ensure modal closes
       
       return;
     }
     
-    // ✅ If student hasn't already paid, proceed with existing logic
-    const existingStudent = duplicateInfo.studentInfo;
-    const existingPayment = duplicateInfo.existingPayment;
+    console.log("✅ Student hasn't paid before, proceeding with group addition");
     
-    // Set the existing student as Student #1
-    setFormData(prev => ({
-      ...prev,
-      studentName: existingStudent.studentName,
-      fatherName: existingStudent.fatherName,
-      gender: existingStudent.gender,
-      mobileNo: existingStudent.mobileNo,
-      email: existingStudent.email,
-      category: existingStudent.category,
-      hostler: existingStudent.hostler,
-      collegeName: existingStudent.collegeName,
-      branch: existingStudent.branch
-    }));
+    // 🔧 FIX: Check if current student name matches any existing group member
+    const existingMember = duplicateInfo.allGroupMembers.find(member => 
+      member.studentInfo.studentName.trim().toUpperCase() === formData.studentName.trim().toUpperCase()
+    );
     
-    // Pre-fill group payment details from existing payment
-    if (existingPayment.onlineAmount > 0) {
-      setGroupOnlineAmount(existingPayment.onlineAmount.toString());
-      setGroupUtrId(existingPayment.utrId || '');
+    if (existingMember) {
+      console.log("✅ Found matching student in group, using their details");
+      
+      // Set the existing student as Student #1
+      setFormData(prev => ({
+        ...prev,
+        studentName: existingMember.studentInfo.studentName,
+        fatherName: existingMember.studentInfo.fatherName,
+        gender: existingMember.studentInfo.gender,
+        mobileNo: existingMember.studentInfo.mobileNo,
+        email: existingMember.studentInfo.email,
+        category: existingMember.studentInfo.category,
+        hostler: existingMember.studentInfo.hostler,
+        collegeName: existingMember.studentInfo.collegeName,
+        branch: existingMember.studentInfo.branch
+      }));
+      
+      // Pre-fill group payment details from existing payment
+      const existingPayment = existingMember.existingPayment;
+      if (existingPayment.onlineAmount > 0) {
+        setGroupOnlineAmount(existingPayment.onlineAmount.toString());
+        setGroupUtrId(existingPayment.utrId || '');
+      }
+      if (existingPayment.offlineAmount > 0) {
+        setGroupOfflineAmount(existingPayment.offlineAmount.toString());
+        setGroupReceiptNo(existingPayment.receiptNo || '');
+      }
+      setGroupPaymentDate(existingPayment.paymentDate || '');
+      
+      // Update group entries - Student #1 gets existing student info
+      if (dynamicGroupEntries.length > 0) {
+        const updatedEntries = [...dynamicGroupEntries];
+        updatedEntries[0] = {
+          ...updatedEntries[0],
+          studentName: existingMember.studentInfo.studentName,
+          amount: ''
+        };
+        setDynamicGroupEntries(updatedEntries);
+      }
+      
+      // 🔧 FIX: Close modal BEFORE showing alert
+      setDuplicateCheckModal(false);
+      setDuplicateInfo(null);
+      
+      // 🔧 FIX: Use setTimeout for alert to ensure modal closes first
+      setTimeout(() => {
+        alert(`✅ ${existingMember.studentInfo.studentName} has been added to Student #1 position with existing payment details. Please enter the amount for this student.`);
+      }, 100);
+      
+    } else {
+      console.log("❌ Current student name doesn't match any group member");
+      
+      // 🔧 FIX: Close modal BEFORE showing alert
+      setDuplicateCheckModal(false);
+      setDuplicateInfo(null);
+      
+      // 🔧 FIX: Show error message for non-matching student
+      setTimeout(() => {
+        alert(`❌ STUDENT NOT IN GROUP!\n\n` +
+          `Current Student: ${formData.studentName.toUpperCase()}\n` +
+          `Father: ${formData.fatherName.toUpperCase()}\n\n` +
+          `This student is not part of the existing group payment.\n` +
+          `Group Members: ${duplicateInfo.allGroupMembers.map(m => m.studentInfo.studentName).join(', ')}\n\n` +
+          `Please use a different payment method or verify the student details.`);
+        resetFormToCleanState();
+      }, 100);
     }
-    if (existingPayment.offlineAmount > 0) {
-      setGroupOfflineAmount(existingPayment.offlineAmount.toString());
-      setGroupReceiptNo(existingPayment.receiptNo || '');
-    }
-    setGroupPaymentDate(existingPayment.paymentDate || '');
-    
-    // Update group entries - Student #1 gets existing student info
-    if (dynamicGroupEntries.length > 0) {
-      const updatedEntries = [...dynamicGroupEntries];
-      updatedEntries[0] = {
-        ...updatedEntries[0],
-        studentName: existingStudent.studentName,
-        amount: ''
-      };
-      setDynamicGroupEntries(updatedEntries);
-    }
-    
-    alert(`${existingStudent.studentName} has been added to Student #1 position with existing payment details. Please enter the amount for this student.`);
   }
-  
-  setDuplicateCheckModal(false);
-  setDuplicateInfo(null);
 };
 
   const handlePaymentTypeChange = (newPaymentType) => {
