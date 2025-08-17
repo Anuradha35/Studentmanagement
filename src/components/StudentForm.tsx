@@ -441,58 +441,7 @@ const hasCurrentStudentAlreadyPaid = (utrId?: string, receiptNo?: string) => {
 
 // Replace the checkForDuplicateStudentFull function with this enhanced version
 // Fixed checkForDuplicateStudentFull function
-const checkForDuplicateStudentFull = (
-  studentName: string,
-  fatherName: string,
-  courseName: string,
-  yearName: string
-) => {
-  const duplicates = []; // Array to store all duplicates found
-  
-  try {
-    for (const yearKey in appData.years) {
-      for (const courseKey in appData.years[yearKey]) {
-        for (const batchKey in appData.years[yearKey][courseKey]) {
-          const batch = appData.years[yearKey][courseKey][batchKey];
-          if (!batch.students) continue;
-          
-          const found = batch.students.find(
-            (s) =>
-              s.studentName?.toLowerCase().trim() === studentName.toLowerCase().trim() &&
-              s.fatherName?.toLowerCase().trim() === fatherName.toLowerCase().trim()
-          );
-          
-          if (found) {
-            // Normalize course names for comparison (remove extra spaces, convert to lowercase)
-            const normalizedCourseKey = courseKey.toLowerCase().trim().replace(/\s+/g, ' ');
-            const normalizedCourseName = courseName.toLowerCase().trim().replace(/\s+/g, ' ');
-            
-            duplicates.push({
-              student: found,
-              location: `Year ${yearKey}, Batch ${batchKey}`,
-              isSameCourse: normalizedCourseKey === normalizedCourseName,
-              courseName: courseKey,
-              yearName: yearKey,
-              batchName: batchKey
-            });
-            
-            console.log('Duplicate found:', {
-              courseKey: normalizedCourseKey,
-              courseName: normalizedCourseName,
-              isSameCourse: normalizedCourseKey === normalizedCourseName
-            });
-          }
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Error in checkForDuplicateStudentFull:', error);
-  }
-  
-  return duplicates; // Return all duplicates
-};
-  
- 
+
 
 
 
