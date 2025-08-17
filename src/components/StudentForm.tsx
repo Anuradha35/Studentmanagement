@@ -884,23 +884,38 @@ const existingMember = duplicateInfo.allGroupMembers.find(member =>
       }, 100);
       
     } else {
-      console.log("❌ Current student name doesn't match any group member");
-      
-      // 🔧 FIX: Close modal BEFORE showing alert
-      setDuplicateCheckModal(false);
-      setDuplicateInfo(null);
-      
-      // 🔧 FIX: Show error message for non-matching student
-      setTimeout(() => {
-        alert(`❌ STUDENT NOT IN GROUP!\n\n` +
-          `Current Student: ${formData.studentName.toUpperCase()}\n` +
-          `Father: ${formData.fatherName.toUpperCase()}\n\n` +
-          `This student is not part of the existing group payment.\n` +
-          `Group Members: ${duplicateInfo.allGroupMembers.map(m => m.studentInfo.studentName).join(', ')}\n\n` +
-          `Please use a different payment method or verify the student details.`);
-        resetFormToCleanState();
-      }, 100);
-    }
+      // 🆕 Check for unpaid member match
+  const unpaidMatch = duplicateInfo.allGroupMembers.find(member =>
+    member.studentInfo.studentName.trim().toUpperCase() === formData.studentName.trim().toUpperCase()
+    && member.isPaid === false
+  );
+
+  if (unpaidMatch) {
+    // 🔧 FIX: Close modal BEFORE showing alert
+    setDuplicateCheckModal(false);
+    setDuplicateInfo(null);
+
+    setTimeout(() => {
+      alert(`⚠️ ${unpaidMatch.studentInfo.studentName} is an UNPAID group member.\n\n` +
+        `This student exists in the group but has not made any payment yet.\n` +
+        `Please record a payment before trying to link.`);
+    }, 100);
+
+  } else {
+    // 🚫 Student not in group at all
+    setDuplicateCheckModal(false);
+    setDuplicateInfo(null);
+
+    setTimeout(() => {
+      alert(`❌ STUDENT NOT IN GROUP!\n\n` +
+        `Current Student: ${formData.studentName.toUpperCase()}\n` +
+        `Father: ${formData.fatherName.toUpperCase()}\n\n` +
+        `This student is not part of the existing group payment.\n` +
+        `Group Members: ${duplicateInfo.allGroupMembers.map(m => m.studentInfo.studentName).join(', ')}\n\n` +
+        `Please use a different payment method or verify the student details.`);
+      resetFormToCleanState();
+    }, 100);
+  }
   }
 };
 
