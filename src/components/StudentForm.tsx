@@ -827,7 +827,7 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
     
     console.log("✅ Student hasn't paid before, proceeding with group addition");
     
-    // 🔧 FIX: Check if current student name matches any existing group member
+    // 🔧 FIX: Check if current student name matches any existing group members
     // ✅ To this:
 const existingMember = duplicateInfo.allGroupMembers.find(member => 
   member.studentInfo.studentName.trim().toUpperCase() === formData.studentName.trim().toUpperCase()
