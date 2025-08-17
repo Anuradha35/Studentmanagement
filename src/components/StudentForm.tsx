@@ -2799,126 +2799,150 @@ const handleSubmit = (e: React.FormEvent) => {
                         </p>
                       </div>
                     </div>
-                    <div className="space-y-1 text-sm">
-                      <p className="text-yellow-400 font-bold text-lg">
-                        Individual Paid Student:
-                      </p>
+                  <div className="space-y-1 text-sm">
+  <p className="text-yellow-400 font-bold text-lg">
+    Individual Paid Student:
+  </p>
 
-                      {/* Single or Group both handled */}
-                      {duplicateInfo.paymentType === 'single' ? (
-                        <div className="flex justify-between">
-                          <span className="text-gray-300 truncate mr-2">
-                            {duplicateInfo.existingPayment.studentName ||
-                             duplicateInfo.studentInfo?.studentName ||
-                             duplicateInfo.existingPayment.studentInfo?.studentName ||
-                             'Unknown Student'}:
-                          </span>
-                          <span className="text-green-400 font-medium">
-                            ₹{duplicateInfo.existingPayment.amount?.toLocaleString()}
-                          </span>
-                        </div>
-                      ) : (
-                        duplicateInfo.allGroupMembers.map((member) => (
-                          <div
-                            key={member.studentInfo.id}
-                            className="flex justify-between"
-                          >
-                            <span className="text-gray-300 truncate mr-2">
-                              {member.studentInfo.studentName}:
-                            </span>
-                            <span className="text-green-400 font-medium">
-                              ₹{member.existingPayment.amount?.toLocaleString()}
-                            </span>
-                          </div>
-                        ))
-                      )}
+  {/* ✅ Single or Group both handled */}
+ {duplicateInfo.paymentType === 'single' ? (
+  <div className="flex justify-between">
+    <span className="text-gray-300 truncate mr-2">
+      {duplicateInfo.existingPayment.studentName ||
+       duplicateInfo.studentInfo?.studentName ||
+       duplicateInfo.existingPayment.studentInfo?.studentName ||
+       'Unknown Student'}:
+    </span>
+    <span className="text-green-400 font-medium">
+      ₹{duplicateInfo.existingPayment.amount?.toLocaleString()}
+    </span>
+  </div>
+) : (
+  duplicateInfo.allGroupMembers.map((member) => (
+    <div
+      key={member.studentInfo.id}
+      className="flex justify-between"
+    >
+      <span className="text-gray-300 truncate mr-2">
+        {member.studentInfo.studentName}:
+      </span>
+      <span className="text-green-400 font-medium">
+        ₹{member.existingPayment.amount?.toLocaleString()}
+      </span>
+    </div>
+  ))
+)}
 
-                      {/* Only show unpaid members if group */}
-                      {duplicateInfo.paymentType === 'group' && (() => {
-                        const existingPaymentMembers = duplicateInfo.allGroupMembers || [];
-                        const currentPaidMemberNames = existingPaymentMembers.map(m => m.studentInfo.studentName.trim());
-                        const allMembers = duplicateInfo.existingPayment.groupStudents
-                          ? duplicateInfo.existingPayment.groupStudents.split(', ').map(name => name.trim())
-                          : [];
-                        const unpaidMembers = allMembers.filter(m => !currentPaidMemberNames.includes(m));
+  {/* ✅ Only show unpaid members if group */}
+  {duplicateInfo.paymentType === 'group' && (() => {
+    const existingPaymentMembers = duplicateInfo.allGroupMembers || [];
+    const currentPaidMemberNames = existingPaymentMembers.map(m => m.studentInfo.studentName.trim());
+    const allMembers = duplicateInfo.existingPayment.groupStudents
+      ? duplicateInfo.existingPayment.groupStudents.split(', ').map(name => name.trim())
+      : [];
+    const unpaidMembers = allMembers.filter(m => !currentPaidMemberNames.includes(m));
 
-                        const actualTotal = duplicateInfo.existingPayment.totalGroupAmount || 0;
-                        const actualPaid = existingPaymentMembers.reduce((sum, m) => sum + (m.existingPayment.amount || 0), 0);
-                        const remaining = actualTotal - actualPaid;
+    const actualTotal = duplicateInfo.existingPayment.totalGroupAmount || 0;
+    const actualPaid = existingPaymentMembers.reduce((sum, m) => sum + (m.existingPayment.amount || 0), 0);
+    const remaining = actualTotal - actualPaid;
 
-                        if (unpaidMembers.length > 0 && remaining > 0) {
-                          return (
-                            <div className="mt-3 pt-3 border-t border-gray-700 text-sm">
-                              <p className="text-yellow-400 font-bold text-lg mb-1">Other Members:</p>
-                              <div className="flex justify-between items-center">
-                                <span className="text-blue-200">{unpaidMembers.join(', ')}</span>
-                                <span className="text-orange-400 font-medium">
-                                  ₹{remaining.toLocaleString()}
-                                </span>
-                              </div>
-                            </div>
-                          );
-                        }
-                        return null;
-                      })()}
-                    </div>
+    if (unpaidMembers.length > 0 && remaining > 0) {
+      return (
+        <div className="mt-3 pt-3 border-t border-gray-700 text-sm">
+          <p className="text-yellow-400 font-bold text-lg mb-1">Other Members:</p>
+          <div className="flex justify-between items-center">
+            <span className="text-blue-200">{unpaidMembers.join(', ')}</span>
+            <span className="text-orange-400 font-medium">
+              ₹{remaining.toLocaleString()}
+            </span>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  })()}
+</div>
 
+{/* ✅ Footer payment amount */}
+<div className="mt-1 pt-3 border-t border-gray-700 text-sm">
+ 
+</div>
+
+
+              <div className="space-y-2">
+                {/*    <div>
+                  <p className="text-gray-400 text-sm">Total Group Payment</p>
+                  <p className="text-2xl font-bold text-purple-400">
+                    ₹{duplicateInfo.existingPayment.totalGroupAmount?.toLocaleString()}
+                  </p>
+                </div>*/}
                 
-                    {/* Footer payment amounts */}
-                    <div className="mt-1 pt-3 border-t border-gray-700 text-sm">
-                      <span className="text-purple-400 font-bold text-lg mb-1">
-                        {duplicateInfo.paymentType === 'single'
-                          ? 'Single Payment:'
-                          : 'Total Group Payment:'}
-                      </span>
-                      <span className="float-right text-purple-400 font-bold">
-                        ₹{duplicateInfo.existingPayment.totalGroupAmount?.toLocaleString() ||
-                          duplicateInfo.existingPayment.amount?.toLocaleString()}
-                      </span>
-                    </div>
+                {/* ✅ Show breakdown by member */}
+                
+                 
 
-                    {/* Online/Offline breakdown */}
-                    <div className="text-sm space-y-1 mt-2 pt-2 border-t border-gray-600">
-                      {duplicateInfo.existingPayment.onlineAmount > 0 && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">💳 Total Online:</span>
-                          <span className="text-white">₹{duplicateInfo.existingPayment.onlineAmount?.toLocaleString()}</span>
-                        </div>
-                      )}
-                      {duplicateInfo.existingPayment.offlineAmount > 0 && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">💵 Total Offline:</span>
-                          <span className="text-white">₹{duplicateInfo.existingPayment.offlineAmount?.toLocaleString()}</span>
-                        </div>
-                      )}
-                      {duplicateInfo.existingPayment.utrId && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">UTR ID:</span>
-                          <span className="text-white font-mono">{duplicateInfo.existingPayment.utrId}</span>
-                        </div>
-                      )}
-                      {duplicateInfo.existingPayment.receiptNo && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-400">Receipt No:</span>
-                          <span className="text-white font-mono">{duplicateInfo.existingPayment.receiptNo}</span>
-                        </div>
-                      )}
-                      {duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
-                        <div className="mt-4 pt-4 border-t border-gray-600">
-                          <p className="text-gray-400 text-sm mb-2">Group Members</p>
-                          <div className="flex flex-wrap gap-2">
-                            {duplicateInfo.existingPayment.groupStudents.split(', ').map((student, index) => (
-                              <span key={index} className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-sm">
-                                {student}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+
+
+                {/* ✅ Footer payment amounts */}
+<div className="mt-1 pt-3 border-t border-gray-700 text-sm">
+  <span className="text-purple-400 font-bold text-lg mb-1">
+    {duplicateInfo.paymentType === 'single'
+      ? 'Single Payment:'
+      : 'Total Group Payment:'}
+  </span>
+  <span className="float-right text-purple-400 font-bold">
+    ₹{duplicateInfo.existingPayment.totalGroupAmount?.toLocaleString() ||
+      duplicateInfo.existingPayment.amount?.toLocaleString()}
+  </span>
+</div>
+
+                                
+
+                {/* Online/Offline breakdown */}
+                <div className="text-sm space-y-1 mt-2 pt-2 border-t border-gray-600">
+                  {duplicateInfo.existingPayment.onlineAmount > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">💳 Total Online:</span>
+                      <span className="text-white">₹{duplicateInfo.existingPayment.onlineAmount?.toLocaleString()}</span>
                     </div>
-                  </div>
+                  )}
+                  {duplicateInfo.existingPayment.offlineAmount > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">💵 Total Offline:</span>
+                      <span className="text-white">₹{duplicateInfo.existingPayment.offlineAmount?.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {duplicateInfo.existingPayment.utrId && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">UTR ID:</span>
+                      <span className="text-white font-mono">{duplicateInfo.existingPayment.utrId}</span>
+                    </div>
+                  )}
+                  {duplicateInfo.existingPayment.receiptNo && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Receipt No:</span>
+                      <span className="text-white font-mono">{duplicateInfo.existingPayment.receiptNo}</span>
+                    </div>
+                  )}
+                  {duplicateInfo.paymentType === 'group' && duplicateInfo.existingPayment.groupStudents && (
+              <div className="mt-4 pt-4 border-t border-gray-600">
+                <p className="text-gray-400 text-sm mb-2">Group Members</p>
+                <div className="flex flex-wrap gap-2">
+                  {duplicateInfo.existingPayment.groupStudents.split(', ').map((student, index) => (
+                    <span key={index} className="px-2 py-1 bg-purple-500/20 text-purple-300 rounded text-sm">
+                      {student}
+                    </span>
+                  ))}
                 </div>
               </div>
+            )}
+                  
+                </div>
+              </div>
+            </div>
+           
+          </div>
+        </div>
 
               {/* Action Message */}
               {duplicateInfo.paymentType === 'single' || paymentType === 'single' ? (
