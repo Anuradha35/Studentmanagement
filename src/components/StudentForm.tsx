@@ -1232,84 +1232,56 @@ const handleSubmit = (e: React.FormEvent) => {
       return;
     }
 
-    // 🆕 ENHANCED: Handle multiple duplicates
-    // ✅ FIXED DUPLICATE CHECK - Works with your existing checkForDuplicateStudentFull function
-if (
-  formData.studentName.trim() &&
-  formData.fatherName.trim() &&
-  selectedYear &&
-  selectedCourse
-) {
-  // 🔍 Check for duplicate student (your existing function returns single object)
-  const duplicateStudent = checkForDuplicateStudentFull(
-    formData.studentName.trim(),
-    formData.fatherName.trim(),
-    selectedCourse,
-    selectedYear
-  );
+    // 🆕 ENHANCED: Handle multiple duplicatess
+    if (duplicateStudents.length > 0) {
+      // Check if any duplicate is in the same course
+      const sameCourseStudent = duplicateStudents.find(dup => dup.isSameCourse);
+      
+      if (sameCourseStudent) {
+        const { student, location, courseName, yearName } = sameCourseStudent;
+        
+        // ✅ Same course/year check end date
+        if (yearName === selectedYear) {
+          const today = new Date();
+          const existingEndDateParts = (student.endDate || "").split(".");
+          const existingEndDate = new Date(
+            parseInt(existingEndDateParts[2]),
+            parseInt(existingEndDateParts[1]) - 1,
+            parseInt(existingEndDateParts[0])
+          );
 
-  // Helper: Payment conflict check (checks all students/payments)
-  const isPaymentDuplicate = (utr: string, receipt: string) => {
-    return Object.values(appData.years).some((courses) =>
-      Object.values(courses).some((batches) =>
-        Object.values(batches).some((batch) =>
-          batch.students?.some((s) =>
-            s.payments?.some(
-              (p) =>
-                (utr && utr.trim() !== "" && p.utrId === utr.trim()) ||
-                (receipt && receipt.trim() !== "" && p.receiptNo === receipt.trim())
-            )
-          )
-        )
-      );
-    };
+          if (existingEndDate >= today) {
+            // Show blocking modal and prevent submission
+            setDuplicateInfo({
+              studentName: student.studentName,
+              fatherName: student.fatherName,
+              location: location,
+              courseName: courseName,
+              yearName: yearName
+            });
+            setDuplicateModalOpen(true);
+            return; // Stop submission
+          }
 
-  // Extract payment IDs for current admission
-  const currentUtr = paymentType === "single" ? utrId.trim() : groupUtrId.trim();
-  const currentReceipt = paymentType === "single" ? receiptNo.trim() : groupReceiptNo.trim();
-
-  // Check global payment duplication
-  if (isPaymentDuplicate(currentUtr, currentReceipt)) {
-    alert(`❌ Duplicate Payment Detected!\n\nUTR or Receipt number is already used for another admission.`);
-    return;
-  }
-
-  // ✅ Handle duplicate student (single object)
-  if (duplicateStudent) {
-    const { student, location, isSameCourse, courseName, yearName } = duplicateStudent;
-
-    if (isSameCourse && yearName === selectedYear) {
-      // ✅ Same course/year check end date
-      const today = new Date();
-      const existingEndDateParts = (student.endDate || "").split(".");
-      const existingEndDate = new Date(
-        parseInt(existingEndDateParts[2]),
-        parseInt(existingEndDateParts[1]) - 1,
-        parseInt(existingEndDateParts[0])
-      );
-
-      if (existingEndDate >= today) {
-        // ✅ Course is still active - block submission
-        alert(
-          `❌ Admission Already Active!\n\nStudent "${student.studentName}" with Father "${student.fatherName}" is already enrolled in ${location}.\n📚 Course: ${courseName} | 📅 Year: ${yearName}\n⏳ Ends on: ${student.endDate}`
+          // ✅ End date passed → allow re-admission
+          console.log("✅ Same course/year allowed after end date passed");
+        }
+      } else {
+        // Different course(s) → Show detailed confirmation with all courses
+        const coursesList = duplicateStudents
+          .map(dup => `📚 ${dup.courseName} (Year: ${dup.yearName}, Batch: ${dup.batchName})`)
+          .join('\n');
+        
+        const proceed = window.confirm(
+          `ℹ️ Student "${duplicateStudents[0].student.studentName}" with Father "${duplicateStudents[0].student.fatherName}" is already enrolled in other course(s):\n\n${coursesList}\n\n🔄 Current Entry: ${selectedCourse} (Year: ${selectedYear}, Batch: ${selectedBatch})\n\n✅ Do you want to proceed with admission to "${selectedCourse}"?\n\n💡 Note: Same student can be enrolled in multiple different courses.`
         );
-        return; // Stop submission
-      }
-
-      // ✅ End date passed → allow re-admission
-      console.log("✅ Same course/year allowed after end date passed");
-    } else {
-      // Different course → Show confirmation
-      const proceed = window.confirm(
-        `ℹ️ Student "${student.studentName}" with Father "${student.fatherName}" is already enrolled in another course.\n📚 Existing: ${courseName} | 📅 Year: ${yearName}\n\n🔄 Current Entry: ${selectedCourse} (Year: ${selectedYear}, Batch: ${selectedBatch})\n\n✅ Do you want to proceed with admission to "${selectedCourse}"?\n\n💡 Note: Same student can be enrolled in multiple different courses.`
-      );
-      if (!proceed) {
-        return; // Stop submission if user cancels
+        
+        if (!proceed) {
+          return; // Stop submission if user cancelss
+        }
       }
     }
   }
-}
-  
 
   setErrors(newErrors);
 
