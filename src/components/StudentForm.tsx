@@ -902,9 +902,7 @@ const existingMember = duplicateInfo.allGroupMembers.find(member =>
 
   } 
       
-      // 🔧 FIX: Close modal BEFORE showing alert
-      setDuplicateCheckModal(false);
-      setDuplicateInfo(null);
+      
       
       // 🔧 FIX: Show error message for non-matching student
       setTimeout(() => {
