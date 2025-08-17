@@ -3148,7 +3148,7 @@ if (isStudentNameInGroup) {
     // For main paid student, check father name
     isFatherNameMatching = currentFatherName === existingFatherName;
     if (!isFatherNameMatching) {
-      validationMessage = `Father name mismatch for main paid student.\nExpected: ${existingFatherName}\nEntered: ${currentFatherName}`;
+      validationMessage = ` ${currentStudentName} Is Not Member of this Group. Father name mismatch for main paid student.\nExpected: ${existingFatherName}\nEntered: ${currentFatherName}`;
     }
   } else {
     // For other group members, allow with warning
