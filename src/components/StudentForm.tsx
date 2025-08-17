@@ -3131,7 +3131,7 @@ if (isStudentNameInGroup) {
     // For other group members, allow with warning
     console.log("⚠️ WARNING: Cannot validate father name for non-main group member");
     isFatherNameMatching = true; // Allow but show warning
-    validationMessage = `⚠️ Note: Father name validation not available for group member "${currentStudentName}".\nOnly main paid student's father name is verified.\n\nProceed with caution.`;
+    validationMessage = `⚠️ Note:  "${currentStudentName}".\nIs Group member.\n`;
   }
 }
 
