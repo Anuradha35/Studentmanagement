@@ -3183,6 +3183,18 @@ console.log("🔍 Student name in group:", isStudentNameInGroup);
 console.log("🔍 Father name matching:", isFatherNameMatching);
 console.log("🔍 Final match result:", isStudentInExistingGroup);
 
+      // 🆕 Add these two checks at the top
+const isStudentInExistingGroup = duplicateInfo.allGroupMembers.some(member =>
+  member.studentInfo.studentName.trim().toUpperCase() === currentStudentName &&
+  member.studentInfo.fatherName.trim().toUpperCase() === currentFatherName &&
+  member.isPaid === true // ✅ Only paid members considered
+);
+
+const isUnpaidGroupMember = duplicateInfo.allGroupMembers.some(member =>
+  member.studentInfo.studentName.trim().toUpperCase() === currentStudentName &&
+  member.studentInfo.fatherName.trim().toUpperCase() === currentFatherName &&
+  member.isPaid === false // ⚠️ Only unpaid members
+);
 if (isStudentInExistingGroup) {
 // Show warning message if exists
         if (validationMessage && validationMessage.includes('⚠️')) {
@@ -3190,78 +3202,83 @@ if (isStudentInExistingGroup) {
         if (!proceedWithWarning) {
               console.log("🚫 User cancelled due to validation warning");
               setDuplicateCheckModal(false);
-              setDuplicateInfo(null);
-          
+              setDuplicateInfo(null); 
               return;
           }
         }
-  
         // ✅ SCENARIO 1: Student is already in the group payment
-        console.log("✅ SCENARIO 1: Current student IS part of existing group");
-        
-        
+        console.log("✅ SCENARIO 1: Current student IS part of existing group");      
         // Check if same course/batch/year/duration
         const isSameCourse = selectedCourse === duplicateInfo.courseName;
-        const isSameBatch = selectedBatch === duplicateInfo.batchName;
-        const isSameYear = selectedYear === duplicateInfo.yearName;
-        const isSameDuration = formData.courseDuration === duplicateInfo.studentInfo.courseDuration;
-        
-        if (isSameCourse && isSameBatch && isSameYear && isSameDuration) {
-          console.log("✅ EXACT MATCH: Same course, batch, year, and duration");
-          canProceed = true;
-          proceedMessage = `✅ Exact match found!\n\nStudent: ${currentStudentName}\nFather: ${currentFatherName}\nCourse: ${selectedCourse}\nBatch: ${selectedBatch}\nYear: ${selectedYear}\nDuration: ${formData.courseDuration}\n\nThis appears to be the same enrollment. Payment details will be pre-filled.`;
-    
-        } else {
-          console.log("⚠️ PARTIAL MATCH: Different course details");
-          canProceed = true; // Allow but with warning
-          warningMessage = `⚠️ DIFFERENT COURSE DETAILS DETECTED!\n\nCurrent Entry:\n- Course: ${selectedCourse}\n- Batch: ${selectedBatch}\n- Year: ${selectedYear}\n- Duration: ${formData.courseDuration}\n\nExisting Payment:\n- Course: ${duplicateInfo.courseName}\n- Batch: ${duplicateInfo.batchName}\n- Year: ${duplicateInfo.yearName}\n- Duration: ${duplicateInfo.studentInfo.courseDuration}\n\nThis student (${currentStudentName}) appears to be enrolled in multiple courses/batches. Do you want to proceed with creating a separate payment entry for the current course?`;
-        }
-      } else {
-        // ✅ SCENARIO 2: Student is NOT in existing group - this should  not be alloweds
-       // ✅ NEW CODE (REPLACE WITH THIS):
-// Error handling
+  const isSameBatch = selectedBatch === duplicateInfo.batchName;
+  const isSameYear = selectedYear === duplicateInfo.yearName;
+  const isSameDuration = formData.courseDuration === duplicateInfo.studentInfo.courseDuration;
+
+  if (isSameCourse && isSameBatch && isSameYear && isSameDuration) {
+    console.log("✅ EXACT MATCH: Same course, batch, year, and duration");
+    canProceed = true;
+    proceedMessage = `✅ Exact match found!\n\nStudent: ${currentStudentName}\nFather: ${currentFatherName}\nCourse: ${selectedCourse}\nBatch: ${selectedBatch}\nYear: ${selectedYear}\nDuration: ${formData.courseDuration}\n\nThis appears to be the same enrollment. Payment details will be pre-filled.`;
+  } else {
+    console.log("⚠️ PARTIAL MATCH: Different course details");
+    canProceed = true;
+    warningMessage = `⚠️ DIFFERENT COURSE DETAILS DETECTED!\n\nCurrent Entry:\n- Course: ${selectedCourse}\n- Batch: ${selectedBatch}\n- Year: ${selectedYear}\n- Duration: ${formData.courseDuration}\n\nExisting Payment:\n- Course: ${duplicateInfo.courseName}\n- Batch: ${duplicateInfo.batchName}\n- Year: ${duplicateInfo.yearName}\n- Duration: ${duplicateInfo.studentInfo.courseDuration}\n\nThis student (${currentStudentName}) appears to be enrolled in multiple courses/batches. Do you want to proceed with creating a separate payment entry for the current course?`;
+  }
+      } 
+else if (isUnpaidGroupMember) {
+  // ⚠️ SCENARIO: Student exists in group but is unpaid
+  console.log("⚠️ Current student is an UNPAID group member");
+
+  setDuplicateCheckModal(false);
+  setDuplicateInfo(null);
+
+  setTimeout(() => {
+    alert(`⚠️ ${currentStudentName} is an UNPAID group member.\n\n` +
+          `This student exists in the group but has not made any payment yet.\n` +
+          `Please record a payment before trying to link.`);
+  }, 100);
+
+  return;
+
+} else {
+  // ❌ SCENARIO 2: Student is NOT in existing group
   console.log("❌ SCENARIO 2: Validation failed");
-  
+
   let errorReason = '';
   if (!isStudentNameInGroup) {
     errorReason = `Student "${currentStudentName}" is not a member of the existing group payment.`;
   } else if (!isFatherNameMatching) {
     errorReason = validationMessage;
   }
-  
+
   setTimeout(() => {
     alert(`❌ CANNOT ADD TO EXISTING GROUP!\n\n${errorReason}\n\nExisting Group Members: ${existingGroupStudents}\n\nPlease verify the details or use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
-      // ✅ FIXED: Reset all group payment fields as requested
-            setGroupStudentName('');
-            setGroupOnlineAmount('');
-            setGroupOfflineAmount('');
-            setGroupUtrId('');
-            setGroupReceiptNo('');
-            setGroupPaymentDate('');
-            setGroupPayments([]);
-            setDynamicGroupEntries([]);
-            setErrors({});
-            setPaymentType('single'); // Reset to single if cancelled
+    // Reset all group payment fields
+    setGroupStudentName('');
+    setGroupOnlineAmount('');
+    setGroupOfflineAmount('');
+    setGroupUtrId('');
+    setGroupReceiptNo('');
+    setGroupPaymentDate('');
+    setGroupPayments([]);
+    setDynamicGroupEntries([]);
+    setErrors({});
+    setPaymentType('single');
   }, 100);
 
+  if (paymentType === 'group') {
+    if (duplicateInfo.type === 'utr') {
+      setGroupUtrId('');
+      setGroupOnlineAmount('');
+    } else if (duplicateInfo.type === 'receipt') {
+      setGroupReceiptNo('');
+      setGroupOfflineAmount('');
+    }
+  }
 
-        
-        // Clear the problematic field
-        if (paymentType === 'group') {
-          if (duplicateInfo.type === 'utr') {
-            setGroupUtrId('');
-            setGroupOnlineAmount('');
-          } else if (duplicateInfo.type === 'receipt') {
-            setGroupReceiptNo('');
-            setGroupOfflineAmount('');
-          }
-        }
-        
-        setDuplicateCheckModal(false);
-        setDuplicateInfo(null);
-        return;
-      }
-      
+  setDuplicateCheckModal(false);
+  setDuplicateInfo(null);
+  return;
+}    
       // ✅ If we reach here, student is in existing group - show warning if different course detail
 
 // ✅ If we reach here, student is in existing group - show warning if different course details
