@@ -1269,7 +1269,7 @@ const handleSubmit = (e: React.FormEvent) => {
         );
         
         if (!proceed) {
-          return; // Stop submission if user cancels
+          return; // Stop submission if user cancelss
         }
       }
     }
@@ -1277,7 +1277,16 @@ const handleSubmit = (e: React.FormEvent) => {
 
   setErrors(newErrors);
 
-  
+  if (Object.keys(newErrors).length === 0) {
+    const student: Student = {
+      id: Date.now().toString(),
+      ...formData,
+      createdAt: new Date().toISOString()
+    };
+
+    // ✅ FIXED: सिर्फ main student को batch में add करें
+    onAddStudent(selectedYear, selectedCourse, selectedBatch, student);
+
     // ✅ SINGLE PAYMENT SAVE (unchanged)
     if (paymentType === 'single') {
       payments.forEach(payment => {
