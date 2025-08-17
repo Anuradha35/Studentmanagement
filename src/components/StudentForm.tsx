@@ -3213,6 +3213,17 @@ if (isStudentInExistingGroup) {
   
   setTimeout(() => {
     alert(`❌ CANNOT ADD TO EXISTING GROUP!\n\n${errorReason}\n\nExisting Group Members: ${existingGroupStudents}\n\nPlease verify the details or use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
+      // ✅ FIXED: Reset all group payment fields as requested
+            setGroupStudentName('');
+            setGroupOnlineAmount('');
+            setGroupOfflineAmount('');
+            setGroupUtrId('');
+            setGroupReceiptNo('');
+            setGroupPaymentDate('');
+            setGroupPayments([]);
+            setDynamicGroupEntries([]);
+            setErrors({});
+            setPaymentType('single'); // Reset to single if cancelled
   }, 100);
 
 
