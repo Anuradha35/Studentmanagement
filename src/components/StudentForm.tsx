@@ -3172,17 +3172,7 @@ if (isStudentInExistingGroup) {
               console.log("🚫 User cancelled due to validation warning");
               setDuplicateCheckModal(false);
               setDuplicateInfo(null);
-           // Clear previous group data
-                setGroupStudentName('');
-                setGroupOnlineAmount('');
-                setGroupOfflineAmount('');
-                setGroupUtrId('');
-                setGroupReceiptNo('');
-                setGroupPaymentDate('');
-                setGroupPayments([]);
-                setDynamicGroupEntries([]);
-                setErrors({});
-                setPaymentType('single');
+          
               return;
           }
         }
@@ -3208,7 +3198,7 @@ if (isStudentInExistingGroup) {
           warningMessage = `⚠️ DIFFERENT COURSE DETAILS DETECTED!\n\nCurrent Entry:\n- Course: ${selectedCourse}\n- Batch: ${selectedBatch}\n- Year: ${selectedYear}\n- Duration: ${formData.courseDuration}\n\nExisting Payment:\n- Course: ${duplicateInfo.courseName}\n- Batch: ${duplicateInfo.batchName}\n- Year: ${duplicateInfo.yearName}\n- Duration: ${duplicateInfo.studentInfo.courseDuration}\n\nThis student (${currentStudentName}) appears to be enrolled in multiple courses/batches. Do you want to proceed with creating a separate payment entry for the current course?`;
         }
       } else {
-        // ✅ SCENARIO 2: Student is NOT in existing group - this should not be alloweds
+        // ✅ SCENARIO 2: Student is NOT in existing group - this should  not be alloweds
        // ✅ NEW CODE (REPLACE WITH THIS):
 // Error handling
   console.log("❌ SCENARIO 2: Validation failed");
