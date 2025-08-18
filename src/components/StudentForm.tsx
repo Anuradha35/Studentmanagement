@@ -193,49 +193,6 @@ const handleGroupReceiptChange = (e) => {
     setReceiptCheckTimeout(timeoutId);
   }
 };
-const handleCancelAction = () => {
-  console.log("🔥 Cancel button action triggered");
-  
-  if (!duplicateInfo) {
-    console.log("❌ No duplicateInfo found, returning");
-    return;
-  }
-  
-  console.log("🚫 CANCEL ACTION - clearing payment fields");
-  
-  // Clear payment fields based on payment type and duplicate type
-  if (paymentType === 'single') {
-    if (duplicateInfo.type === 'utr') {
-      setUtrId('');
-    } else if (duplicateInfo.type === 'receipt') {
-      setReceiptNo('');
-    }
-  } else if (paymentType === 'group') {
-    if (duplicateInfo.type === 'utr') {
-      setGroupUtrId('');
-      setGroupOnlineAmount('');
-    } else if (duplicateInfo.type === 'receipt') {
-      setGroupReceiptNo('');
-      setGroupOfflineAmount('');
-    }
-  }
-  
-  setDuplicateCheckModal(false);
-  setDuplicateInfo(null);
-  console.log("✅ Modal closed after cancel");
-  
-  // Clear previous group data
-  setGroupStudentName('');
-  setGroupOnlineAmount('');
-  setGroupOfflineAmount('');
-  setGroupUtrId('');
-  setGroupReceiptNo('');
-  setGroupPaymentDate('');
-  setGroupPayments([]);
-  setDynamicGroupEntries([]);
-  setErrors({});
-  setPaymentType('single');
-};
 
 // Cleanup useEffect
 useEffect(() => {
@@ -246,7 +203,29 @@ useEffect(() => {
   };
 }, [receiptCheckTimeout]);
 
-  
+  // Just add this useEffect in your component
+useEffect(() => {
+  if (duplicateCheckModal) {
+    document.body.style.overflow = 'hidden';
+    
+    const blockAll = (e) => {
+      const modal = e.target.closest('[data-duplicate-modal]');
+      if (!modal) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    
+    document.addEventListener('click', blockAll, true);
+    document.addEventListener('keydown', blockAll, true);
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+      document.removeEventListener('click', blockAll, true);
+      document.removeEventListener('keydown', blockAll, true);
+    };
+  }
+}, [duplicateCheckModal]);
 // ✅ ENHANCED FUNCTION: Check for ALL student enrollments across ALL courses
 const checkForAllStudentEnrollments = (studentName: string, fatherName: string) => {
   console.log("🔍 Checking for student across ALL courses:", { studentName, fatherName });
@@ -2930,6 +2909,7 @@ for (const payment of currentPayments) {
           setDuplicateInfo(null);
         }} 
         className="fixed z-50 inset-0 flex items-center justify-center">
+        data-duplicate-modal // Yeh line add karo
         <div className="bg-black bg-opacity-50 fixed inset-0"></div>
         <Dialog.Panel className="bg-slate-800 border border-red-500/30 rounded-lg p-6 z-50 w-full max-w-6xl mx-4 max-h-[90vh] overflow-y-auto">
           <div className="flex items-center gap-3 mb-6">
@@ -3220,20 +3200,56 @@ for (const payment of currentPayments) {
 
           <div className="flex gap-3">
             <button 
-  type="button"
-  onClick={handleCancelAction}
+              type="button"
+              
+              onClick={() => {
+                console.log("🔥 DIRECT Cancel button clicked");
+                
+                if (!duplicateInfo) {
+                  console.log("❌ No duplicateInfo found, returning");
+                  return;
+                }
+                
+                console.log("🚫 CANCEL ACTION - clearing payment fields");
+                
+                // Clear payment fields based on payment type and duplicate type
+                if (paymentType === 'single') {
+                  if (duplicateInfo.type === 'utr') {
+                    setUtrId('');
+                  } else if (duplicateInfo.type === 'receipt') {
+                    setReceiptNo('');
+                  }
+                } else if (paymentType === 'group') {
+                  if (duplicateInfo.type === 'utr') {
+                    setGroupUtrId('');
+                    setGroupOnlineAmount('');
+                  } else if (duplicateInfo.type === 'receipt') {
+                    setGroupReceiptNo('');
+                    setGroupOfflineAmount('');
+                  }
+                }
+                
+                setDuplicateCheckModal(false);
+                setDuplicateInfo(null);
+                console.log("✅ Modal closed after cancel");
+                
+                // Clear previous group data
+                setGroupStudentName('');
+                setGroupOnlineAmount('');
+                setGroupOfflineAmount('');
+                setGroupUtrId('');
+                setGroupReceiptNo('');
+                setGroupPaymentDate('');
+                setGroupPayments([]);
+                setDynamicGroupEntries([]);
+                setErrors({});
+                setPaymentType('single');
+              }}
               autoFocus={duplicateCheckModal} // Modal open hai toh focus karo
-  onKeyDown={(e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleCancelAction();
-    }
-  }}
-  tabIndex={0}
-  className="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-gray-500"
->
-  Cancel
-</button>
+              className="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+            >
+              Cancel
+            </button>
             
              {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
         <button 
