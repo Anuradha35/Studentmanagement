@@ -3457,7 +3457,7 @@ for (const payment of currentPayments) {
         )}
       </div>
             
-          </div>
+          
         </Dialog.Panel>
       </Dialog>
 
