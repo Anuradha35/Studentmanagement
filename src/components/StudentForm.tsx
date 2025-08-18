@@ -161,7 +161,7 @@ const [receiptCheckTimeout, setReceiptCheckTimeout] = useState(null);
         setDuplicateCheckModal(true);
         setReceiptNo('');
       }
-    }, 1000); // 1 second delay
+    }, 200); // 1 second delay
     
     setReceiptCheckTimeout(timeoutId);
   }
@@ -188,7 +188,7 @@ const handleGroupReceiptChange = (e) => {
         setDuplicateCheckModal(true);
         setReceiptNo('');
       }
-    }, 1000);
+    }, 200);
     
     setReceiptCheckTimeout(timeoutId);
   }
