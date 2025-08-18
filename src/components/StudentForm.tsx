@@ -2883,31 +2883,7 @@ for (const payment of currentPayments) {
       {/* Enhanced Duplicate Check Modal */}
       <Dialog 
         open={duplicateCheckModal} 
-        onClose={() => {
-          console.log("🔥 Dialog onClose triggered - treating as cancel");
-          
-          if (!duplicateInfo) return;
-          
-          // Clear payment fields on closes
-          if (paymentType === 'single') {
-            if (duplicateInfo.type === 'utr') {
-              setUtrId('');
-            } else if (duplicateInfo.type === 'receipt') {
-              setReceiptNo('');
-            }
-          } else if (paymentType === 'group') {
-            if (duplicateInfo.type === 'utr') {
-              setGroupUtrId('');
-              setGroupOnlineAmount('');
-            } else if (duplicateInfo.type === 'receipt') {
-              setGroupReceiptNo('');
-              setGroupOfflineAmount('');
-            }
-          }
-          
-          setDuplicateCheckModal(false);
-          setDuplicateInfo(null);
-        }} 
+        onClose={() => {}} 
         className="fixed z-50 inset-0 flex items-center justify-center" >
         <div className="bg-black bg-opacity-50 fixed inset-0"></div>
         <Dialog.Panel className="bg-slate-800 border border-red-500/30 rounded-lg p-6 z-50 w-full max-w-6xl mx-4 max-h-[90vh] overflow-y-auto">
