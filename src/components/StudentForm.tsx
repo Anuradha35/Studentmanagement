@@ -138,6 +138,90 @@ const StudentForm: React.FC<StudentFormProps> = ({
     };
   } | null>(null);
 
+  const [receiptCheckTimeout, setReceiptCheckTimeout] = useState(null);
+  const handleSingleReceiptChange = (e) => {
+  const value = e.target.value.replace(/\D/g, '');
+  setReceiptNo(value);
+  
+  // Clear error if exists
+  if (errors.receiptNo) setErrors({ ...errors, receiptNo: '' });
+  
+  // Clear previous timeout
+  if (receiptCheckTimeout) {
+    clearTimeout(receiptCheckTimeout);
+  }
+  
+  // Set new timeout for duplicate check
+  if (value.trim() !== "") {
+    const timeoutId = setTimeout(() => {
+      const duplicate = findDuplicatePaymentWithAllMembers(undefined, value.trim());
+      if (duplicate) {
+        setDuplicateInfo(duplicate);
+        setDuplicateCheckModal(true);
+        setReceiptNo('');
+      }
+    }, 1000); // 1 second delay
+    
+    setReceiptCheckTimeout(timeoutId);
+  }
+};
+// Function add karo
+const handleGroupReceiptChange = (e) => {
+  const value = e.target.value.replace(/\D/g, '');
+  setGroupReceiptNo(value);
+  
+  if (errors.groupReceiptNo) setErrors({ ...errors, groupReceiptNo: '' });
+  
+  // Clear previous timeout
+  if (receiptCheckTimeout) {
+    clearTimeout(receiptCheckTimeout);
+  }
+  
+  // Set new timeout for duplicate check
+  if (value.trim() !== "") {
+    const timeoutId = setTimeout(() => {
+      const duplicate = findDuplicatePaymentWithAllMembers(undefined, value.trim());
+      if (duplicate) {
+        setDuplicateInfo(duplicate);
+        setDuplicateCheckModal(true);
+        setReceiptNo('');
+      }
+    }, 1000);
+    
+    setReceiptCheckTimeout(timeoutId);
+  }
+};
+// Cleanup useEffect
+useEffect(() => {
+  return () => {
+    if (receiptCheckTimeout) {
+      clearTimeout(receiptCheckTimeout);
+    }
+  };
+}, [receiptCheckTimeout]);
+  // Just add this useEffect in your component
+useEffect(() => {
+  if (duplicateCheckModal) {
+    document.body.style.overflow = 'hidden';
+    
+    const blockAll = (e) => {
+      const modal = e.target.closest('[data-duplicate-modal]');
+      if (!modal) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    
+    document.addEventListener('click', blockAll, true);
+    document.addEventListener('keydown', blockAll, true);
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+      document.removeEventListener('click', blockAll, true);
+      document.removeEventListener('keydown', blockAll, true);
+    };
+  }
+}, [duplicateCheckModal]);
 // ✅ ENHANCED FUNCTION: Check for ALL student enrollments across ALL courses
 const checkForAllStudentEnrollments = (studentName: string, fatherName: string) => {
   console.log("🔍 Checking for student across ALL courses:", { studentName, fatherName });
