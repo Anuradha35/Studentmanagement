@@ -2884,7 +2884,7 @@ for (const payment of currentPayments) {
       <Dialog 
         open={duplicateCheckModal} 
         onClose={() => {
-          console.log("🔥 Dialog onClose triggered - treating as cancel");
+          {/*console.log("🔥 Dialog onClose triggered - treating as cancel");
           
           if (!duplicateInfo) return;
           
@@ -2906,7 +2906,7 @@ for (const payment of currentPayments) {
           }
           
           setDuplicateCheckModal(false);
-          setDuplicateInfo(null);
+          setDuplicateInfo(null); */}
         }} 
         className="fixed z-50 inset-0 flex items-center justify-center" >
         <div className="bg-black bg-opacity-50 fixed inset-0"></div>
