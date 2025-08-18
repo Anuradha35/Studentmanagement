@@ -3255,7 +3255,9 @@ for (const payment of currentPayments) {
             {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
         <button 
     type="button"
-    onClick={() => {
+      onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
       console.log("🔥 DIRECT Add to Current Group button clicked");
       
       if (!duplicateInfo) {
