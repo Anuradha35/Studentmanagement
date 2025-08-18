@@ -1344,20 +1344,7 @@ const handleSubmit = (e: React.FormEvent) => {
     }
   }
 
-  // 🆕 ENHANCED: Global payment duplicate validation
-  const currentPayments = [];
-  if (paymentType === 'single') {
-    payments.forEach(payment => {
-      if (payment.utrId) currentPayments.push({ type: 'utr', value: payment.utrId });
-      if (payment.receiptNo) currentPayments.push({ type: 'receipt', value: payment.receiptNo });
-    });
-  } else if (paymentType === 'group') {
-    if (groupUtrId) currentPayments.push({ type: 'utr', value: groupUtrId });
-    if (groupReceiptNo) currentPayments.push({ type: 'receipt', value: groupReceiptNo });
-  }
-
-  // 🆕 REPLACE Lines 98-108 with this ENHANCED logic:
-
+  
 // 🆕 ENHANCED: Global payment duplicate validation with GROUP MEMBER support
 const currentPayments = [];
 if (paymentType === 'single') {
