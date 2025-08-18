@@ -193,6 +193,49 @@ const handleGroupReceiptChange = (e) => {
     setReceiptCheckTimeout(timeoutId);
   }
 };
+const handleCancelAction = () => {
+  console.log("🔥 Cancel button action triggered");
+  
+  if (!duplicateInfo) {
+    console.log("❌ No duplicateInfo found, returning");
+    return;
+  }
+  
+  console.log("🚫 CANCEL ACTION - clearing payment fields");
+  
+  // Clear payment fields based on payment type and duplicate type
+  if (paymentType === 'single') {
+    if (duplicateInfo.type === 'utr') {
+      setUtrId('');
+    } else if (duplicateInfo.type === 'receipt') {
+      setReceiptNo('');
+    }
+  } else if (paymentType === 'group') {
+    if (duplicateInfo.type === 'utr') {
+      setGroupUtrId('');
+      setGroupOnlineAmount('');
+    } else if (duplicateInfo.type === 'receipt') {
+      setGroupReceiptNo('');
+      setGroupOfflineAmount('');
+    }
+  }
+  
+  setDuplicateCheckModal(false);
+  setDuplicateInfo(null);
+  console.log("✅ Modal closed after cancel");
+  
+  // Clear previous group data
+  setGroupStudentName('');
+  setGroupOnlineAmount('');
+  setGroupOfflineAmount('');
+  setGroupUtrId('');
+  setGroupReceiptNo('');
+  setGroupPaymentDate('');
+  setGroupPayments([]);
+  setDynamicGroupEntries([]);
+  setErrors({});
+  setPaymentType('single');
+};
 
 // Cleanup useEffect
 useEffect(() => {
@@ -3177,56 +3220,20 @@ for (const payment of currentPayments) {
 
           <div className="flex gap-3">
             <button 
-              type="button"
-              
-              onClick={() => {
-                console.log("🔥 DIRECT Cancel button clicked");
-                
-                if (!duplicateInfo) {
-                  console.log("❌ No duplicateInfo found, returning");
-                  return;
-                }
-                
-                console.log("🚫 CANCEL ACTION - clearing payment fields");
-                
-                // Clear payment fields based on payment type and duplicate type
-                if (paymentType === 'single') {
-                  if (duplicateInfo.type === 'utr') {
-                    setUtrId('');
-                  } else if (duplicateInfo.type === 'receipt') {
-                    setReceiptNo('');
-                  }
-                } else if (paymentType === 'group') {
-                  if (duplicateInfo.type === 'utr') {
-                    setGroupUtrId('');
-                    setGroupOnlineAmount('');
-                  } else if (duplicateInfo.type === 'receipt') {
-                    setGroupReceiptNo('');
-                    setGroupOfflineAmount('');
-                  }
-                }
-                
-                setDuplicateCheckModal(false);
-                setDuplicateInfo(null);
-                console.log("✅ Modal closed after cancel");
-                
-                // Clear previous group data
-                setGroupStudentName('');
-                setGroupOnlineAmount('');
-                setGroupOfflineAmount('');
-                setGroupUtrId('');
-                setGroupReceiptNo('');
-                setGroupPaymentDate('');
-                setGroupPayments([]);
-                setDynamicGroupEntries([]);
-                setErrors({});
-                setPaymentType('single');
-              }}
+  type="button"
+  onClick={handleCancelAction}
               autoFocus={duplicateCheckModal} // Modal open hai toh focus karo
-              className="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
-            >
-              Cancel
-            </button>
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleCancelAction();
+    }
+  }}
+  tabIndex={0}
+  className="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-gray-500"
+>
+  Cancel
+</button>
             
              {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
         <button 
