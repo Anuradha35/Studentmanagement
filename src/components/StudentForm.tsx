@@ -3202,6 +3202,8 @@ for (const payment of currentPayments) {
               type="button"
               
               onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 console.log("🔥 DIRECT Cancel button clicked");
                 
                 if (!duplicateInfo) {
