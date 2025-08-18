@@ -3222,15 +3222,23 @@ for (const payment of currentPayments) {
          
 <button 
   type="button"
-  onClick={handleCancelAction}
+  onClick={() => {
+    console.log("🖱️ Mouse click working");
+    handleCancelAction();
+  }}
   onKeyDown={(e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    console.log("⌨️ Key pressed:", e.key); // Debug log
+    if (e.key === 'Enter') {
       e.preventDefault();
+      e.stopPropagation();
+      console.log("✅ Enter key detected, calling handleCancelAction");
       handleCancelAction();
     }
   }}
-  tabIndex={0}
-  className="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-gray-500"
+  onFocus={() => console.log("🎯 Button focused")} // Debug log
+  tabIndex={0} // Make sure it's focusable
+  autoFocus // Add this to auto-focus when modal opens
+  className="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
 >
   Cancel
 </button>
