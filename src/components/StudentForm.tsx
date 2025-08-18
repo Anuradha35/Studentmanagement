@@ -2880,7 +2880,7 @@ for (const payment of currentPayments) {
         </div>
       </form>
 
-      {/* Enhanced Duplicate Check Modal */}
+      {/* Enhanced Duplicate Check Modalss */}
       <Dialog 
         open={duplicateCheckModal} 
         onClose={() => {
