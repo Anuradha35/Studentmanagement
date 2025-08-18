@@ -3250,7 +3250,7 @@ for (const payment of currentPayments) {
               Cancel
             </button>
             
-             {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
+            {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
         <button 
     type="button"
     onClick={() => {
@@ -3453,6 +3453,7 @@ for (const payment of currentPayments) {
     Add to Current Group
   </button>
       )}
+            
           </div>
         </Dialog.Panel>
       </Dialog>
