@@ -2649,29 +2649,15 @@ for (const payment of currentPayments) {
                             <label className="block text-gray-300 text-sm font-medium mb-2">
                               Receipt Number
                             </label>
-                            <input
-                              type="text"
-                              value={groupReceiptNo}
-                              readOnly={paymentFieldsReadOnly}
-                              onChange={(e) => {
-                                const value = e.target.value.replace(/\D/g, '');
-                                setGroupReceiptNo(value);
-                                if (errors.groupReceiptNo) setErrors({ ...errors, groupReceiptNo: '' });
-                              }}
-                              onBlur={() => {
-                                if (groupReceiptNo.trim() !== "") {
-                                  const duplicate = findDuplicatePaymentWithAllMembers(undefined, groupReceiptNo.trim());
-                                  if (duplicate) {
-                                    setDuplicateInfo(duplicate);
-                                    setDuplicateCheckModal(true);
-                                    setReceiptNo('');
-                                  }
-                                  return;
-                                }
-                              }}
-                              className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="Enter receipt number"
-                            />
+                           <input
+  type="text"
+  value={groupReceiptNo}
+  readOnly={paymentFieldsReadOnly}
+  onChange={handleGroupReceiptChange}
+  className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  placeholder="Enter receipt number"
+/>
+
                             {errors.groupReceiptNo && <p className="text-red-400 text-sm mt-1">{errors.groupReceiptNo}</p>}
                           </div>
                         )}
