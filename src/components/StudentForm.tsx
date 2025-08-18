@@ -138,6 +138,37 @@ const StudentForm: React.FC<StudentFormProps> = ({
     };
   } | null>(null);
 
+const [receiptCheckTimeout, setReceiptCheckTimeout] = useState(null);
+
+const handleReceiptChange = (e) => {
+  const value = e.target.value;
+  setReceiptNo(value);
+  
+  // Clear previous timeout
+  if (receiptCheckTimeout) {
+    clearTimeout(receiptCheckTimeout);
+  }
+  
+  // Set new timeout
+  if (value) {
+    const timeoutId = setTimeout(() => {
+      checkForDuplicateReceipt(value);
+    }, 1000); // 1 second delay
+    
+    setReceiptCheckTimeout(timeoutId);
+  }
+};
+
+// Cleanup on unmount
+useEffect(() => {
+  return () => {
+    if (receiptCheckTimeout) {
+      clearTimeout(receiptCheckTimeout);
+    }
+  };
+}, [receiptCheckTimeout]);
+
+  
 // ✅ ENHANCED FUNCTION: Check for ALL student enrollments across ALL courses
 const checkForAllStudentEnrollments = (studentName: string, fatherName: string) => {
   console.log("🔍 Checking for student across ALL courses:", { studentName, fatherName });
