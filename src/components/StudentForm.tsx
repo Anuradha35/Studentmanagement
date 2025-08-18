@@ -2370,27 +2370,15 @@ for (const payment of currentPayments) {
                         <Receipt className="w-4 h-4 inline mr-1" />
                         Receipt Number
                       </label>
-                      <input
-                        type="text"
-                        value={receiptNo}
-                        onChange={(e) => {
-                          const value = e.target.value.replace(/\D/g, '');
-                          setReceiptNo(value);
-                          if (errors.receiptNo) setErrors({ ...errors, receiptNo: '' });
-                        }}
-                        onBlur={() => {
-                          if (receiptNo.trim() !== "") {
-                            const duplicate = findDuplicatePaymentWithAllMembers(undefined, receiptNo.trim());
-                            if (duplicate) {
-                              setDuplicateInfo(duplicate);
-                              setDuplicateCheckModal(true);
-                              setReceiptNo('');
-                            }
-                          }
-                        }}
-                        className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter receipt number"
-                      />
+                     <input
+  type="text"
+  value={receiptNo}
+  onChange={handleSingleReceiptChange} // Yeh new function use karo
+  // onBlur ko remove kar do
+  className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  placeholder="Enter receipt number"
+/>
+
                       {errors.receiptNo && <p className="text-red-400 text-sm mt-1">{errors.receiptNo}</p>}
                     </div>
                   ) : (
