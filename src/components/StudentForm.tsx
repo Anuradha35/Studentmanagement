@@ -3178,6 +3178,7 @@ for (const payment of currentPayments) {
           <div className="flex gap-3">
             <button 
               type="button"
+              
               onClick={() => {
                 console.log("🔥 DIRECT Cancel button clicked");
                 
@@ -3221,7 +3222,7 @@ for (const payment of currentPayments) {
                 setErrors({});
                 setPaymentType('single');
               }}
-              
+              autoFocus={duplicateCheckModal} // Modal open hai toh focus karo
               className="flex-1 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
             >
               Cancel
