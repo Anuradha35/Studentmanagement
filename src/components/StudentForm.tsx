@@ -1370,7 +1370,7 @@ if (paymentType === 'single') {
   if (groupReceiptNo) currentPayments.push({ type: 'receipt', value: groupReceiptNo });
 }
 
-// Check each payment for global duplicates with GROUP MEMBER logic
+// Check each payment for global duplicates with GROUP MEMBER logics
 for (const payment of currentPayments) {
   console.log("🔍 Checking payment for duplicates:", payment);
   
