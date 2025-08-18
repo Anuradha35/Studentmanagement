@@ -140,26 +140,34 @@ const StudentForm: React.FC<StudentFormProps> = ({
 
 const [receiptCheckTimeout, setReceiptCheckTimeout] = useState(null);
 
-const handleReceiptChange = (e) => {
-  const value = e.target.value;
-  setReceiptNo(value);
+// Function add karo
+const handleGroupReceiptChange = (e) => {
+  const value = e.target.value.replace(/\D/g, '');
+  setGroupReceiptNo(value);
+  
+  if (errors.groupReceiptNo) setErrors({ ...errors, groupReceiptNo: '' });
   
   // Clear previous timeout
   if (receiptCheckTimeout) {
     clearTimeout(receiptCheckTimeout);
   }
   
-  // Set new timeout
-  if (value) {
+  // Set new timeout for duplicate check
+  if (value.trim() !== "") {
     const timeoutId = setTimeout(() => {
-      checkForDuplicateReceipt(value);
-    }, 1000); // 1 second delay
+      const duplicate = findDuplicatePaymentWithAllMembers(undefined, value.trim());
+      if (duplicate) {
+        setDuplicateInfo(duplicate);
+        setDuplicateCheckModal(true);
+        setReceiptNo('');
+      }
+    }, 1000);
     
     setReceiptCheckTimeout(timeoutId);
   }
 };
 
-// Cleanup on unmount
+// Cleanup useEffect
 useEffect(() => {
   return () => {
     if (receiptCheckTimeout) {
