@@ -1749,7 +1749,7 @@ for (const payment of currentPayments) {
       {/* Group Modal */}
       <Dialog 
         open={showGroupModal} 
-        onClose={() =>{}} 
+        onClose={() => setShowGroupModal(false)} 
         className="fixed z-50 inset-0 flex items-center justify-center"
       >
         <div className="bg-black bg-opacity-50 fixed inset-0"></div>
