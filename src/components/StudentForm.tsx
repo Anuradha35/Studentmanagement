@@ -3187,7 +3187,7 @@ for (const payment of currentPayments) {
               Cancel
             </button>
             
-         {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
+        {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
         <button 
     type="button"
     onClick={() => {
@@ -3222,13 +3222,6 @@ for (const payment of currentPayments) {
         setGroupPaymentDate('');
         setGroupCount(0);
         setDynamicGroupEntries([]);
-        
-        // Clear single payment fields
-        setUtrId('');
-        setReceiptNo('');
-        setOnlineAmount('');
-        setOfflineAmount('');
-        setPaymentDate('');
         
         // Reset to single payment mode
         setPaymentType('single');
@@ -3269,13 +3262,6 @@ for (const payment of currentPayments) {
         setGroupPaymentDate('');
         setGroupCount(0);
         setDynamicGroupEntries([]);
-        
-        // Clear single payment fields as fallback
-        setUtrId('');
-        setReceiptNo('');
-        setOnlineAmount('');
-        setOfflineAmount('');
-        setPaymentDate('');
         
         // Reset to single payment mode
         setPaymentType('single');
@@ -3428,13 +3414,6 @@ for (const payment of currentPayments) {
           setGroupCount(0);
           setDynamicGroupEntries([]);
           
-          // Clear single payment fields
-          setUtrId('');
-          setReceiptNo('');
-          setOnlineAmount('');
-          setOfflineAmount('');
-          setPaymentDate('');
-          
           // Reset to single payment mode
           setPaymentType('single');
           setPaymentFieldsReadOnly(false);
@@ -3469,13 +3448,6 @@ for (const payment of currentPayments) {
           setGroupCount(0);
           setDynamicGroupEntries([]);
           
-          // Clear single payment fields
-          setUtrId('');
-          setReceiptNo('');
-          setOnlineAmount('');
-          setOfflineAmount('');
-          setPaymentDate('');
-          
           // Reset to single payment mode
           setPaymentType('single');
           setPaymentFieldsReadOnly(false);
@@ -3503,13 +3475,6 @@ for (const payment of currentPayments) {
         setGroupPaymentDate('');
         setGroupCount(0);
         setDynamicGroupEntries([]);
-        
-        // Clear single payment fields
-        setUtrId('');
-        setReceiptNo('');
-        setOnlineAmount('');
-        setOfflineAmount('');
-        setPaymentDate('');
         
         // Reset to single payment mode
         setPaymentType('single');
@@ -3555,13 +3520,6 @@ for (const payment of currentPayments) {
           setGroupPaymentDate('');
           setGroupCount(0);
           setDynamicGroupEntries([]);
-          
-          // Clear single payment fields
-          setUtrId('');
-          setReceiptNo('');
-          setOnlineAmount('');
-          setOfflineAmount('');
-          setPaymentDate('');
           
           // Reset to single payment mode
           setPaymentType('single');
@@ -3652,13 +3610,6 @@ for (const payment of currentPayments) {
             setGroupPaymentDate('');
             setGroupCount(0);
             setDynamicGroupEntries([]);
-            
-            // Clear single payment fields
-            setUtrId('');
-            setReceiptNo('');
-            setOnlineAmount('');
-            setOfflineAmount('');
-            setPaymentDate('');
             
             // Reset to single payment mode
             setPaymentType('single');
