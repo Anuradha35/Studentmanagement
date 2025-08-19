@@ -2581,9 +2581,7 @@ for (const payment of currentPayments) {
     }
                                     setDuplicateInfo(duplicate);
                                     setDuplicateCheckModal(true);
-                                    if (duplicate.paymentType === 'single') {
-                                      setGroupUtrId('');
-                                    }
+                                   
                                     return;
                                   }
                                 }
@@ -2624,7 +2622,7 @@ for (const payment of currentPayments) {
     }
                                     setDuplicateInfo(duplicate);
                                     setDuplicateCheckModal(true);
-                                    setReceiptNo('');
+                                   
                                     setGroupReceiptNo('');
                                   }
                                   return;
