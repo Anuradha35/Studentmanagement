@@ -2625,6 +2625,7 @@ for (const payment of currentPayments) {
                                     setDuplicateInfo(duplicate);
                                     setDuplicateCheckModal(true);
                                     setReceiptNo('');
+                                    setGroupReceiptNo('');
                                   }
                                   return;
                                 }
