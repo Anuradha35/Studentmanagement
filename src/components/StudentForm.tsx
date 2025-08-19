@@ -2332,15 +2332,21 @@ for (const payment of currentPayments) {
                           const value = e.target.value.replace(/\D/g, '').slice(0, 12);
                           setUtrId(value);
                           
-                          if (value.length === 12) {
-                            const duplicate = findDuplicatePaymentWithAllMembers(value, undefined);
-                            if (duplicate) {
-                              setDuplicateInfo(duplicate);
-                              setDuplicateCheckModal(true);
-                              setUtrId('');
-                              return;
-                            }
-                          }
+                         if (value.length === 12) {
+  const duplicate = findDuplicatePaymentWithAllMembers(value, undefined);
+  if (duplicate) {
+    // 🔧 Guard
+    if (isProcessingGroupEntry) {
+      console.log("🔧 Skipping duplicate modal (processing)");
+      return;
+    }
+    setDuplicateInfo(duplicate);
+    setDuplicateCheckModal(true);
+    setUtrId('');
+    return;
+  }
+}
+
                           
                           if (errors.utrId) setErrors({ ...errors, utrId: '' });
                         }}
@@ -2561,6 +2567,10 @@ for (const payment of currentPayments) {
                                 if (value.length === 12) {
                                   const duplicate = findDuplicatePaymentWithAllMembers(value, undefined);
                                   if (duplicate) {
+                                    if (isProcessingGroupEntry) {
+      console.log("🔧 Skipping duplicate modal (processing)");
+      return;
+    }
                                     setDuplicateInfo(duplicate);
                                     setDuplicateCheckModal(true);
                                     if (duplicate.paymentType === 'single') {
@@ -2600,6 +2610,10 @@ for (const payment of currentPayments) {
                                 if (groupReceiptNo.trim() !== "") {
                                   const duplicate = findDuplicatePaymentWithAllMembers(undefined, groupReceiptNo.trim());
                                   if (duplicate) {
+                                    if (isProcessingGroupEntry) {
+      console.log("🔧 Skipping duplicate modal (processing)");
+      return;
+    }
                                     setDuplicateInfo(duplicate);
                                     setDuplicateCheckModal(true);
                                     setReceiptNo('');
