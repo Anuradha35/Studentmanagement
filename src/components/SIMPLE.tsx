@@ -59,7 +59,7 @@
     onChange={(e) => {
       const fatherValue = e.target.value.toUpperCase();
 
-      // ✅ Allow only alphabets and spaces
+      // ✅ Allow only alphabets and spacess
       if (/^[A-Z\s]*$/.test(fatherValue)) {
         setFormData({ ...formData, fatherName: fatherValue });
         if (errors.fatherName) setErrors({ ...errors, fatherName: '' });
