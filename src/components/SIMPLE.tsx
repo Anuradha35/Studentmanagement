@@ -70,3 +70,129 @@
   />
   {errors.fatherName && <p className="text-red-400 text-sm mt-1">{errors.fatherName}</p>}
 </div>
+
+
+
+
+
+
+
+  no wo correct hai main chahati hu ki ye jo Amount field hai isme jab hum amount enter kare to uski validation set ho ek to pehle hi hai ki course fee se jayada na ho and total group se bhi exceed na ho agar duplicate detection nahi ho raha tab but agar duplicate detection hai to wo us duplicate ke ander unpaid member main jo remaining amount show ho raha hai jo orange color main show ho raha hai usse exceed na ho e.g. jaise yaha y1,y2,y3 member hai jisme y1,y2 ne paid kar diya hai and unpaid 3000 show ho raha to main chahati hu ki Amount field ka validation ye bhi ho jaye ki ab wo phir 3000 se jayada pay nahi kar sakta. but meri course fee and agar duplicate nahi hai to total group se exceed wali validation waise hi apply ho wo change na ho but isme changes <label className="text-sm text-white">Amount</label>
+
+                        <input
+
+                          type="text"
+
+                          placeholder="Enter amount"
+
+                          value={dynamicGroupEntries[0]?.amount || ''}
+
+                          disabled={
+
+                            (parseInt(groupOnlineAmount || '0') + parseInt(groupOfflineAmount || '0')) === 0
+
+                          }
+
+                          onChange={(e) => {
+
+                            const value = e.target.value.replace(/\D/g, '');
+
+                            const amountNum = parseInt(value || '0');
+
+                            const totalGroupPayment =
+
+                              (parseInt(groupOnlineAmount || '0') || 0) +
+
+                              (parseInt(groupOfflineAmount || '0') || 0);
+
+                            if (amountNum > formData.courseFee) {
+
+                              alert(`Amount cannot be more than ₹${formData.courseFee.toLocaleString()}`);
+
+                              return;
+
+                            }
+
+                            if (amountNum > totalGroupPayment) {
+
+                              alert(`Amount cannot be more than total group payment ₹${totalGroupPayment.toLocaleString()}`);
+
+                              return;
+
+                            }
+
+                            // 3. Duplicate group ke liye unpaid member ka remaining amount se jyada na hos
+
+  if (duplicateInfo && duplicateInfo.paymentType === "group") {
+
+    const unpaidRemaining = duplicateInfo.otherMembersAmount || 0; // 🔑 ye value aapko duplicate modal se pass karni hai
+
+    if (amountNum > unpaidRemaining) {
+
+      alert(`❌ This member can only pay up to ₹${unpaidRemaining.toLocaleString()} (remaining balance).`);
+
+      return;
+
+    }
+
+  }
+
+                            setErrors(prev => ({ ...prev, [`amount_0`]: '' }));
+
+                            const updatedEntries = [...dynamicGroupEntries];
+
+                            if (!updatedEntries[0]) {
+
+                              updatedEntries[0] = {
+
+                                studentName: formData.studentName.toUpperCase(),
+
+                                amount: '',
+
+                                onlineAmount: '',
+
+                                offlineAmount: '',
+
+                                utrId: '',
+
+                                receiptNo: '',
+
+                                paymentDate: ''
+
+                              };
+
+                            }
+
+                            updatedEntries[0] = { ...updatedEntries[0], amount: value };
+
+                            setDynamicGroupEntries(updatedEntries);
+
+                            const totalPaid = updatedEntries.reduce(
+
+                              (sum, entry) => sum + parseInt(entry?.amount || '0'),
+
+                              0
+
+                            );
+
+                            setFormData((prev) => ({
+
+                              ...prev,
+
+                              totalPaid: totalPaid,
+
+                              remainingFee: prev.courseFee - totalPaid < 0 ? 0 : prev.courseFee - totalPaid
+
+                            }));
+
+                          }}
+
+                          className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white"
+
+                        />
+
+                        {errors[`amount_0`] && (
+
+                          <p className="text-red-400 text-sm">{errors[`amount_0`]}</p>
+
+                        )}
