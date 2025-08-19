@@ -3187,7 +3187,7 @@ for (const payment of currentPayments) {
               Cancel
             </button>
             
-            {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
+           {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
         <button 
     type="button"
     onClick={() => {
@@ -3259,7 +3259,7 @@ for (const payment of currentPayments) {
          console.log("✅ Method 1: Found individualPaidStudents array");
         console.log("🔍 individualPaidStudents:", existingPayment.individualPaidStudents);
         const paidStudent = existingPayment.individualPaidStudents.find(student => 
-          student.studentName.trim().toUpperCase() === currentStudentName
+          student?.studentName?.trim().toUpperCase() === currentStudentName
         );
         
         if (paidStudent) {
@@ -3273,25 +3273,39 @@ for (const payment of currentPayments) {
          console.log("✅ Method 2: Found paidStudentNames array");
         console.log("🔍 paidStudentNames:", existingPayment.paidStudentNames);
         isPaidStudent = existingPayment.paidStudentNames
+          .filter(name => name != null) // Filter out null/undefined values
           .map(name => name.trim().toUpperCase())
           .includes(currentStudentName);
           
         // Find the paid student data
-        if (isPaidStudent) {
-          paidStudentData = existingPayment.individualPaidStudents?.find(student => 
-            student.studentName.trim().toUpperCase() === currentStudentName
+        if (isPaidStudent && existingPayment.individualPaidStudents) {
+          paidStudentData = existingPayment.individualPaidStudents.find(student => 
+            student?.studentName?.trim().toUpperCase() === currentStudentName
           );
           console.log("✅ Method 2: Found paid student:", paidStudentData);
         }
       }
-      // Method 3: Fallback - check duplicateInfo.studentInfo (current method - only works for first student)
-        else if (duplicateInfo.allGroupMembers && Array.isArray(duplicateInfo.allGroupMembers)) {
+      // Method 3: Fallback - check duplicateInfo.allGroupMembers (FIXED VERSION)
+      else if (duplicateInfo.allGroupMembers && Array.isArray(duplicateInfo.allGroupMembers)) {
         console.log("✅ Method 3: Found allGroupMembers array");
         console.log("🔍 allGroupMembers:", duplicateInfo.allGroupMembers);
         
-        const paidStudent = duplicateInfo.allGroupMembers.find(member => 
-          member.studentName.trim().toUpperCase() === currentStudentName && member.amount > 0
-        );
+        const paidStudent = duplicateInfo.allGroupMembers.find(member => {
+          // Add null checks for member and member.studentName
+          if (!member || !member.studentName) {
+            console.log("⚠️ Found member without studentName:", member);
+            return false;
+          }
+          
+          try {
+            const memberName = member.studentName.trim().toUpperCase();
+            const memberAmount = member.amount || 0;
+            return memberName === currentStudentName && memberAmount > 0;
+          } catch (error) {
+            console.log("⚠️ Error processing member:", member, error);
+            return false;
+          }
+        });
         
         if (paidStudent) {
           isPaidStudent = true;
@@ -3300,7 +3314,8 @@ for (const payment of currentPayments) {
         }
       }
       // Method 4: Fallback - check duplicateInfo.studentInfo (current method - only works for first student)
-      else {
+      else if (duplicateInfo.studentInfo && duplicateInfo.studentInfo.studentName) {
+        console.log("✅ Method 4: Using duplicateInfo.studentInfo");
         isPaidStudent = currentStudentName === duplicateInfo.studentInfo.studentName.trim().toUpperCase();
         if (isPaidStudent) {
           paidStudentData = duplicateInfo.studentInfo;
@@ -3313,6 +3328,14 @@ for (const payment of currentPayments) {
       
       if (isPaidStudent) {
         // 🆕 STEP 4A: PAID STUDENT - CHECK FATHER NAME
+        if (!paidStudentData || !paidStudentData.fatherName) {
+          console.log("❌ ERROR: Paid student data incomplete");
+          alert(`❌ SYSTEM ERROR: Student payment data is incomplete!\n\nPlease contact support.`);
+          setDuplicateCheckModal(false);
+          setDuplicateInfo(null);
+          return;
+        }
+        
         const existingFatherName = paidStudentData.fatherName.trim().toUpperCase();
         const isFatherNameMatching = currentFatherName === existingFatherName;
         
@@ -3358,13 +3381,13 @@ for (const payment of currentPayments) {
         const isSameCourse = selectedCourse === duplicateInfo.courseName;
         const isSameBatch = selectedBatch === duplicateInfo.batchName;
         const isSameYear = selectedYear === duplicateInfo.yearName;
-        const isSameDuration = formData.courseDuration === duplicateInfo.studentInfo.courseDuration;
+        const isSameDuration = formData.courseDuration === duplicateInfo.studentInfo?.courseDuration;
         
         let shouldProceed = true;
         
         // Show warning if different course details
         if (!isSameCourse || !isSameBatch || !isSameYear || !isSameDuration) {
-          const warningMessage = `⚠️ DIFFERENT COURSE DETAILS DETECTED!\n\nCurrent Entry:\n- Course: ${selectedCourse}\n- Batch: ${selectedBatch}\n- Year: ${selectedYear}\n- Duration: ${formData.courseDuration} Days\n\nExisting Payment:\n- Course: ${duplicateInfo.courseName}\n- Batch: ${duplicateInfo.batchName}\n- Year: ${duplicateInfo.yearName}\n- Duration: ${duplicateInfo.studentInfo.courseDuration} Days\n\nNote: "${currentStudentName}" is an UNPAID member of existing group but has different course details.\n\nDo you want to proceed with creating separate payment entry?`;
+          const warningMessage = `⚠️ DIFFERENT COURSE DETAILS DETECTED!\n\nCurrent Entry:\n- Course: ${selectedCourse}\n- Batch: ${selectedBatch}\n- Year: ${selectedYear}\n- Duration: ${formData.courseDuration} Days\n\nExisting Payment:\n- Course: ${duplicateInfo.courseName}\n- Batch: ${duplicateInfo.batchName}\n- Year: ${duplicateInfo.yearName}\n- Duration: ${duplicateInfo.studentInfo?.courseDuration} Days\n\nNote: "${currentStudentName}" is an UNPAID member of existing group but has different course details.\n\nDo you want to proceed with creating separate payment entry?`;
           
           shouldProceed = confirm(warningMessage);
         }
