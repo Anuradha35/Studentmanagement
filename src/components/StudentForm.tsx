@@ -3187,7 +3187,8 @@ for (const payment of currentPayments) {
               Cancel
             </button>
             
-        {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
+       
+{duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
         <button 
     type="button"
     onClick={() => {
@@ -3491,6 +3492,13 @@ for (const payment of currentPayments) {
         // 🆕 STEP 5: UNPAID STUDENT - ALLOW PREFILL (NO FATHER NAME CHECK NEEDED)
         console.log("✅ UNPAID STUDENT - CAN PREFILL PAYMENT DETAILS");
         
+        // 🔧 FIX: Set flag to disable duplicate checking temporarily
+        console.log("🔧 Setting flag to disable duplicate checking during prefill");
+        
+        // You need to add this state variable in your component
+        // const [isProcessingGroupEntry, setIsProcessingGroupEntry] = useState(false);
+        setIsProcessingGroupEntry(true);
+        
         // Check course details for warning
         const isSameCourse = selectedCourse === duplicateInfo.courseName;
         const isSameBatch = selectedBatch === duplicateInfo.batchName;
@@ -3508,6 +3516,7 @@ for (const payment of currentPayments) {
         
         if (!shouldProceed) {
           console.log("🚫 User cancelled due to course details mismatch");
+          setIsProcessingGroupEntry(false); // Re-enable duplicate checking
           
           // Clear all payment fields and reset to single mode
           console.log("🧹 Clearing all payment fields due to user cancellation");
@@ -3591,6 +3600,11 @@ for (const payment of currentPayments) {
               
               setTimeout(() => {
                 alert(successMsg);
+                
+                // 🔧 FIX: Re-enable duplicate checking after successful prefill
+                console.log("🔧 Re-enabling duplicate checking after successful prefill");
+                setIsProcessingGroupEntry(false);
+                
               }, 500);
               
             }, 300);
@@ -3598,6 +3612,9 @@ for (const payment of currentPayments) {
           } catch (error) {
             console.error("❌ Error during prefilling:", error);
             alert(`❌ Error occurred while pre-filling: ${error.message}`);
+            
+            // Re-enable duplicate checking on error
+            setIsProcessingGroupEntry(false);
             
             // Clear all payment fields and reset to single mode on error
             console.log("🧹 Clearing all payment fields due to prefill error");
