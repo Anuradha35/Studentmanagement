@@ -3187,7 +3187,7 @@ for (const payment of currentPayments) {
               Cancel
             </button>
             
-           {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
+          {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
         <button 
     type="button"
     onClick={() => {
@@ -3291,16 +3291,41 @@ for (const payment of currentPayments) {
         console.log("🔍 allGroupMembers:", duplicateInfo.allGroupMembers);
         
         const paidStudent = duplicateInfo.allGroupMembers.find(member => {
-          // Add null checks for member and member.studentName
-          if (!member || !member.studentName) {
-            console.log("⚠️ Found member without studentName:", member);
+          // Check the structure of member - it seems to have studentInfo nested inside
+          if (!member) {
+            console.log("⚠️ Found null/undefined member:", member);
             return false;
           }
           
           try {
-            const memberName = member.studentName.trim().toUpperCase();
-            const memberAmount = member.amount || 0;
+            let memberName = null;
+            let memberAmount = 0;
+            
+            // Check if studentName is directly available
+            if (member.studentName) {
+              memberName = member.studentName.trim().toUpperCase();
+              memberAmount = member.amount || 0;
+            }
+            // Check if studentInfo is nested inside member
+            else if (member.studentInfo && member.studentInfo.studentName) {
+              memberName = member.studentInfo.studentName.trim().toUpperCase();
+              // Check for amount in different locations
+              memberAmount = member.amount || member.existingPayment?.amount || 0;
+            }
+            // Check if existingPayment has the student info
+            else if (member.existingPayment && member.existingPayment.studentName) {
+              memberName = member.existingPayment.studentName.trim().toUpperCase();
+              memberAmount = member.existingPayment.amount || member.amount || 0;
+            }
+            
+            if (!memberName) {
+              console.log("⚠️ Could not extract studentName from member:", member);
+              return false;
+            }
+            
+            console.log("🔍 Checking member:", memberName, "Amount:", memberAmount, "Target:", currentStudentName);
             return memberName === currentStudentName && memberAmount > 0;
+            
           } catch (error) {
             console.log("⚠️ Error processing member:", member, error);
             return false;
@@ -3309,8 +3334,21 @@ for (const payment of currentPayments) {
         
         if (paidStudent) {
           isPaidStudent = true;
-          paidStudentData = paidStudent;
-          console.log("✅ Method 3: Found paid student in allGroupMembers:", paidStudent);
+          // Structure the paid student data properly
+          if (paidStudent.studentInfo) {
+            paidStudentData = {
+              ...paidStudent.studentInfo,
+              amount: paidStudent.amount || paidStudent.existingPayment?.amount || 0
+            };
+          } else if (paidStudent.existingPayment) {
+            paidStudentData = {
+              ...paidStudent.existingPayment,
+              amount: paidStudent.existingPayment.amount || paidStudent.amount || 0
+            };
+          } else {
+            paidStudentData = paidStudent;
+          }
+          console.log("✅ Method 3: Found paid student in allGroupMembers:", paidStudentData);
         }
       }
       // Method 4: Fallback - check duplicateInfo.studentInfo (current method - only works for first student)
