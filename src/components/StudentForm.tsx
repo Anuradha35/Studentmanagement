@@ -1261,7 +1261,8 @@ if (emptyIndex !== -1) {
 
   
 }
-
+ // ✅ Reset the processing flag after saving
+  setIsProcessingGroupEntry(false);
 };
 
 // 🆕 ENHANCED handleSubmit with comprehensive student and payment validation
