@@ -796,6 +796,8 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
     setDuplicateCheckModal(false);
     setDuplicateInfo(null);
     setPaymentType('single');
+    // ✅ Reset flag
+  setIsProcessingGroupEntry(false);
     return;
   }
 
