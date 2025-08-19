@@ -2306,6 +2306,11 @@ for (const payment of currentPayments) {
                         }}
                         onBlur={() => {
                           if (receiptNo.trim() !== "") {
+                            // 🔧 Guard
+    if (isProcessingGroupEntry) {
+      console.log("🔧 Skipping duplicate modal (processing)");
+      return;
+    }
                             const duplicate = findDuplicatePaymentWithAllMembers(undefined, receiptNo.trim());
                             if (duplicate) {
                               setDuplicateInfo(duplicate);
