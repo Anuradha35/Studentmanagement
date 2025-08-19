@@ -2728,7 +2728,7 @@ for (const payment of currentPayments) {
                         )}
                       </div>
 
-                      {/* Box 2: Other Studentss */}
+                      {/* Box 2: Other Students */}
                       <div className="bg-slate-900 p-4 rounded-lg space-y-2 shadow-lg">
                         <div className="flex flex-wrap gap-2">
                           {dynamicGroupEntries.slice(1).map((entry, index) => (
