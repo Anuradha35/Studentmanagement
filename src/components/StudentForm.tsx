@@ -3245,13 +3245,21 @@ for (const payment of currentPayments) {
       
       console.log("✅ STEP 2 PASSED: Student is a member of the existing group");
       
-      // 🆕 STEP 3: CHECK IF STUDENT IS PAID OR UNPAID (FIXED VERSION)
+    // 🆕 STEP 3: CHECK IF STUDENT IS PAID OR UNPAID (FIXED VERSION)
+      // 🔥 ADD THESE DEBUG LOGS FIRST
+      console.log("🔍 DEBUG - existingPayment:", existingPayment);
+      console.log("🔍 DEBUG - duplicateInfo.studentInfo:", duplicateInfo.studentInfo);
+      console.log("🔍 DEBUG - duplicateInfo structure:", Object.keys(duplicateInfo));
+      
       // Check against ALL paid students, not just the first one
       let isPaidStudent = false;
       let paidStudentData = null;
 
       // Method 1: If you have individualPaidStudents array in existingPayment
       if (existingPayment.individualPaidStudents && Array.isArray(existingPayment.individualPaidStudents)) {
+        console.log("✅ Method 1: Found individualPaidStudents array");
+        console.log("🔍 individualPaidStudents:", existingPayment.individualPaidStudents);
+        
         const paidStudent = existingPayment.individualPaidStudents.find(student => 
           student.studentName.trim().toUpperCase() === currentStudentName
         );
@@ -3259,10 +3267,14 @@ for (const payment of currentPayments) {
         if (paidStudent) {
           isPaidStudent = true;
           paidStudentData = paidStudent;
+          console.log("✅ Method 1: Found paid student:", paidStudent);
         }
       }
       // Method 2: If you have paidStudentNames array
       else if (existingPayment.paidStudentNames && Array.isArray(existingPayment.paidStudentNames)) {
+        console.log("✅ Method 2: Found paidStudentNames array");
+        console.log("🔍 paidStudentNames:", existingPayment.paidStudentNames);
+        
         isPaidStudent = existingPayment.paidStudentNames
           .map(name => name.trim().toUpperCase())
           .includes(currentStudentName);
@@ -3272,15 +3284,36 @@ for (const payment of currentPayments) {
           paidStudentData = existingPayment.individualPaidStudents?.find(student => 
             student.studentName.trim().toUpperCase() === currentStudentName
           );
+          console.log("✅ Method 2: Found paid student:", paidStudentData);
         }
       }
-      // Method 3: Fallback - check duplicateInfo.studentInfo (current method - only works for first student)
+      // Method 3: Check if duplicateInfo has allGroupMembers with paid info
+      else if (duplicateInfo.allGroupMembers && Array.isArray(duplicateInfo.allGroupMembers)) {
+        console.log("✅ Method 3: Found allGroupMembers array");
+        console.log("🔍 allGroupMembers:", duplicateInfo.allGroupMembers);
+        
+        const paidStudent = duplicateInfo.allGroupMembers.find(member => 
+          member.studentName.trim().toUpperCase() === currentStudentName && member.amount > 0
+        );
+        
+        if (paidStudent) {
+          isPaidStudent = true;
+          paidStudentData = paidStudent;
+          console.log("✅ Method 3: Found paid student in allGroupMembers:", paidStudent);
+        }
+      }
+      // Method 4: Fallback - check duplicateInfo.studentInfo (current method - only works for first student)
       else {
+        console.log("❌ Using Method 4: Fallback method (only first student)");
         isPaidStudent = currentStudentName === duplicateInfo.studentInfo.studentName.trim().toUpperCase();
         if (isPaidStudent) {
           paidStudentData = duplicateInfo.studentInfo;
+          console.log("✅ Method 4: Found paid student:", paidStudentData);
         }
       }
+      
+      console.log("🔍 DEBUG - Is paid student?", isPaidStudent);
+      console.log("🔍 DEBUG - Paid student data:", paidStudentData);
       
       console.log("🔍 DEBUG - Is paid student?", isPaidStudent);
       console.log("🔍 DEBUG - Paid student data:", paidStudentData);
