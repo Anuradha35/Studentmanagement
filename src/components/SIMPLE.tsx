@@ -1,28 +1,72 @@
-single payment Radio se Agar main Group Payment Radio button ko select karu to sabse pehle wo check kare ki mere student name enter kiya hai ya nahi  ye check kare other wise message show kar cursor focus student name par set kar de 
-ab nayi problem usme arise ho rahi hai ki paid wala to ab proper work kar raha but ab jis student ki entry karni hai wo unpaid hai member bhi hai us group ka but ye bar bar yahi kaam kar raha jo image main show ho raha i.e. add to current group-> message show yaha tak to theek but jaise hi enter kiya isne phir se dublicate ka message show kar diya  bar bar yahi repeat ho raha
-// 2. Modify your duplicate check logic to skip when processing:
-// Add this condition at the beginning of your duplicate check function:
-/*
-const handleDuplicateCheck = async () => {
-  // 🔧 Skip duplicate check if currently processing group entry
-  if (isProcessingGroupEntry) {
-    console.log("🔧 Skipping duplicate check - currently processing group entry");
-    return;
-  }
-  
-  // ... rest of your duplicate check logic
-}
-*/
+<div>
+  <label className="block text-gray-300 text-sm font-medium mb-2">
+    Student Name *
+  </label>
+  <input
+    ref={studentNameRef}
+    type="text"
+    value={formData.studentName}
+    onChange={(e) => {
+      const nameValue = e.target.value.toUpperCase();
 
-// 3. Also modify the useEffect that triggers duplicate check:
-/*
-useEffect(() => {
-  // 🔧 Skip duplicate check if currently processing group entry
-  if (isProcessingGroupEntry) {
-    console.log("🔧 Skipping duplicate check useEffect - currently processing group entry");
-    return;
-  }
-  
-  // ... rest of your useEffect logic for duplicate check
-}, [groupUtrId, groupReceiptNo, isProcessingGroupEntry]); // Add isProcessingGroupEntry to dependencies
-*/
+      // ✅ Allow only alphabets and spaces
+      if (/^[A-Z\s]*$/.test(nameValue)) {
+        // Update personal info name
+        setFormData({ ...formData, studentName: nameValue });
+
+        // Auto-fill Group Payment first student name
+        setDynamicGroupEntries((prev) => {
+          if (!prev.length) return prev;
+
+          if (!prev[0]) {
+            console.warn("⚠️ First group entry is undefined, creating new entry");
+            return [{
+              studentName: nameValue,
+              amount: '',
+              onlineAmount: '',
+              offlineAmount: '',
+              utrId: '',
+              receiptNo: '',
+              paymentDate: ''
+            }, ...prev.slice(1)];
+          }
+
+          const updated = [...prev];
+          updated[0] = { ...updated[0], studentName: nameValue };
+          return updated;
+        });
+
+        if (errors.studentName) {
+          setErrors({ ...errors, studentName: '' });
+        }
+      }
+    }}
+    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    placeholder="Enter student name"
+  />
+  {errors.studentName && (
+    <p className="text-red-400 text-sm mt-1">{errors.studentName}</p>
+  )}
+</div>
+
+<div>
+  <label className="block text-gray-300 text-sm font-medium mb-2">
+    Father's Name *
+  </label>
+  <input
+    type="text"
+    value={formData.fatherName}
+    onChange={(e) => {
+      const fatherValue = e.target.value.toUpperCase();
+
+      // ✅ Allow only alphabets and spaces
+      if (/^[A-Z\s]*$/.test(fatherValue)) {
+        setFormData({ ...formData, fatherName: fatherValue });
+        if (errors.fatherName) setErrors({ ...errors, fatherName: '' });
+      }
+    }}
+    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    placeholder="Enter father's name"
+  />
+  {errors.fatherName && <p className="text-red-400 text-sm mt-1">{errors.fatherName}</p>}
+</div>
