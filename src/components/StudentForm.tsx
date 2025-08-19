@@ -2318,7 +2318,7 @@ for (const payment of currentPayments) {
                             if (duplicate) {
                               setDuplicateInfo(duplicate);
                               setDuplicateCheckModal(true);
-                              setReceiptNo('');
+                             
                             }
                           }
                         }}
@@ -2350,7 +2350,7 @@ for (const payment of currentPayments) {
     }
     setDuplicateInfo(duplicate);
     setDuplicateCheckModal(true);
-    setUtrId('');
+    
     return;
   }
 }
