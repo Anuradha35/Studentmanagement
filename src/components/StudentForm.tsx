@@ -2684,6 +2684,14 @@ for (const payment of currentPayments) {
                               alert(`Amount cannot be more than total group payment ₹${totalGroupPayment.toLocaleString()}`);
                               return;
                             }
+                            // 3. Duplicate group ke liye unpaid member ka remaining amount se jyada na ho
+  if (duplicateInfo && duplicateInfo.paymentType === "group") {
+    const unpaidRemaining = duplicateInfo.otherMembersAmount || 0; // 🔑 ye value aapko duplicate modal se pass karni hai
+    if (amountNum > unpaidRemaining) {
+      alert(`❌ This member can only pay up to ₹${unpaidRemaining.toLocaleString()} (remaining balance).`);
+      return;
+    }
+  }
 
                             setErrors(prev => ({ ...prev, [`amount_0`]: '' }));
 
