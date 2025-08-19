@@ -2647,7 +2647,7 @@ for (const payment of currentPayments) {
                       Group Student Names *
                     </label>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                      {/* Box 1: Primary Student */}
+                      {/* Box 1: Primary Students */}
                       <div className="bg-slate-900 p-4 rounded-lg space-y-3 shadow-lg">
                         <input
                           type="text"
