@@ -3187,7 +3187,7 @@ for (const payment of currentPayments) {
               Cancel
             </button>
             
-          {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
+         {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
         <button 
     type="button"
     onClick={() => {
@@ -3210,6 +3210,33 @@ for (const payment of currentPayments) {
       if (!duplicateInfo.existingPayment || !duplicateInfo.existingPayment.groupStudents) {
         console.log("❌ ERROR: No group students found in existing payment");
         alert(`❌ SYSTEM ERROR: Invalid payment data!\n\nThe UTR/Receipt ID has incomplete information.\nPlease verify your UTR/Receipt number.`);
+        
+        // Clear all payment fields and reset to single mode
+        console.log("🧹 Clearing all payment fields due to invalid payment data");
+        
+        // Clear group payment fields
+        setGroupUtrId('');
+        setGroupReceiptNo('');
+        setGroupOnlineAmount('');
+        setGroupOfflineAmount('');
+        setGroupPaymentDate('');
+        setGroupCount(0);
+        setDynamicGroupEntries([]);
+        
+        // Clear single payment fields
+        setUtrId('');
+        setReceiptNo('');
+        setOnlineAmount('');
+        setOfflineAmount('');
+        setPaymentDate('');
+        
+        // Reset to single payment mode
+        setPaymentType('single');
+        setPaymentFieldsReadOnly(false);
+        
+        // Clear errors
+        setErrors({});
+        
         setDuplicateCheckModal(false);
         setDuplicateInfo(null);
         return;
@@ -3231,12 +3258,31 @@ for (const payment of currentPayments) {
         console.log("❌ STUDENT NOT IN GROUP");
         alert(`❌ STUDENT NOT IN GROUP!\n\nYou entered: "${formData.studentName}"\n\nBut this ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'} belongs to group:\n"${existingGroupStudents}"\n\n"${formData.studentName}" is NOT a member of this group.\n\nPlease verify:\n1. Student name spelling\n2. Correct ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}`);
         
-        // Clear the problematic field
-        if (duplicateInfo.type === 'utr') {
-          setGroupUtrId('');
-        } else if (duplicateInfo.type === 'receipt') {
-          setGroupReceiptNo('');
-        }
+        // Clear all payment fields and reset to single mode
+        console.log("🧹 Clearing all payment fields and resetting to single mode");
+        
+        // Clear group payment fields
+        setGroupUtrId('');
+        setGroupReceiptNo('');
+        setGroupOnlineAmount('');
+        setGroupOfflineAmount('');
+        setGroupPaymentDate('');
+        setGroupCount(0);
+        setDynamicGroupEntries([]);
+        
+        // Clear single payment fields as fallback
+        setUtrId('');
+        setReceiptNo('');
+        setOnlineAmount('');
+        setOfflineAmount('');
+        setPaymentDate('');
+        
+        // Reset to single payment mode
+        setPaymentType('single');
+        setPaymentFieldsReadOnly(false);
+        
+        // Clear errors
+        setErrors({});
         
         setDuplicateCheckModal(false);
         setDuplicateInfo(null);
@@ -3369,6 +3415,33 @@ for (const payment of currentPayments) {
         if (!paidStudentData || !paidStudentData.fatherName) {
           console.log("❌ ERROR: Paid student data incomplete");
           alert(`❌ SYSTEM ERROR: Student payment data is incomplete!\n\nPlease contact support.`);
+          
+          // Clear all payment fields and reset to single mode
+          console.log("🧹 Clearing all payment fields due to incomplete student data");
+          
+          // Clear group payment fields
+          setGroupUtrId('');
+          setGroupReceiptNo('');
+          setGroupOnlineAmount('');
+          setGroupOfflineAmount('');
+          setGroupPaymentDate('');
+          setGroupCount(0);
+          setDynamicGroupEntries([]);
+          
+          // Clear single payment fields
+          setUtrId('');
+          setReceiptNo('');
+          setOnlineAmount('');
+          setOfflineAmount('');
+          setPaymentDate('');
+          
+          // Reset to single payment mode
+          setPaymentType('single');
+          setPaymentFieldsReadOnly(false);
+          
+          // Clear errors
+          setErrors({});
+          
           setDuplicateCheckModal(false);
           setDuplicateInfo(null);
           return;
@@ -3384,12 +3457,31 @@ for (const payment of currentPayments) {
           console.log("❌ PAID STUDENT BUT FATHER NAME MISMATCH");
           alert(`❌ FATHER NAME MISMATCH!\n\nStudent: ${formData.studentName}\nThis student has already PAID in this group.\n\nExpected Father Name: ${paidStudentData.fatherName}\nYou entered Father Name: ${formData.fatherName}\n\nFather names don't match. This student cannot be the same person.\n\nPlease verify the details or use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
           
-          // Clear the problematic field
-          if (duplicateInfo.type === 'utr') {
-            setGroupUtrId('');
-          } else if (duplicateInfo.type === 'receipt') {
-            setGroupReceiptNo('');
-          }
+          // Clear all payment fields and reset to single mode
+          console.log("🧹 Clearing all payment fields due to father name mismatch");
+          
+          // Clear group payment fields
+          setGroupUtrId('');
+          setGroupReceiptNo('');
+          setGroupOnlineAmount('');
+          setGroupOfflineAmount('');
+          setGroupPaymentDate('');
+          setGroupCount(0);
+          setDynamicGroupEntries([]);
+          
+          // Clear single payment fields
+          setUtrId('');
+          setReceiptNo('');
+          setOnlineAmount('');
+          setOfflineAmount('');
+          setPaymentDate('');
+          
+          // Reset to single payment mode
+          setPaymentType('single');
+          setPaymentFieldsReadOnly(false);
+          
+          // Clear errors
+          setErrors({});
           
           setDuplicateCheckModal(false);
           setDuplicateInfo(null);
@@ -3400,12 +3492,31 @@ for (const payment of currentPayments) {
         console.log("❌ PAID STUDENT WITH MATCHING FATHER NAME - DUPLICATE ENTRY NOT ALLOWED");
         alert(`❌ DUPLICATE ENTRY NOT ALLOWED!\n\nStudent: ${formData.studentName}\nFather: ${formData.fatherName}\n\nThis student has ALREADY PAID in this group payment.\n\nExisting Payment Details:\n• Course: ${duplicateInfo.courseName}\n• Batch: ${duplicateInfo.batchName}\n• Year: ${duplicateInfo.yearName}\n• Amount: ₹${paidStudentData.amount || existingPayment.amount?.toLocaleString()}\n• Date: ${existingPayment.paymentDate}\n\n⚠️ You cannot create duplicate entries for the same student.\nUse a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'} for new payments.`);
         
-        // Clear the problematic field and reset form
-        if (duplicateInfo.type === 'utr') {
-          setGroupUtrId('');
-        } else if (duplicateInfo.type === 'receipt') {
-          setGroupReceiptNo('');
-        }
+        // Clear all payment fields and reset to single mode
+        console.log("🧹 Clearing all payment fields due to duplicate entry");
+        
+        // Clear group payment fields
+        setGroupUtrId('');
+        setGroupReceiptNo('');
+        setGroupOnlineAmount('');
+        setGroupOfflineAmount('');
+        setGroupPaymentDate('');
+        setGroupCount(0);
+        setDynamicGroupEntries([]);
+        
+        // Clear single payment fields
+        setUtrId('');
+        setReceiptNo('');
+        setOnlineAmount('');
+        setOfflineAmount('');
+        setPaymentDate('');
+        
+        // Reset to single payment mode
+        setPaymentType('single');
+        setPaymentFieldsReadOnly(false);
+        
+        // Clear errors
+        setErrors({});
         
         setDuplicateCheckModal(false);
         setDuplicateInfo(null);
@@ -3432,6 +3543,33 @@ for (const payment of currentPayments) {
         
         if (!shouldProceed) {
           console.log("🚫 User cancelled due to course details mismatch");
+          
+          // Clear all payment fields and reset to single mode
+          console.log("🧹 Clearing all payment fields due to user cancellation");
+          
+          // Clear group payment fields
+          setGroupUtrId('');
+          setGroupReceiptNo('');
+          setGroupOnlineAmount('');
+          setGroupOfflineAmount('');
+          setGroupPaymentDate('');
+          setGroupCount(0);
+          setDynamicGroupEntries([]);
+          
+          // Clear single payment fields
+          setUtrId('');
+          setReceiptNo('');
+          setOnlineAmount('');
+          setOfflineAmount('');
+          setPaymentDate('');
+          
+          // Reset to single payment mode
+          setPaymentType('single');
+          setPaymentFieldsReadOnly(false);
+          
+          // Clear errors
+          setErrors({});
+          
           setDuplicateCheckModal(false);
           setDuplicateInfo(null);
           return;
@@ -3502,6 +3640,32 @@ for (const payment of currentPayments) {
           } catch (error) {
             console.error("❌ Error during prefilling:", error);
             alert(`❌ Error occurred while pre-filling: ${error.message}`);
+            
+            // Clear all payment fields and reset to single mode on error
+            console.log("🧹 Clearing all payment fields due to prefill error");
+            
+            // Clear group payment fields
+            setGroupUtrId('');
+            setGroupReceiptNo('');
+            setGroupOnlineAmount('');
+            setGroupOfflineAmount('');
+            setGroupPaymentDate('');
+            setGroupCount(0);
+            setDynamicGroupEntries([]);
+            
+            // Clear single payment fields
+            setUtrId('');
+            setReceiptNo('');
+            setOnlineAmount('');
+            setOfflineAmount('');
+            setPaymentDate('');
+            
+            // Reset to single payment mode
+            setPaymentType('single');
+            setPaymentFieldsReadOnly(false);
+            
+            // Clear errors
+            setErrors({});
           }
         }, 150);
       }
