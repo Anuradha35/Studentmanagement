@@ -3187,7 +3187,7 @@ for (const payment of currentPayments) {
               Cancel
             </button>
             
-             {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
+            {duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
         <button 
     type="button"
     onClick={() => {
@@ -3245,15 +3245,49 @@ for (const payment of currentPayments) {
       
       console.log("✅ STEP 2 PASSED: Student is a member of the existing group");
       
-      // 🆕 STEP 3: CHECK IF STUDENT IS PAID OR UNPAID
-      const isPaidStudent = currentStudentName === duplicateInfo.studentInfo.studentName.trim().toUpperCase();
+      // 🆕 STEP 3: CHECK IF STUDENT IS PAID OR UNPAID (FIXED VERSION)
+      // Check against ALL paid students, not just the first one
+      let isPaidStudent = false;
+      let paidStudentData = null;
+
+      // Method 1: If you have individualPaidStudents array in existingPayment
+      if (existingPayment.individualPaidStudents && Array.isArray(existingPayment.individualPaidStudents)) {
+        const paidStudent = existingPayment.individualPaidStudents.find(student => 
+          student.studentName.trim().toUpperCase() === currentStudentName
+        );
+        
+        if (paidStudent) {
+          isPaidStudent = true;
+          paidStudentData = paidStudent;
+        }
+      }
+      // Method 2: If you have paidStudentNames array
+      else if (existingPayment.paidStudentNames && Array.isArray(existingPayment.paidStudentNames)) {
+        isPaidStudent = existingPayment.paidStudentNames
+          .map(name => name.trim().toUpperCase())
+          .includes(currentStudentName);
+          
+        // Find the paid student data
+        if (isPaidStudent) {
+          paidStudentData = existingPayment.individualPaidStudents?.find(student => 
+            student.studentName.trim().toUpperCase() === currentStudentName
+          );
+        }
+      }
+      // Method 3: Fallback - check duplicateInfo.studentInfo (current method - only works for first student)
+      else {
+        isPaidStudent = currentStudentName === duplicateInfo.studentInfo.studentName.trim().toUpperCase();
+        if (isPaidStudent) {
+          paidStudentData = duplicateInfo.studentInfo;
+        }
+      }
       
       console.log("🔍 DEBUG - Is paid student?", isPaidStudent);
-      console.log("🔍 DEBUG - Paid student name:", duplicateInfo.studentInfo.studentName.trim().toUpperCase());
+      console.log("🔍 DEBUG - Paid student data:", paidStudentData);
       
       if (isPaidStudent) {
         // 🆕 STEP 4A: PAID STUDENT - CHECK FATHER NAME
-        const existingFatherName = duplicateInfo.studentInfo.fatherName.trim().toUpperCase();
+        const existingFatherName = paidStudentData.fatherName.trim().toUpperCase();
         const isFatherNameMatching = currentFatherName === existingFatherName;
         
         console.log("🔍 DEBUG - Existing father name:", existingFatherName);
@@ -3261,7 +3295,7 @@ for (const payment of currentPayments) {
         
         if (!isFatherNameMatching) {
           console.log("❌ PAID STUDENT BUT FATHER NAME MISMATCH");
-          alert(`❌ FATHER NAME MISMATCH!\n\nStudent: ${formData.studentName}\nThis student has already PAID in this group.\n\nExpected Father Name: ${duplicateInfo.studentInfo.fatherName}\nYou entered Father Name: ${formData.fatherName}\n\nFather names don't match. This student cannot be the same person.\n\nPlease verify the details or use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
+          alert(`❌ FATHER NAME MISMATCH!\n\nStudent: ${formData.studentName}\nThis student has already PAID in this group.\n\nExpected Father Name: ${paidStudentData.fatherName}\nYou entered Father Name: ${formData.fatherName}\n\nFather names don't match. This student cannot be the same person.\n\nPlease verify the details or use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
           
           // Clear the problematic field
           if (duplicateInfo.type === 'utr') {
@@ -3277,7 +3311,7 @@ for (const payment of currentPayments) {
         
         // 🆕 STEP 4B: PAID STUDENT WITH MATCHING FATHER NAME - CANNOT RE-ENTER
         console.log("❌ PAID STUDENT WITH MATCHING FATHER NAME - DUPLICATE ENTRY NOT ALLOWED");
-        alert(`❌ DUPLICATE ENTRY NOT ALLOWED!\n\nStudent: ${formData.studentName}\nFather: ${formData.fatherName}\n\nThis student has ALREADY PAID in this group payment.\n\nExisting Payment Details:\n• Course: ${duplicateInfo.courseName}\n• Batch: ${duplicateInfo.batchName}\n• Year: ${duplicateInfo.yearName}\n• Amount: ₹${existingPayment.amount?.toLocaleString()}\n• Date: ${existingPayment.paymentDate}\n\n⚠️ You cannot create duplicate entries for the same student.\nUse a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'} for new payments.`);
+        alert(`❌ DUPLICATE ENTRY NOT ALLOWED!\n\nStudent: ${formData.studentName}\nFather: ${formData.fatherName}\n\nThis student has ALREADY PAID in this group payment.\n\nExisting Payment Details:\n• Course: ${duplicateInfo.courseName}\n• Batch: ${duplicateInfo.batchName}\n• Year: ${duplicateInfo.yearName}\n• Amount: ₹${paidStudentData.amount || existingPayment.amount?.toLocaleString()}\n• Date: ${existingPayment.paymentDate}\n\n⚠️ You cannot create duplicate entries for the same student.\nUse a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'} for new payments.`);
         
         // Clear the problematic field and reset form
         if (duplicateInfo.type === 'utr') {
