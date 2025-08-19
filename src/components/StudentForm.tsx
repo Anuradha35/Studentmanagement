@@ -96,6 +96,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const [groupReceiptNo, setGroupReceiptNo] = useState('');
   const [groupPaymentDate, setGroupPaymentDate] = useState('');
   const groupInputRef = useRef<HTMLInputElement>(null);
+  const [isProcessingGroupEntry, setIsProcessingGroupEntry] = useState(false);
 
   // Add state for tracking existing payments for validation
   const [existingPayments, setExistingPayments] = useState<{
