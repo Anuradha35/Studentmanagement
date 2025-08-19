@@ -1791,8 +1791,7 @@ for (const payment of currentPayments) {
       const nameValue = e.target.value.toUpperCase();
 
       // ✅ Allow only alphabets and spaces
-      if (/^[A-Z\s]*$/.test(nameValue)) {
-        // Update personal info name
+     
         setFormData({ ...formData, studentName: nameValue });
 
         // Auto-fill Group Payment first student name
@@ -1821,7 +1820,7 @@ for (const payment of currentPayments) {
           setErrors({ ...errors, studentName: '' });
         }
       }
-    }}
+    }
     className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
     placeholder="Enter student name"
   />
