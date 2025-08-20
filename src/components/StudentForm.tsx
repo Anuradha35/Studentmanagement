@@ -2703,7 +2703,7 @@ for (const payment of currentPayments) {
                         )}
 
                         <label className="text-sm text-white">Amount</label>
-                       <input
+                      <input
   type="text"
   placeholder="Enter amount"
   value={dynamicGroupEntries[0]?.amount || ''}
@@ -2717,19 +2717,16 @@ for (const payment of currentPayments) {
       (parseInt(groupOnlineAmount || '0') || 0) +
       (parseInt(groupOfflineAmount || '0') || 0);
 
-    // 1️⃣ Check against course fee
     if (amountNum > formData.courseFee) {
       showAlert(`Amount cannot be more than ₹${formData.courseFee.toLocaleString()}`);
       return;
     }
 
-    // 2️⃣ Check against total group payment
     if (amountNum > totalGroupPayment) {
       showAlert(`Amount cannot be more than total group payment ₹${totalGroupPayment.toLocaleString()}`);
       return;
     }
 
-    // 3️⃣ Check against unpaid amount (if duplicate group exists)
     const unpaidInfo = existingPayments.details.find(
       d =>
         (d.payment.utrId && d.payment.utrId === groupUtrId) ||
@@ -2743,10 +2740,8 @@ for (const payment of currentPayments) {
       return;
     }
 
-    // ✅ Clear any previous errors
     setErrors(prev => ({ ...prev, [`amount_0`]: '' }));
 
-    // ✅ Update dynamic entries
     const updatedEntries = [...dynamicGroupEntries];
     if (!updatedEntries[0]) {
       updatedEntries[0] = {
@@ -2762,7 +2757,6 @@ for (const payment of currentPayments) {
     updatedEntries[0] = { ...updatedEntries[0], amount: value };
     setDynamicGroupEntries(updatedEntries);
 
-    // ✅ Update totals
     const totalPaid = updatedEntries.reduce(
       (sum, entry) => sum + parseInt(entry?.amount || '0'),
       0
@@ -2777,6 +2771,7 @@ for (const payment of currentPayments) {
   }}
   className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white"
 />
+
 
                         {errors[`amount_0`] && (
                           <p className="text-red-400 text-sm">{errors[`amount_0`]}</p>
