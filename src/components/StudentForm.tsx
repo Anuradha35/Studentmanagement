@@ -2369,7 +2369,7 @@ for (const payment of currentPayments) {
                              
                             }
                           }
-                        }}
+                        }
                         className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Enter receipt number"
                       />
