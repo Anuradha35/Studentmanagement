@@ -852,10 +852,13 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
 
     console.log("✅ Student hasn't paid before, proceeding with group addition");
 
-    const existingMember = duplicateInfo.allGroupMembers.find(member =>
-      member.studentInfo.studentName.trim().toUpperCase() === formData.studentName.trim().toUpperCase()
-      && member.isPaid === true
-    );
+    const existingMember = (duplicateInfo?.allGroupMembers ?? []).find(
+  (member) =>
+    member?.studentInfo?.studentName?.trim()?.toUpperCase() ===
+      formData?.studentName?.trim()?.toUpperCase() &&
+    member?.isPaid === true
+);
+
 
     if (existingMember) {
       console.log("✅ Found matching student in group, using their details");
