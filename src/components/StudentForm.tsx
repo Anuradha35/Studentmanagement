@@ -453,7 +453,7 @@ const findDuplicatePaymentWithAllMembers = (utrId?: string, receiptNo?: string) 
                               isPaid: (groupPayment.amount || 0) > 0
                             });
                           }
-                          showAlert(`Total individual amounts cannot exceed total group payment ₹${totalGroupPayment.toLocaleString()}`);
+                          window.alert(`Total individual amounts cannot exceed total group payment ₹${totalGroupPayment.toLocaleString()}`);
                           break;
                         }
                       }
@@ -2371,7 +2371,7 @@ for (const payment of currentPayments) {
       return;
     }
                             const duplicate = findDuplicatePaymentWithAllMembers(undefined, receiptNo.trim());
-                              showAlert('Please enter online or offline amount first');
+                              window.alert('Please enter online or offline amount first');
                               setDuplicateInfo(duplicate);
                               setDuplicateCheckModal(true);
                              
@@ -2726,12 +2726,12 @@ for (const payment of currentPayments) {
       (parseInt(groupOfflineAmount || '0') || 0);
 
     if (amountNum > formData.courseFee) {
-      showAlert(`Amount cannot be more than ₹${formData.courseFee.toLocaleString()}`);
+      window.alert(`Amount cannot be more than ₹${formData.courseFee.toLocaleString()}`);
       return;
     }
 
     if (amountNum > totalGroupPayment) {
-      showAlert(`Amount cannot be more than total group payment ₹${totalGroupPayment.toLocaleString()}`);
+      window.alert(`Amount cannot be more than total group payment ₹${totalGroupPayment.toLocaleString()}`);
       return;
     }
 
@@ -2743,7 +2743,7 @@ for (const payment of currentPayments) {
 
 
     if (unpaidInfo && amountNum > unpaidInfo.unpaidAmount) {
-      showAlert(
+      window.alert(
         `❌ Payment exceeds unpaid amount! Max allowed: ₹${unpaidInfo.unpaidAmount}`
       );
       return;
