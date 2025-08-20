@@ -2735,20 +2735,21 @@ for (const payment of currentPayments) {
       return;
     }
 
+
     const unpaidInfo = (existingPayments?.details ?? []).find(
   (d) =>
     (d?.payment?.utrId && d.payment.utrId === groupUtrId) ||
     (d?.payment?.receiptNo && d.payment.receiptNo === groupReceiptNo)
 );
 
-
+console.log("🔍 unpaidInfo:", unpaidInfo, "amountNum:", amountNum);
     if (unpaidInfo && amountNum > unpaidInfo.unpaidAmount) {
       window.alert(
         `❌ Payment exceeds unpaid amount! Max allowed: ₹${unpaidInfo.unpaidAmount}`
       );
       return;
     }
-
+console.log("🔍 unpaidInfo:", unpaidInfo, "amountNum:", amountNum);
     setErrors(prev => ({ ...prev, [`amount_0`]: '' }));
 
     const updatedEntries = [...dynamicGroupEntries];
