@@ -907,10 +907,13 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
 
     } else {
       console.log("❌ Current student name doesn't match any group member");
-      const unpaidMatch = duplicateInfo.allGroupMembers.find(member =>
-        member.studentInfo.studentName.trim().toUpperCase() === formData.studentName.trim().toUpperCase()
-        && member.isPaid === false
-      );
+     const unpaidMatch = (duplicateInfo?.allGroupMembers ?? []).find(
+  (member) =>
+    member?.studentInfo?.studentName?.trim()?.toUpperCase() ===
+      formData?.studentName?.trim()?.toUpperCase() &&
+    member?.isPaid === false
+);
+
 
       if (unpaidMatch) {
         setDuplicateCheckModal(false);
