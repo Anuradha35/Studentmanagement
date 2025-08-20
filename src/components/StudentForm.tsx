@@ -334,10 +334,11 @@ const resetFormToCleanState = () => {
   const getCourseFee = () => {
     if (!appData.courseFees || !selectedCourse || !formData.courseDuration) return 0;
     
-    const courseFee = appData.courseFees.find(fee => 
-      fee.courseName === selectedCourse && 
-      fee.courseDuration === formData.courseDuration
-    );
+    const courseFee = appData?.courseFees?.find(
+  (fee) =>
+    fee.courseName === selectedCourse &&
+    fee.courseDuration === formData.courseDuration
+);
     
     return courseFee ? courseFee.fee : 0;
   };
