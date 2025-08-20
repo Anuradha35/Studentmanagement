@@ -1018,29 +1018,53 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
 
   // Load existing payments for validation
   useEffect(() => {
-    const utrIds = new Set<string>();
-    const receiptNos = new Set<string>();
-    
-    // Collect all existing UTR IDs and receipt numbers from all students
-    Object.values(appData.years).forEach(year => {
-      Object.values(year).forEach(course => {
-        Object.values(course).forEach(batch => {
-          // ✅ CALCULATE: Unpaid amount from group payment
-          const totalGroupAmount = existingPayment.totalGroupAmount || 0;
-          const paidByOthers = (existingPayment.amount || 0); // Amount paid by main student
-          const unpaidAmount = totalGroupAmount - paidByOthers;
-          
-          batch.students.forEach(student => {
-            // This would typically come from a payments database
-            existingPayment,
-            unpaidAmount: unpaidAmount, // ✅ PASS: Unpaid amount for validation
+  const utrIds = new Set<string>();
+  const receiptNos = new Set<string>();
+
+  // Collect all existing UTR IDs and receipt numbers from all students
+  Object.values(appData.years).forEach(year => {
+    Object.values(year).forEach(course => {
+      Object.values(course).forEach(batch => {
+        if (!Array.isArray(batch.students)) return;
+
+        batch.students.forEach(student => {
+          // Collect this student's payments
+          const studentPayments = (appData.payments || []).filter(
+            p => p.studentId === student.id
+          );
+
+          studentPayments.forEach(existingPayment => {
+            // If it’s a group payment, calculate unpaid amount
+            let unpaidAmount = 0;
+            if (existingPayment.type === "group") {
+              const totalGroupAmount = existingPayment.totalGroupAmount || 0;
+              const paidByOthers = existingPayment.amount || 0;
+              unpaidAmount = totalGroupAmount - paidByOthers;
+            }
+
+            // ✅ Add UTR/Receipt numbers for duplicate detection
+            if (existingPayment.utrId) {
+              utrIds.add(existingPayment.utrId);
+            }
+            if (existingPayment.receiptNo) {
+              receiptNos.add(existingPayment.receiptNo);
+            }
+
+            // (Optional) Debug logging
+            console.log("📦 Existing Payment Info:", {
+              student: student.studentName,
+              existingPayment,
+              unpaidAmount
+            });
           });
         });
       });
     });
-    
-    setExistingPayments({ utrIds, receiptNos });
-  }, [appData]);
+  });
+
+  setExistingPayments({ utrIds, receiptNos });
+}, [appData]);
+
 
   // Update total paid and remaining fee when payments change
   useEffect(() => {
