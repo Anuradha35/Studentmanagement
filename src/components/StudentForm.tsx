@@ -1026,8 +1026,14 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
   useEffect(() => {
   const utrIds = new Set<string>();
   const receiptNos = new Set<string>();
+  const details: Array<{
+    studentId: string;
+    studentName: string;
+    payment: any;
+    unpaidAmount: number;
+  }> = [];
 
-  // Collect all existing UTR IDs and receipt numbers from all students
+  // Collect all existing UTR IDs, receipt numbers, and unpaid amounts
   Object.values(appData.years).forEach(year => {
     Object.values(year).forEach(course => {
       Object.values(course).forEach(batch => {
@@ -1040,26 +1046,24 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
           );
 
           studentPayments.forEach(existingPayment => {
-            // If it’s a group payment, calculate unpaid amount
             let unpaidAmount = 0;
+
+            // If group payment, calculate unpaid amount
             if (existingPayment.type === "group") {
               const totalGroupAmount = existingPayment.totalGroupAmount || 0;
-              const paidByOthers = existingPayment.amount || 0;
-              unpaidAmount = totalGroupAmount - paidByOthers;
+              const paidByThisStudent = existingPayment.amount || 0;
+              unpaidAmount = totalGroupAmount - paidByThisStudent;
             }
 
-            // ✅ Add UTR/Receipt numbers for duplicate detection
-            if (existingPayment.utrId) {
-              utrIds.add(existingPayment.utrId);
-            }
-            if (existingPayment.receiptNo) {
-              receiptNos.add(existingPayment.receiptNo);
-            }
+            // Track UTR/Receipt numbers
+            if (existingPayment.utrId) utrIds.add(existingPayment.utrId);
+            if (existingPayment.receiptNo) receiptNos.add(existingPayment.receiptNo);
 
-            // (Optional) Debug logging
-            console.log("📦 Existing Payment Info:", {
-              student: student.studentName,
-              existingPayment,
+            // Save detailed info
+            details.push({
+              studentId: student.id,
+              studentName: student.studentName,
+              payment: existingPayment,
               unpaidAmount
             });
           });
@@ -1068,8 +1072,9 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
     });
   });
 
-  setExistingPayments({ utrIds, receiptNos });
+  setExistingPayments({ utrIds, receiptNos, details });
 }, [appData]);
+
 
 
   // Update total paid and remaining fee when payments change
