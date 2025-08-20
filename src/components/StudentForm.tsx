@@ -451,6 +451,7 @@ const findDuplicatePaymentWithAllMembers = (utrId?: string, receiptNo?: string) 
                               existingPayment: groupPayment,
                               isPaid: (groupPayment.amount || 0) > 0
                             });
+                          }
                           showAlert(`Total individual amounts cannot exceed total group payment ₹${totalGroupPayment.toLocaleString()}`);
                           break;
                         }
