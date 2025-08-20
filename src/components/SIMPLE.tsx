@@ -227,3 +227,56 @@
     at TypeScriptParserMixin.jsxParseOpeningElementAt (file:///home/project/node_modules/@babel/parser/lib/index.js#cjs:6709:17
 Click outside, press Esc key, or fix the code to dismiss.
 You can also disable this overlay by setting server.hmr.overlay to false in vite.config.ts.
+
+  Errors have occured while running the program.
+
+I want you to create an artifact that resolves these errors.
+
+Only fix the errors I describe, do not do anything else.
+
+If you don't have enough information to fix the errors, do not create an artifact and inform the user that you need more information on the problem.
+
+Terminal Errors:
+
+These errors occur in the terminal where we install dependencies and run tooling for the project.
+
+The user also uses this terminal to run their own commands.
+
+Error message: Error:   Failed to scan for dependencies from entries:
+/home/project/index.html
+
+✘ [ERROR] Unexpected "export"
+
+
+src/components/StudentForm.tsx:3888:0:
+  3888 │ export default StudentForm;
+       ╵ ~~~~~~
+
+
+at failureErrorWithLog (/home/project/node_modules/esbuild/lib/main.js:1462:15)
+at eval (/home/project/node_modules/esbuild/lib/main.js:935:25)
+at runOnEndCallbacks (/home/project/node_modules/esbuild/lib/main.js:1305:45)
+at buildResponseToResult (/home/project/node_modules/esbuild/lib/main.js:933:7)
+at eval (/home/project/node_modules/esbuild/lib/main.js:945:9)
+at <anonymous> (https://zp1v56uxy8rdx5ypatb0ockcb9tr6a-oci3.w-credentialless-staticblitz.com/bli
+tz.96435430.js:31:27890)
+at new Promise (https://zp1v56uxy8rdx5ypatb0ockcb9tr6a-oci3.w-c
+
+Error message: 11:46:41 am [vite] Internal server error: /home/project/src/components/StudentForm.tsx: 'import' and
+'export' may only appear at the top level. (3888:0)
+
+3886 | };
+3887 |
+
+> 3888 | export default StudentForm; | ^ 3889 | Plugin: vite:react-babel File: /home/project/src/components/StudentForm.tsx:3888:0 3886| }; 3887| 3888| export default StudentForm; | ^ 3889| at constructor (file:///home/project/node_modules/@babel/parser/lib/index.js#cjs:362:19) at TypeScriptParserMixin.raise (file:///home/project/node_modules/@babel/parser/lib/index.js#c js:3259:19) at TypeScriptParserMixin.parseStatementContent (file:///home/project/node_modules/@babel/parse r/lib/index.js#cjs:12346:18) at TypeScriptParserMixin.parseStatementContent (file:///home/
+Error message: 1:33:29 pm [vite] Internal server error: /home/project/src/components/StudentForm.tsx: Unexpected to
+ken, expected "}" (2679:30)
+
+2677 |                                 }
+2678 |                               }
+
+> 2679 | className="w-full p-3 bg-slate-700 border border-white/30 rou nded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500" | ^ 2680 | placeholder="Enter receipt number" 2681 | /> 2682 | {errors.groupReceiptNo && <p className="text-red-400 text-sm mt -1">{errors.groupReceiptNo}</p>} Plugin: vite:react-babel File: /home/project/src/components/StudentForm.tsx:2679:30 2677|
+    at TypeScriptParserMixin.jsxParseOpeningElementAfterName (file:///home/project/node_modules/@babel/parser/lib/index.js#cjs:9690:18)
+    at TypeScriptParserMixin.jsxParseOpeningElementAt (file:///home/project/node_modules/@babel/parser/lib/index.js#cjs:6709:17
+Click outside, press Esc key, or fix the code to dismiss.
+You can also disable this overlay by setting server.hmr.overlay to false in vite.config.ts.
