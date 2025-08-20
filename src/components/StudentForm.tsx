@@ -114,6 +114,7 @@ const endProcessing = () => {
   const [duplicateInfo, setDuplicateInfo] = useState<{
     type: 'utr' | 'receipt';
     value: string;
+    unpaidAmount?: number;
     existingPayment: any;
     allGroupMembers: Array<{
       studentInfo: any;
@@ -444,7 +445,7 @@ const findDuplicatePaymentWithAllMembers = (utrId?: string, receiptNo?: string) 
                               existingPayment: groupPayment,
                               isPaid: (groupPayment.amount || 0) > 0
                             });
-                          }
+                          showAlert(`Total individual amounts cannot exceed total group payment ₹${totalGroupPayment.toLocaleString()}`);
                           break;
                         }
                       }
@@ -1024,9 +1025,15 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
     Object.values(appData.years).forEach(year => {
       Object.values(year).forEach(course => {
         Object.values(course).forEach(batch => {
+          // ✅ CALCULATE: Unpaid amount from group payment
+          const totalGroupAmount = existingPayment.totalGroupAmount || 0;
+          const paidByOthers = (existingPayment.amount || 0); // Amount paid by main student
+          const unpaidAmount = totalGroupAmount - paidByOthers;
+          
           batch.students.forEach(student => {
             // This would typically come from a payments database
-            // For now, we'll simulate it
+            existingPayment,
+            unpaidAmount: unpaidAmount, // ✅ PASS: Unpaid amount for validation
           });
         });
       });
@@ -2321,7 +2328,7 @@ for (const payment of currentPayments) {
       return;
     }
                             const duplicate = findDuplicatePaymentWithAllMembers(undefined, receiptNo.trim());
-                            if (duplicate) {
+                              showAlert('Please enter online or offline amount first');
                               setDuplicateInfo(duplicate);
                               setDuplicateCheckModal(true);
                              
@@ -2676,16 +2683,16 @@ for (const payment of currentPayments) {
                               (parseInt(groupOfflineAmount || '0') || 0);
 
                             if (amountNum > formData.courseFee) {
-                              alert(`Amount cannot be more than ₹${formData.courseFee.toLocaleString()}`);
+                              showAlert(`Amount cannot be more than ₹${formData.courseFee.toLocaleString()}`);
                               return;
                             }
 
                             if (amountNum > totalGroupPayment) {
-                              alert(`Amount cannot be more than total group payment ₹${totalGroupPayment.toLocaleString()}`);
+                              showAlert(`Amount cannot be more than total group payment ₹${totalGroupPayment.toLocaleString()}`);
                               return;
                             }
                             // 3. Duplicate group ke liye unpaid member ka remaining amount se jyada na hos
-  if (duplicateInfo && duplicateInfo.paymentType === "group") {
+                            // ✅ FIXED: Duplicate group validation with correct unpaid amount
     const unpaidRemaining = duplicateInfo.otherMembersAmount || 0; // 🔑 ye value aapko duplicate modal se pass karni hai
     if (amountNum > unpaidRemaining) {
       alert(`❌ This member can only pay up to ₹${unpaidRemaining.toLocaleString()} (remaining balance).`);
