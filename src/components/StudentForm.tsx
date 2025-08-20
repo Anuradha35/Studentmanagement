@@ -2703,68 +2703,81 @@ for (const payment of currentPayments) {
                         )}
 
                         <label className="text-sm text-white">Amount</label>
-                        <input
-                          type="text"
-                          placeholder="Enter amount"
-                          value={dynamicGroupEntries[0]?.amount || ''}
-                          disabled={
-                            (parseInt(groupOnlineAmount || '0') + parseInt(groupOfflineAmount || '0')) === 0
-                          }
-                          onChange={(e) => {
-                            const value = e.target.value.replace(/\D/g, '');
-                            const amountNum = parseInt(value || '0');
-                            const totalGroupPayment =
-                              (parseInt(groupOnlineAmount || '0') || 0) +
-                              (parseInt(groupOfflineAmount || '0') || 0);
+                       <input
+  type="text"
+  placeholder="Enter amount"
+  value={dynamicGroupEntries[0]?.amount || ''}
+  disabled={
+    (parseInt(groupOnlineAmount || '0') + parseInt(groupOfflineAmount || '0')) === 0
+  }
+  onChange={(e) => {
+    const value = e.target.value.replace(/\D/g, '');
+    const amountNum = parseInt(value || '0');
+    const totalGroupPayment =
+      (parseInt(groupOnlineAmount || '0') || 0) +
+      (parseInt(groupOfflineAmount || '0') || 0);
 
-                            if (amountNum > formData.courseFee) {
-                              showAlert(`Amount cannot be more than ₹${formData.courseFee.toLocaleString()}`);
-                              return;
-                            }
-
-                            if (amountNum > totalGroupPayment) {
-                              showAlert(`Amount cannot be more than total group payment ₹${totalGroupPayment.toLocaleString()}`);
-                              return;
-                            }
-                            // 3. Duplicate group ke liye unpaid member ka remaining amount se jyada na hos
-                            // ✅ FIXED: Duplicate group validation with correct unpaid amount
-    const unpaidRemaining = duplicateInfo.otherMembersAmount || 0; // 🔑 ye value aapko duplicate modal se pass karni hai
-    if (amountNum > unpaidRemaining) {
-      alert(`❌ This member can only pay up to ₹${unpaidRemaining.toLocaleString()} (remaining balance).`);
+    // 1️⃣ Check against course fee
+    if (amountNum > formData.courseFee) {
+      showAlert(`Amount cannot be more than ₹${formData.courseFee.toLocaleString()}`);
       return;
     }
-  }
 
-                            setErrors(prev => ({ ...prev, [`amount_0`]: '' }));
+    // 2️⃣ Check against total group payment
+    if (amountNum > totalGroupPayment) {
+      showAlert(`Amount cannot be more than total group payment ₹${totalGroupPayment.toLocaleString()}`);
+      return;
+    }
 
-                            const updatedEntries = [...dynamicGroupEntries];
-                            if (!updatedEntries[0]) {
-                              updatedEntries[0] = {
-                                studentName: formData.studentName.toUpperCase(),
-                                amount: '',
-                                onlineAmount: '',
-                                offlineAmount: '',
-                                utrId: '',
-                                receiptNo: '',
-                                paymentDate: ''
-                              };
-                            }
-                            updatedEntries[0] = { ...updatedEntries[0], amount: value };
-                            setDynamicGroupEntries(updatedEntries);
+    // 3️⃣ Check against unpaid amount (if duplicate group exists)
+    const unpaidInfo = existingPayments.details.find(
+      d =>
+        (d.payment.utrId && d.payment.utrId === groupUtrId) ||
+        (d.payment.receiptNo && d.payment.receiptNo === groupReceiptNo)
+    );
 
-                            const totalPaid = updatedEntries.reduce(
-                              (sum, entry) => sum + parseInt(entry?.amount || '0'),
-                              0
-                            );
+    if (unpaidInfo && amountNum > unpaidInfo.unpaidAmount) {
+      showAlert(
+        `❌ Payment exceeds unpaid amount! Max allowed: ₹${unpaidInfo.unpaidAmount}`
+      );
+      return;
+    }
 
-                            setFormData((prev) => ({
-                              ...prev,
-                              totalPaid: totalPaid,
-                              remainingFee: prev.courseFee - totalPaid < 0 ? 0 : prev.courseFee - totalPaid
-                            }));
-                          }}
-                          className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white"
-                        />
+    // ✅ Clear any previous errors
+    setErrors(prev => ({ ...prev, [`amount_0`]: '' }));
+
+    // ✅ Update dynamic entries
+    const updatedEntries = [...dynamicGroupEntries];
+    if (!updatedEntries[0]) {
+      updatedEntries[0] = {
+        studentName: formData.studentName.toUpperCase(),
+        amount: '',
+        onlineAmount: '',
+        offlineAmount: '',
+        utrId: '',
+        receiptNo: '',
+        paymentDate: ''
+      };
+    }
+    updatedEntries[0] = { ...updatedEntries[0], amount: value };
+    setDynamicGroupEntries(updatedEntries);
+
+    // ✅ Update totals
+    const totalPaid = updatedEntries.reduce(
+      (sum, entry) => sum + parseInt(entry?.amount || '0'),
+      0
+    );
+
+    setFormData((prev) => ({
+      ...prev,
+      totalPaid: totalPaid,
+      remainingFee:
+        prev.courseFee - totalPaid < 0 ? 0 : prev.courseFee - totalPaid
+    }));
+  }}
+  className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white"
+/>
+
                         {errors[`amount_0`] && (
                           <p className="text-red-400 text-sm">{errors[`amount_0`]}</p>
                         )}
