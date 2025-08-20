@@ -2735,11 +2735,12 @@ for (const payment of currentPayments) {
       return;
     }
 
-    const unpaidInfo = existingPayments.details.find(
-      d =>
-        (d.payment.utrId && d.payment.utrId === groupUtrId) ||
-        (d.payment.receiptNo && d.payment.receiptNo === groupReceiptNo)
-    );
+    const unpaidInfo = (existingPayments?.details ?? []).find(
+  (d) =>
+    (d?.payment?.utrId && d.payment.utrId === groupUtrId) ||
+    (d?.payment?.receiptNo && d.payment.receiptNo === groupReceiptNo)
+);
+
 
     if (unpaidInfo && amountNum > unpaidInfo.unpaidAmount) {
       showAlert(
@@ -3394,9 +3395,10 @@ for (const payment of currentPayments) {
       if (existingPayment.individualPaidStudents && Array.isArray(existingPayment.individualPaidStudents)) {
          console.log("✅ Method 1: Found individualPaidStudents array");
         console.log("🔍 individualPaidStudents:", existingPayment.individualPaidStudents);
-        const paidStudent = existingPayment.individualPaidStudents.find(student => 
-          student?.studentName?.trim().toUpperCase() === currentStudentName
-        );
+        const paidStudent = (existingPayment?.individualPaidStudents ?? []).find(
+  (student) => student?.studentName?.trim()?.toUpperCase() === currentStudentName
+);
+
         
         if (paidStudent) {
           isPaidStudent = true;
@@ -3405,28 +3407,28 @@ for (const payment of currentPayments) {
         }
       }
       // Method 2: If you have paidStudentNames array
-      else if (existingPayment.paidStudentNames && Array.isArray(existingPayment.paidStudentNames)) {
+      else if (existingPayment?.paidStudentNames && Array.isArray(existingPayment?.paidStudentNames)) {
          console.log("✅ Method 2: Found paidStudentNames array");
         console.log("🔍 paidStudentNames:", existingPayment.paidStudentNames);
-        isPaidStudent = existingPayment.paidStudentNames
-          .filter(name => name != null) // Filter out null/undefined values
+        isPaidStudent = (existingPayment?.paidStudentNames ??[])
+          .filter((name) => name != null) // Filter out null/undefined values
           .map(name => name.trim().toUpperCase())
           .includes(currentStudentName);
           
         // Find the paid student data
-        if (isPaidStudent && existingPayment.individualPaidStudents) {
-          paidStudentData = existingPayment.individualPaidStudents.find(student => 
-            student?.studentName?.trim().toUpperCase() === currentStudentName
-          );
-          console.log("✅ Method 2: Found paid student:", paidStudentData);
+         if (isPaidStudent && Array.isArray(existingPayment?.individualPaidStudents)) {
+    paidStudentData = (existingPayment?.individualPaidStudents ?? []).find(
+      (student) => student?.studentName?.trim()?.toUpperCase() === currentStudentName
+    );
+         console.log("✅ Method 2: Found paid student:", paidStudentData);
         }
       }
       // Method 3: Fallback - check duplicateInfo.allGroupMembers (FIXED VERSION)
-      else if (duplicateInfo.allGroupMembers && Array.isArray(duplicateInfo.allGroupMembers)) {
+      else if (duplicateInfo.allGroupMembers && Array.isArray(duplicateInfo?.allGroupMembers)) {
         console.log("✅ Method 3: Found allGroupMembers array");
         console.log("🔍 allGroupMembers:", duplicateInfo.allGroupMembers);
         
-        const paidStudent = duplicateInfo.allGroupMembers.find(member => {
+        const paidStudent = (duplicateInfo?.allGroupMembers ?? []).find((member) => {
           // Check the structure of member - it seems to have studentInfo nested inside
           if (!member) {
             console.log("⚠️ Found null/undefined member:", member);
@@ -3434,7 +3436,7 @@ for (const payment of currentPayments) {
           }
           
           try {
-            let memberName = null;
+            let memberName: string | null = null;
             let memberAmount = 0;
             
             // Check if studentName is directly available
@@ -3443,13 +3445,13 @@ for (const payment of currentPayments) {
               memberAmount = member.amount || 0;
             }
             // Check if studentInfo is nested inside member
-            else if (member.studentInfo && member.studentInfo.studentName) {
+            else if (member.studentInfo && member.studentInfo?.studentName) {
               memberName = member.studentInfo.studentName.trim().toUpperCase();
               // Check for amount in different locations
               memberAmount = member.amount || member.existingPayment?.amount || 0;
             }
             // Check if existingPayment has the student info
-            else if (member.existingPayment && member.existingPayment.studentName) {
+            else if (member.existingPayment && member.existingPayment?.studentName) {
               memberName = member.existingPayment.studentName.trim().toUpperCase();
               memberAmount = member.existingPayment.amount || member.amount || 0;
             }
