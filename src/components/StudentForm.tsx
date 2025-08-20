@@ -3883,6 +3883,6 @@ for (const payment of currentPayments) {
       </Dialog>
     </div>
   );
-}
+};
 
 export default StudentForm;
