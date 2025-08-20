@@ -105,9 +105,15 @@ const endProcessing = () => {
 
   // Add state for tracking existing payments for validation
   const [existingPayments, setExistingPayments] = useState<{
-    utrIds: Set<string>;
-    receiptNos: Set<string>;
-  }>({ utrIds: new Set(), receiptNos: new Set() });
+  utrIds: Set<string>;
+  receiptNos: Set<string>;
+  details: Array<{
+    studentId: string;
+    studentName: string;
+    payment: any;
+    unpaidAmount: number;
+  }>;
+}>({ utrIds: new Set(), receiptNos: new Set(), details: [] });
 
   // Enhanced state for duplicate checking
   const [duplicateCheckModal, setDuplicateCheckModal] = useState(false);
