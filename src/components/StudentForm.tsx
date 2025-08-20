@@ -437,8 +437,8 @@ const findDuplicatePaymentWithAllMembers = (utrId?: string, receiptNo?: string) 
                   for (const [y, yData] of Object.entries(appData.years)) {
                     for (const [c, cData] of Object.entries(yData)) {
                       for (const [b, bData] of Object.entries(cData)) {
-                        const groupStudent = Array.isArray(bData.students) 
-                          ? bData.students.find(s => s && s.id === groupPayment.studentId)
+                        const groupStudent = Array.isArray(bData?.students) 
+                          ? bData.students.find((s) => s && s.id === groupPayment.studentId)
                           : null;
 
                         if (groupStudent) {
