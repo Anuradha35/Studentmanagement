@@ -2766,11 +2766,7 @@ console.log("🔍 DEBUG - savedUnpaidAmount:", savedUnpaidAmount);
       window.alert(`Amount cannot be more than total group payment ₹${calculatedUnpaidAmount.toLocaleString()}`);
       return;
     }
-// Validation 3: Check against saved unpaid amount (MAIN VALIDATION)
-    if (savedUnpaidAmount > 0 && unpaidMemberName && amountNum > savedUnpaidAmount) {
-      window.alert(`❌ Payment exceeds unpaid member amount!\n\nUnpaid Member: ${unpaidMemberName}\nMax allowed: ₹${savedUnpaidAmount.toLocaleString()}\nYou entered: ₹${amountNum.toLocaleString()}`);
-      return;
-    }
+
 
 
 console.log("🔍amountNum:", amountNum);
