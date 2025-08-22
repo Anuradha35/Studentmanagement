@@ -205,78 +205,453 @@
 
 
 
-
-[plugin:vite:react-babel] /home/project/src/components/StudentForm.tsx: Unexpected token, expected "}" (2679:30)
-  2682 |                             {errors.groupReceiptNo && <p className="text-red-400 text-sm mt-1">{errors.groupReceiptNo}</p>}
-/home/project/src/components/StudentForm.tsx:2679:30
-2677|                                  }
-2678|                                }
-2679|                                className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-   |                                ^
-2680|                                placeholder="Enter receipt number"
-2681|                              />
-    at constructor (file:///home/project/node_modules/@babel/parser/lib/index.js#cjs:362:19)
-    at TypeScriptParserMixin.raise (file:///home/project/node_modules/@babel/parser/lib/index.js#cjs:3259:19)
-    at TypeScriptParserMixin.unexpected (file:///home/project/node_modules/@babel/parser/lib/index.js#cjs:3279:16)
-    at TypeScriptParserMixin.expect (file:///home/project/node_modules/@babel/parser/lib/index.js#cjs:3589:12)
-    at TypeScriptParserMixin.jsxParseExpressionContainer (file:///home/project/node_modules/@babel/parser/lib/index.js#cjs:6684:10)
-    at TypeScriptParserMixin.jsxParseAttributeValue (file:///home/project/node_modules/@babel/parser/lib/index.js#cjs:6651:21)
-    at TypeScriptParserMixin.jsxParseAttribute (file:///home/project/node_modules/@babel/parser/lib/index.js#cjs:6700:38)
-    at TypeScriptParserMixin.jsxParseOpeningElementAfterName (file:///home/project/node_modules/@babel/parser/lib/index.js#cjs:6714:28)
-    at TypeScriptParserMixin.jsxParseOpeningElementAfterName (file:///home/project/node_modules/@babel/parser/lib/index.js#cjs:9690:18)
-    at TypeScriptParserMixin.jsxParseOpeningElementAt (file:///home/project/node_modules/@babel/parser/lib/index.js#cjs:6709:17
-Click outside, press Esc key, or fix the code to dismiss.
-You can also disable this overlay by setting server.hmr.overlay to false in vite.config.ts.
-
-  Errors have occured while running the program.
-
-I want you to create an artifact that resolves these errors.
-
-Only fix the errors I describe, do not do anything else.
-
-If you don't have enough information to fix the errors, do not create an artifact and inform the user that you need more information on the problem.
-
-Terminal Errors:
-
-These errors occur in the terminal where we install dependencies and run tooling for the project.
-
-The user also uses this terminal to run their own commands.
-
-Error message: Error:   Failed to scan for dependencies from entries:
-/home/project/index.html
-
-✘ [ERROR] Unexpected "export"
-
-
-src/components/StudentForm.tsx:3888:0:
-  3888 │ export default StudentForm;
-       ╵ ~~~~~~
-
-
-at failureErrorWithLog (/home/project/node_modules/esbuild/lib/main.js:1462:15)
-at eval (/home/project/node_modules/esbuild/lib/main.js:935:25)
-at runOnEndCallbacks (/home/project/node_modules/esbuild/lib/main.js:1305:45)
-at buildResponseToResult (/home/project/node_modules/esbuild/lib/main.js:933:7)
-at eval (/home/project/node_modules/esbuild/lib/main.js:945:9)
-at <anonymous> (https://zp1v56uxy8rdx5ypatb0ockcb9tr6a-oci3.w-credentialless-staticblitz.com/bli
-tz.96435430.js:31:27890)
-at new Promise (https://zp1v56uxy8rdx5ypatb0ockcb9tr6a-oci3.w-c
-
-Error message: 11:46:41 am [vite] Internal server error: /home/project/src/components/StudentForm.tsx: 'import' and
-'export' may only appear at the top level. (3888:0)
-
-3886 | };
-3887 |
-
-> 3888 | export default StudentForm; | ^ 3889 | Plugin: vite:react-babel File: /home/project/src/components/StudentForm.tsx:3888:0 3886| }; 3887| 3888| export default StudentForm; | ^ 3889| at constructor (file:///home/project/node_modules/@babel/parser/lib/index.js#cjs:362:19) at TypeScriptParserMixin.raise (file:///home/project/node_modules/@babel/parser/lib/index.js#c js:3259:19) at TypeScriptParserMixin.parseStatementContent (file:///home/project/node_modules/@babel/parse r/lib/index.js#cjs:12346:18) at TypeScriptParserMixin.parseStatementContent (file:///home/
-Error message: 1:33:29 pm [vite] Internal server error: /home/project/src/components/StudentForm.tsx: Unexpected to
-ken, expected "}" (2679:30)
-
-2677 |                                 }
-2678 |                               }
-
-> 2679 | className="w-full p-3 bg-slate-700 border border-white/30 rou nded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500" | ^ 2680 | placeholder="Enter receipt number" 2681 | /> 2682 | {errors.groupReceiptNo && <p className="text-red-400 text-sm mt -1">{errors.groupReceiptNo}</p>} Plugin: vite:react-babel File: /home/project/src/components/StudentForm.tsx:2679:30 2677|
-    at TypeScriptParserMixin.jsxParseOpeningElementAfterName (file:///home/project/node_modules/@babel/parser/lib/index.js#cjs:9690:18)
-    at TypeScriptParserMixin.jsxParseOpeningElementAt (file:///home/project/node_modules/@babel/parser/lib/index.js#cjs:6709:17
-Click outside, press Esc key, or fix the code to dismiss.
-You can also disable this overlay by setting server.hmr.overlay to false in vite.config.ts.
+Failed to load resource: the server responded with a status of 404 ()
+blitz.96435430.js:19  [Contextify] [WARNING] running source code in new context
+(anonymous) @ blitz.96435430.js:19
+blitz.96435430.js:19  [Contextify] [WARNING] running source code in new context
+(anonymous) @ blitz.96435430.js:19
+headless?coep=credentialless&version=1.6.4-internal.3:1  The resource https://w-credentialless-staticblitz.com/fetch.worker.96435430.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+headless?coep=credentialless&version=1.6.4-internal.3:1  The resource https://w-credentialless-staticblitz.com/fetch.worker.96435430.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: single
+StudentForm.tsx:686 ✅ groupCount: 0
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 0
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(0)
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: single
+StudentForm.tsx:686 ✅ groupCount: 0
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 0
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(0)
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: single
+StudentForm.tsx:686 ✅ groupCount: 0
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 1
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(1)
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: single
+StudentForm.tsx:686 ✅ groupCount: 0
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 1
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(1)
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: single
+StudentForm.tsx:686 ✅ groupCount: 0
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 1
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(1)
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: single
+StudentForm.tsx:686 ✅ groupCount: 0
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 1
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(1)
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: single
+StudentForm.tsx:686 ✅ groupCount: 0
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 1
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(1)
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 0
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 0
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(0)
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 5
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 0
+StudentForm.tsx:1017 ✅ Confirm button clicked
+StudentForm.tsx:1018 ✅ groupCount = 5
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 5
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 5
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(5)
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 5
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 5
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(5)
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 5
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 5
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(5)
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 5
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 5
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(5)
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 5
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 5
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(5)
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 5
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 5
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(5)
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:3329 🔥 DIRECT Add to Current Group button clicked
+StudentForm.tsx:955 🧹 Clearing saved unpaid amount
+StudentForm.tsx:3343 🔍 DEBUG - Current student: Y3
+StudentForm.tsx:3344 🔍 DEBUG - Current father: BBB
+StudentForm.tsx:3345 🔍 DEBUG - DuplicateInfo: Object
+StudentForm.tsx:3383 🔍 DEBUG - Existing group students: Array(3)
+StudentForm.tsx:3416 ✅ STEP 2 PASSED: Student is a member of the existing group
+StudentForm.tsx:3421 🔍 DEBUG - existingPayment: Object
+StudentForm.tsx:3422 🔍 DEBUG - duplicateInfo.studentInfo: Object
+StudentForm.tsx:3423 🔍 DEBUG - duplicateInfo structure: Array(10)
+StudentForm.tsx:3463 ✅ Method 3: Found allGroupMembers array
+StudentForm.tsx:3464 🔍 allGroupMembers: Array(2)
+StudentForm.tsx:3499 🔍 Checking member: Y1 Amount: 3000 Target: Y3
+StudentForm.tsx:3499 🔍 Checking member: Y2 Amount: 4000 Target: Y3
+StudentForm.tsx:3546 ✅ Method 4: Using duplicateInfo.studentInfo
+StudentForm.tsx:3554 🔍 DEBUG - Is paid student? false
+StudentForm.tsx:3555 🔍 DEBUG - Paid student data: null
+StudentForm.tsx:3650 ✅ UNPAID STUDENT - CAN PREFILL PAYMENT DETAILS
+StudentForm.tsx:3658 🔧 Setting flag to disable duplicate checking during prefill
+StudentForm.tsx:3708 🔄 Starting prefill process for unpaid student
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:3717 🔄 Pre-filling payment details for unpaid student...
+StudentForm.tsx:3723 ✅ Pre-filled online payment: 5000 444444444444
+StudentForm.tsx:3729 ✅ Pre-filled offline payment: 5000 44
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 5
+StudentForm.tsx:777 🔄 Updated group count to match entries: 5
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 5
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 5
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(5)
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 5
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:777 🔄 Updated group count to match entries: 3
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:3767 🔧 Re-enabling duplicate checking after successful prefill
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 5
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 5
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 50
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 50
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 500
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 500
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 50
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 50
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 5
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 5
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 0
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 0
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 2
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 2
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 20
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 20
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 200
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 200
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 2000
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 2000
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 200
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 200
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 20
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 20
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 2
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 2
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 0
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 0
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 4
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 4
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 40
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 40
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 400
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 400
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 4000
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 4000
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 400
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 400
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 40
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 40
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 4
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 4
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 0
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 0
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+[NEW] Explain Console errors by using Copilot in Edge: click
+         
+         to explain an error. 
+        Learn more
+        Don't show again
+headless?coep=credentialless&version=1.6.4-internal.3:1  The resource https://w-credentialless-staticblitz.com/fetch.worker.96435430.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 4
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 4
+StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
+StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: (3) [{…}, {…}, {…}]
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 40
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 40
+StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
+StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: (3) [{…}, {…}, {…}]
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 400
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 400
+StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
+StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: (3) [{…}, {…}, {…}]
+StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 4000
+StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 4000
+StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
+StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: (3) [{…}, {…}, {…}]
