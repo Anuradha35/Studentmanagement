@@ -2746,10 +2746,12 @@ for (const payment of currentPayments) {
     const totalGroupPayment =
       (parseInt(groupOnlineAmount || '0') || 0) +
       (parseInt(groupOfflineAmount || '0') || 0);
-// Add this at the top of the onChange handler to debug
 console.log("🔍 DEBUG - savedUnpaidAmount:", savedUnpaidAmount);
-console.log("🔍 DEBUG - unpaidMemberName:", unpaidMemberName);
-console.log("🔍 DEBUG - amountNum:", amountNum);
+    console.log("🔍 DEBUG - unpaidMemberName:", unpaidMemberName);
+    console.log("🔍 DEBUG - amountNum:", amountNum);
+    console.log("🔍 DEBUG - totalGroupPayment:", totalGroupPayment);
+
+  
     if (amountNum > formData.courseFee) {
       window.alert(`Amount cannot be more than ₹${formData.courseFee.toLocaleString()}`);
       return;
@@ -2759,11 +2761,12 @@ console.log("🔍 DEBUG - amountNum:", amountNum);
       window.alert(`Amount cannot be more than total group payment ₹${totalGroupPayment.toLocaleString()}`);
       return;
     }
-// New validation: Check against saved unpaid amount
-    if (savedUnpaidAmount > 0 && amountNum > savedUnpaidAmount) {
+// Validation 3: Check against saved unpaid amount (MAIN VALIDATION)
+    if (savedUnpaidAmount > 0 && unpaidMemberName && amountNum > savedUnpaidAmount) {
       window.alert(`❌ Payment exceeds unpaid member amount!\n\nUnpaid Member: ${unpaidMemberName}\nMax allowed: ₹${savedUnpaidAmount.toLocaleString()}\nYou entered: ₹${amountNum.toLocaleString()}`);
       return;
     }
+
 
 console.log("🔍amountNum:", amountNum);
     setErrors(prev => ({ ...prev, [`amount_0`]: '' }));
@@ -3638,12 +3641,47 @@ console.log("🔍amountNum:", amountNum);
       } else {
         // 🆕 STEP 5: UNPAID STUDENT - ALLOW PREFILL (NO FATHER NAME CHECK NEEDED)
         console.log("✅ UNPAID STUDENT - CAN PREFILL PAYMENT DETAILS");
-        // Save the unpaid amount for validation
-      if (unpaidAmountForCurrentStudent > 0) {
-        setSavedUnpaidAmount(unpaidAmountForCurrentStudent);
-        setUnpaidMemberName(currentStudentName);
-        console.log(`💾 Saved unpaid amount: ₹${unpaidAmountForCurrentStudent} for ${currentStudentName}`);
-      }
+
+        // 🔧 FIXED: Calculate unpaid amount properly
+let calculatedUnpaidAmount = 0;
+
+// Method 1: Try to get from modal's orange remaining amount
+if (duplicateInfo.remainingAmount && duplicateInfo.remainingAmount > 0) {
+  calculatedUnpaidAmount = duplicateInfo.remainingAmount;
+  console.log("💰 Method 1: Got unpaid amount from modal:", calculatedUnpaidAmount);
+}
+// Method 2: Calculate from total vs paid amounts
+else if (existingPayment.totalGroupAmount) {
+  const totalGroupPayment = existingPayment.totalGroupAmount || 0;
+  const totalPaidAmount = duplicateInfo.allGroupMembers
+    .filter(m => m && m.amount && m.amount > 0)
+    .reduce((sum, m) => sum + (m.amount || 0), 0);
+  
+  calculatedUnpaidAmount = totalGroupPayment - totalPaidAmount;
+  console.log("💰 Method 2: Calculated unpaid amount:", calculatedUnpaidAmount);
+  console.log("💰 Total Group Payment:", totalGroupPayment);
+  console.log("💰 Total Paid Amount:", totalPaidAmount);
+}
+// Method 3: Calculate from online + offline amounts
+else {
+  const totalAvailable = (existingPayment.onlineAmount || 0) + (existingPayment.offlineAmount || 0);
+  const totalPaidAmount = duplicateInfo.allGroupMembers
+    .filter(m => m && m.amount && m.amount > 0)
+    .reduce((sum, m) => sum + (m.amount || 0), 0);
+  
+  calculatedUnpaidAmount = totalAvailable - totalPaidAmount;
+  console.log("💰 Method 3: Calculated from online+offline amounts:", calculatedUnpaidAmount);
+}
+
+       // 🔧 CRITICAL FIX: Actually save the unpaid amount!
+if (calculatedUnpaidAmount > 0) {
+  setSavedUnpaidAmount(calculatedUnpaidAmount);
+  setUnpaidMemberName(currentStudentName);
+  console.log(`💾 SAVED unpaid amount: ₹${calculatedUnpaidAmount} for ${currentStudentName}`);
+} else {
+  console.log("⚠️ No unpaid amount calculated or amount is 0");
+}
+
         // 🔧 FIX: Set flag to disable duplicate checking temporarily
         console.log("🔧 Setting flag to disable duplicate checking during prefill");
         
