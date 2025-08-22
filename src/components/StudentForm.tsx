@@ -3645,34 +3645,579 @@ console.log("🔍amountNum:", amountNum);
         // 🔧 FIXED: Calculate unpaid amount properly
 let calculatedUnpaidAmount = 0;
 
-// Method 1: Try to get from modal's orange remaining amount
-if (duplicateInfo.remainingAmount && duplicateInfo.remainingAmount > 0) {
-  calculatedUnpaidAmount = duplicateInfo.remainingAmount;
-  console.log("💰 Method 1: Got unpaid amount from modal:", calculatedUnpaidAmount);
+       
+{duplicateInfo?.paymentType === 'group' && paymentType === 'group' && (
+        <button 
+    type="button"
+    onClick={() => {
+      console.log("🔥 DIRECT Add to Current Group button clicked");
+      
+      if (!duplicateInfo) {
+        console.log("❌ No duplicateInfo found, returning");
+        return;
+      }
+      // Clear previous saved unpaid amount before processing new detection
+    clearSavedUnpaidAmount();
+
+
+      // 🆕 STEP 1: GET BASIC INFO
+      const currentStudentName = formData.studentName.trim().toUpperCase();
+      const currentFatherName = formData.fatherName.trim().toUpperCase();
+      
+      console.log("🔍 DEBUG - Current student:", currentStudentName);
+      console.log("🔍 DEBUG - Current father:", currentFatherName);
+      console.log("🔍 DEBUG - DuplicateInfo:", duplicateInfo);
+      
+      // Check if existingPayment has valid data
+      if (!duplicateInfo.existingPayment || !duplicateInfo.existingPayment.groupStudents) {
+        console.log("❌ ERROR: No group students found in existing payment");
+        alert(`❌ SYSTEM ERROR: Invalid payment data!\n\nThe UTR/Receipt ID has incomplete information.\nPlease verify your UTR/Receipt number.`);
+        
+        // Clear all payment fields and reset to single mode
+        console.log("🧹 Clearing all payment fields due to invalid payment data");
+        
+        // Clear group payment fields
+        setGroupUtrId('');
+        setGroupReceiptNo('');
+        setGroupOnlineAmount('');
+        setGroupOfflineAmount('');
+        setGroupPaymentDate('');
+        setGroupCount(0);
+        setDynamicGroupEntries([]);
+        
+        // Reset to single payment mode
+        setPaymentType('single');
+        setPaymentFieldsReadOnly(false);
+        
+        // Clear errors
+        setErrors({});
+        
+        setDuplicateCheckModal(false);
+        setDuplicateInfo(null);
+        return;
+      }
+      
+      const existingPayment = duplicateInfo.existingPayment;
+      const existingGroupStudents = existingPayment.groupStudents;
+      const existingStudentNames = existingGroupStudents
+        .split(', ')
+        .map(name => name.trim().toUpperCase())
+        .filter(name => name.length > 0);
+      
+      console.log("🔍 DEBUG - Existing group students:", existingStudentNames);
+      
+      // 🆕 STEP 2: CHECK IF CURRENT STUDENT IS A MEMBER OF THE EXISTING GROUP
+      const isStudentInGroup = existingStudentNames.includes(currentStudentName);
+      
+      if (!isStudentInGroup) {
+        console.log("❌ STUDENT NOT IN GROUP");
+        alert(`❌ STUDENT NOT IN GROUP!\n\nYou entered: "${formData.studentName}"\n\nBut this ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'} belongs to group:\n"${existingGroupStudents}"\n\n"${formData.studentName}" is NOT a member of this group.\n\nPlease verify:\n1. Student name spelling\n2. Correct ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}`);
+        clearSavedUnpaidAmount();
+        // Clear all payment fields and reset to single mode
+        console.log("🧹 Clearing all payment fields and resetting to single mode");
+        
+        // Clear group payment fields
+        setGroupUtrId('');
+        setGroupReceiptNo('');
+        setGroupOnlineAmount('');
+        setGroupOfflineAmount('');
+        setGroupPaymentDate('');
+        setGroupCount(0);
+        setDynamicGroupEntries([]);
+        
+        // Reset to single payment mode
+        setPaymentType('single');
+        setPaymentFieldsReadOnly(false);
+        
+        // Clear errors
+        setErrors({});
+        
+        setDuplicateCheckModal(false);
+        setDuplicateInfo(null);
+        return;
+      }
+      
+      console.log("✅ STEP 2 PASSED: Student is a member of the existing group");
+      
+      // 🆕 STEP 3: CHECK IF STUDENT IS PAID OR UNPAID (FIXED VERSION)
+      // Check against ALL paid students, not just the first one
+
+       console.log("🔍 DEBUG - existingPayment:", existingPayment);
+      console.log("🔍 DEBUG - duplicateInfo.studentInfo:", duplicateInfo.studentInfo);
+      console.log("🔍 DEBUG - duplicateInfo structure:", Object.keys(duplicateInfo));
+      let isPaidStudent = false;
+      let paidStudentData = null;
+      let unpaidAmountForCurrentStudent = 0;
+
+
+      // Method 1: If you have individualPaidStudents array in existingPayment
+      if (existingPayment.individualPaidStudents && Array.isArray(existingPayment.individualPaidStudents)) {
+         console.log("✅ Method 1: Found individualPaidStudents array");
+        console.log("🔍 individualPaidStudents:", existingPayment.individualPaidStudents);
+        const paidStudent = (existingPayment?.individualPaidStudents ?? []).find(
+  (student) => student?.studentName?.trim()?.toUpperCase() === currentStudentName
+);
+
+        
+        if (paidStudent) {
+          isPaidStudent = true;
+          paidStudentData = paidStudent;
+          console.log("✅ Method 1: Found paid student:", paidStudent);
+        }
+      }
+      // Method 2: If you have paidStudentNames array
+      else if (existingPayment?.paidStudentNames && Array.isArray(existingPayment?.paidStudentNames)) {
+         console.log("✅ Method 2: Found paidStudentNames array");
+        console.log("🔍 paidStudentNames:", existingPayment.paidStudentNames);
+        isPaidStudent = (existingPayment?.paidStudentNames ??[])
+          .filter((name) => name != null) // Filter out null/undefined values
+          .map(name => name.trim().toUpperCase())
+          .includes(currentStudentName);
+          
+        // Find the paid student data
+         if (isPaidStudent && Array.isArray(existingPayment?.individualPaidStudents)) {
+    paidStudentData = (existingPayment?.individualPaidStudents ?? []).find(
+      (student) => student?.studentName?.trim()?.toUpperCase() === currentStudentName
+    );
+         console.log("✅ Method 2: Found paid student:", paidStudentData);
+        }
+      }
+      // Method 3: Fallback - check duplicateInfo.allGroupMembers (FIXED VERSION)
+      else if (duplicateInfo.allGroupMembers && Array.isArray(duplicateInfo?.allGroupMembers)) {
+        console.log("✅ Method 3: Found allGroupMembers array");
+        console.log("🔍 allGroupMembers:", duplicateInfo.allGroupMembers);
+        
+        const paidStudent = (duplicateInfo?.allGroupMembers ?? []).find((member) => {
+          // Check the structure of member - it seems to have studentInfo nested inside
+          if (!member) {
+            console.log("⚠️ Found null/undefined member:", member);
+            return false;
+          }
+          
+          try {
+            let memberName: string | null = null;
+            let memberAmount = 0;
+            
+            // Check if studentName is directly available
+            if (member.studentName) {
+              memberName = member.studentName.trim().toUpperCase();
+              memberAmount = member.amount || 0;
+            }
+            // Check if studentInfo is nested inside member
+            else if (member.studentInfo && member.studentInfo?.studentName) {
+              memberName = member.studentInfo.studentName.trim().toUpperCase();
+              // Check for amount in different locations
+              memberAmount = member.amount || member.existingPayment?.amount || 0;
+            }
+            // Check if existingPayment has the student info
+            else if (member.existingPayment && member.existingPayment?.studentName) {
+              memberName = member.existingPayment.studentName.trim().toUpperCase();
+              memberAmount = member.existingPayment.amount || member.amount || 0;
+            }
+            
+            if (!memberName) {
+              console.log("⚠️ Could not extract studentName from member:", member);
+              return false;
+            }
+            
+            console.log("🔍 Checking member:", memberName, "Amount:", memberAmount, "Target:", currentStudentName);
+            return memberName === currentStudentName && memberAmount > 0;
+            
+          } catch (error) {
+            console.log("⚠️ Error processing member:", member, error);
+            return false;
+          }
+        });
+        
+        if (paidStudent) {
+          isPaidStudent = true;
+          // Structure the paid student data properly
+          if (paidStudent.studentInfo) {
+            paidStudentData = {
+              ...paidStudent.studentInfo,
+              amount: paidStudent.amount || paidStudent.existingPayment?.amount || 0
+            };
+          } else if (paidStudent.existingPayment) {
+            paidStudentData = {
+              ...paidStudent.existingPayment,
+              amount: paidStudent.existingPayment.amount || paidStudent.amount || 0
+            };
+          } else {
+            paidStudentData = paidStudent;
+            // Find unpaid amount for current student
+        const unpaidMember = duplicateInfo.allGroupMembers.find((member) => {
+          if (!member || !member.studentInfo) return false;
+          const memberName = member.studentInfo.studentName.trim().toUpperCase();
+          return memberName === currentStudentName;
+        });
+        
+        if (unpaidMember && unpaidMember.studentInfo) {
+          // Calculate unpaid amount from the orange remaining amount shown in modal
+          const totalGroupPayment = existingPayment.totalGroupAmount || 0;
+          const totalPaidAmount = duplicateInfo.allGroupMembers
+            .filter(m => m && m.amount && m.amount > 0)
+            .reduce((sum, m) => sum + (m.amount || 0), 0);
+          
+          unpaidAmountForCurrentStudent = totalGroupPayment - totalPaidAmount;
+          
+          console.log("💰 Calculated unpaid amount for current student:", unpaidAmountForCurrentStudent);   
+          }
+          console.log("✅ Method 3: Found paid student in allGroupMembers:", paidStudentData);
+        }
+      }
+      // Method 4: Fallback - check duplicateInfo.studentInfo (current method - only works for first student)
+      else if (duplicateInfo.studentInfo && duplicateInfo.studentInfo.studentName) {
+        console.log("✅ Method 4: Using duplicateInfo.studentInfo");
+        isPaidStudent = currentStudentName === duplicateInfo.studentInfo.studentName.trim().toUpperCase();
+        if (isPaidStudent) {
+          paidStudentData = duplicateInfo.studentInfo;
+          console.log("✅ Method 4: Found paid student:", paidStudentData);
+        }
+      }
+      
+      console.log("🔍 DEBUG - Is paid student?", isPaidStudent);
+      console.log("🔍 DEBUG - Paid student data:", paidStudentData);
+      
+      if (isPaidStudent) {
+        // 🆕 STEP 4A: PAID STUDENT - CHECK FATHER NAME
+        if (!paidStudentData || !paidStudentData.fatherName) {
+          console.log("❌ ERROR: Paid student data incomplete");
+          alert(`❌ SYSTEM ERROR: Student payment data is incomplete!\n\nPlease contact support.`);
+          
+          // Clear all payment fields and reset to single mode
+          console.log("🧹 Clearing all payment fields due to incomplete student data");
+          
+          // Clear group payment fields
+          setGroupUtrId('');
+          setGroupReceiptNo('');
+          setGroupOnlineAmount('');
+          setGroupOfflineAmount('');
+          setGroupPaymentDate('');
+          setGroupCount(0);
+          setDynamicGroupEntries([]);
+          
+          // Reset to single payment mode
+          setPaymentType('single');
+          setPaymentFieldsReadOnly(false);
+          
+          // Clear errors
+          setErrors({});
+          
+          setDuplicateCheckModal(false);
+          setDuplicateInfo(null);
+          return;
+        }
+        
+        const existingFatherName = paidStudentData.fatherName.trim().toUpperCase();
+        const isFatherNameMatching = currentFatherName === existingFatherName;
+        
+        console.log("🔍 DEBUG - Existing father name:", existingFatherName);
+        console.log("🔍 DEBUG - Father name matching?", isFatherNameMatching);
+        
+        if (!isFatherNameMatching) {
+          console.log("❌ PAID STUDENT BUT FATHER NAME MISMATCH");
+          alert(`❌ FATHER NAME MISMATCH!\n\nStudent: ${formData.studentName}\nThis student has already PAID in this group.\n\nExpected Father Name: ${paidStudentData.fatherName}\nYou entered Father Name: ${formData.fatherName}\n\nFather names don't match. This student cannot be the same person.\n\nPlease verify the details or use a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}.`);
+          
+          // Clear all payment fields and reset to single mode
+          console.log("🧹 Clearing all payment fields due to father name mismatch");
+          clearSavedUnpaidAmount();
+          // Clear group payment fields
+          setGroupUtrId('');
+          setGroupReceiptNo('');
+          setGroupOnlineAmount('');
+          setGroupOfflineAmount('');
+          setGroupPaymentDate('');
+          setGroupCount(0);
+          setDynamicGroupEntries([]);
+          
+          // Reset to single payment mode
+          setPaymentType('single');
+          setPaymentFieldsReadOnly(false);
+          
+          // Clear errors
+          setErrors({});
+          
+          setDuplicateCheckModal(false);
+          setDuplicateInfo(null);
+          return;
+        }
+        
+        // 🆕 STEP 4B: PAID STUDENT WITH MATCHING FATHER NAME - CANNOT RE-ENTER
+        console.log("❌ PAID STUDENT WITH MATCHING FATHER NAME - DUPLICATE ENTRY NOT ALLOWED");
+        alert(`❌ DUPLICATE ENTRY NOT ALLOWED!\n\nStudent: ${formData.studentName}\nFather: ${formData.fatherName}\n\nThis student has ALREADY PAID in this group payment.\n\nExisting Payment Details:\n• Course: ${duplicateInfo.courseName}\n• Batch: ${duplicateInfo.batchName}\n• Year: ${duplicateInfo.yearName}\n• Amount: ₹${paidStudentData.amount || existingPayment.amount?.toLocaleString()}\n• Date: ${existingPayment.paymentDate}\n\n⚠️ You cannot create duplicate entries for the same student.\nUse a different ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'} for new payments.`);
+        
+        // Clear all payment fields and reset to single mode
+        console.log("🧹 Clearing all payment fields due to duplicate entry");
+        clearSavedUnpaidAmount();
+        // Clear group payment fields
+        setGroupUtrId('');
+        setGroupReceiptNo('');
+        setGroupOnlineAmount('');
+        setGroupOfflineAmount('');
+        setGroupPaymentDate('');
+        setGroupCount(0);
+        setDynamicGroupEntries([]);
+        
+        // Reset to single payment mode
+        setPaymentType('single');
+        setPaymentFieldsReadOnly(false);
+        
+        // Clear errors
+        setErrors({});
+        
+        setDuplicateCheckModal(false);
+        setDuplicateInfo(null);
+        return;
+        
+      } else {
+        // 🆕 STEP 5: UNPAID STUDENT - ALLOW PREFILL (NO FATHER NAME CHECK NEEDED)
+        console.log("✅ UNPAID STUDENT - CAN PREFILL PAYMENT DETAILS");
+
+        // 🔧 FIXED: Calculate unpaid amount properly
+let calculatedUnpaidAmount = 0;
+
+// Method 1: Find the specific unpaid member's amount from allGroupMembers
+if (duplicateInfo.allGroupMembers && Array.isArray(duplicateInfo.allGroupMembers)) {
+  console.log("✅ Method 1: Looking for current student's unpaid amount in allGroupMembers");
+  
+  const currentStudentMember = duplicateInfo.allGroupMembers.find((member) => {
+    if (!member || !member.studentInfo) return false;
+    const memberName = member.studentInfo.studentName.trim().toUpperCase();
+    return memberName === currentStudentName && (!member.amount || member.amount === 0);
+  });
+  
+  if (currentStudentMember && currentStudentMember.studentInfo) {
+    // Get the unpaid amount for this specific student
+    // This should be available in the member data or calculated from the remaining group amount
+    if (currentStudentMember.unpaidAmount) {
+      calculatedUnpaidAmount = currentStudentMember.unpaidAmount;
+    } else {
+      // Calculate based on equal distribution of remaining amount among unpaid members
+      const totalGroupPayment = existingPayment.totalGroupAmount || 
+                               ((existingPayment.onlineAmount || 0) + (existingPayment.offlineAmount || 0));
+      
+      const totalPaidAmount = duplicateInfo.allGroupMembers
+        .filter(m => m && m.amount && m.amount > 0)
+        .reduce((sum, m) => sum + (m.amount || 0), 0);
+      
+      const remainingAmount = totalGroupPayment - totalPaidAmount;
+      
+      // Count unpaid members
+      const unpaidMembers = duplicateInfo.allGroupMembers.filter(m => 
+        m && m.studentInfo && (!m.amount || m.amount === 0)
+      ).length;
+      
+      // Distribute remaining amount equally among unpaid members
+      calculatedUnpaidAmount = unpaidMembers > 0 ? remainingAmount / unpaidMembers : remainingAmount;
+    }
+    
+    console.log("💰 Method 1: Found unpaid amount for current student:", calculatedUnpaidAmount);
+  }
 }
-// Method 2: Calculate from total vs paid amounts
-else if (existingPayment.totalGroupAmount) {
+
+// Method 2: Try to get from modal's orange remaining amount (fallback)
+if (calculatedUnpaidAmount === 0 && duplicateInfo.remainingAmount && duplicateInfo.remainingAmount > 0) {
+  // If there's only one unpaid member, use the full remaining amount
+  const unpaidMembersCount = duplicateInfo.allGroupMembers
+    .filter(m => m && m.studentInfo && (!m.amount || m.amount === 0)).length;
+  
+  if (unpaidMembersCount === 1) {
+    calculatedUnpaidAmount = duplicateInfo.remainingAmount;
+    console.log("💰 Method 2: Single unpaid member, using full remaining amount:", calculatedUnpaidAmount);
+  } else {
+    // Distribute equally among unpaid members
+    calculatedUnpaidAmount = duplicateInfo.remainingAmount / unpaidMembersCount;
+    console.log("💰 Method 2: Multiple unpaid members, distributed amount:", calculatedUnpaidAmount);
+  }
+}
+
+// Method 3: Calculate from total vs paid amounts (final fallback)
+if (calculatedUnpaidAmount === 0 && existingPayment.totalGroupAmount) {
   const totalGroupPayment = existingPayment.totalGroupAmount || 0;
   const totalPaidAmount = duplicateInfo.allGroupMembers
     .filter(m => m && m.amount && m.amount > 0)
     .reduce((sum, m) => sum + (m.amount || 0), 0);
   
-  calculatedUnpaidAmount = totalGroupPayment - totalPaidAmount;
-  console.log("💰 Method 2: Calculated unpaid amount:", calculatedUnpaidAmount);
+  const remainingAmount = totalGroupPayment - totalPaidAmount;
+  const unpaidMembersCount = duplicateInfo.allGroupMembers
+    .filter(m => m && m.studentInfo && (!m.amount || m.amount === 0)).length;
+  
+  calculatedUnpaidAmount = unpaidMembersCount > 0 ? remainingAmount / unpaidMembersCount : remainingAmount;
+  console.log("💰 Method 3: Calculated unpaid amount per student:", calculatedUnpaidAmount);
   console.log("💰 Total Group Payment:", totalGroupPayment);
   console.log("💰 Total Paid Amount:", totalPaidAmount);
-}
-// Method 3: Calculate from online + offline amounts
-else {
-  const totalAvailable = (existingPayment.onlineAmount || 0) + (existingPayment.offlineAmount || 0);
-  const totalPaidAmount = duplicateInfo.allGroupMembers
-    .filter(m => m && m.amount && m.amount > 0)
-    .reduce((sum, m) => sum + (m.amount || 0), 0);
-  
-  calculatedUnpaidAmount = totalAvailable - totalPaidAmount;
-  console.log("💰 Method 3: Calculated from online+offline amounts:", calculatedUnpaidAmount);
+  console.log("💰 Remaining Amount:", remainingAmount);
+  console.log("💰 Unpaid Members Count:", unpaidMembersCount);
 }
 
+// 🔧 CRITICAL FIX: Save the correct unpaid amount for THIS SPECIFIC STUDENT
+if (calculatedUnpaidAmount > 0) {
+  setSavedUnpaidAmount(calculatedUnpaidAmount);
+  setUnpaidMemberName(currentStudentName);
+  console.log(`💾 SAVED unpaid amount: ₹${calculatedUnpaidAmount} for ${currentStudentName}`);
+} else {
+  console.log("⚠️ No unpaid amount calculated or amount is 0");
+}
+
+       // 🔧 CRITICAL FIX: Actually save the unpaid amount!
+if (calculatedUnpaidAmount > 0) {
+  setSavedUnpaidAmount(calculatedUnpaidAmount);
+  setUnpaidMemberName(currentStudentName);
+  console.log(`💾 SAVED unpaid amount: ₹${calculatedUnpaidAmount} for ${currentStudentName}`);
+} else {
+  console.log("⚠️ No unpaid amount calculated or amount is 0");
+}
+
+        // 🔧 FIX: Set flag to disable duplicate checking temporarily
+        console.log("🔧 Setting flag to disable duplicate checking during prefill");
+        
+        // You need to add this state variable in your component
+        // const [isProcessingGroupEntry, setIsProcessingGroupEntry] = useState(false);
+        setIsProcessingGroupEntry(true);
+        
+        // Check course details for warning
+        const isSameCourse = selectedCourse === duplicateInfo.courseName;
+        const isSameBatch = selectedBatch === duplicateInfo.batchName;
+        const isSameYear = selectedYear === duplicateInfo.yearName;
+        const isSameDuration = formData.courseDuration === duplicateInfo.studentInfo?.courseDuration;
+        
+        let shouldProceed = true;
+        
+        // Show warning if different course details
+        if (!isSameCourse || !isSameBatch || !isSameYear || !isSameDuration) {
+          const warningMessage = `⚠️ DIFFERENT COURSE DETAILS DETECTED!\n\nCurrent Entry:\n- Course: ${selectedCourse}\n- Batch: ${selectedBatch}\n- Year: ${selectedYear}\n- Duration: ${formData.courseDuration} Days\n\nExisting Payment:\n- Course: ${duplicateInfo.courseName}\n- Batch: ${duplicateInfo.batchName}\n- Year: ${duplicateInfo.yearName}\n- Duration: ${duplicateInfo.studentInfo?.courseDuration} Days\n\nNote: "${currentStudentName}" is an UNPAID member of existing group but has different course details.\n\nDo you want to proceed with creating separate payment entry?`;
+          
+          shouldProceed = confirm(warningMessage);
+        }
+        
+        if (!shouldProceed) {
+          console.log("🚫 User cancelled due to course details mismatch");
+          setIsProcessingGroupEntry(false); // Re-enable duplicate checking
+          
+          // Clear all payment fields and reset to single mode
+          console.log("🧹 Clearing all payment fields due to user cancellation");
+          
+          // Clear group payment fields
+          setGroupUtrId('');
+          setGroupReceiptNo('');
+          setGroupOnlineAmount('');
+          setGroupOfflineAmount('');
+          setGroupPaymentDate('');
+          setGroupCount(0);
+          setDynamicGroupEntries([]);
+          
+          // Reset to single payment mode
+          setPaymentType('single');
+          setPaymentFieldsReadOnly(false);
+          
+          // Clear errors
+          setErrors({});
+          
+          setDuplicateCheckModal(false);
+          setDuplicateInfo(null);
+          return;
+        }
+        
+        // 🆕 STEP 6: PROCEED WITH PREFILLING FOR UNPAID STUDENT
+        console.log("🔄 Starting prefill process for unpaid student");
+        
+        // Close modal first
+        setDuplicateCheckModal(false);
+        setDuplicateInfo(null);
+        
+        // Proceed with prefilling
+        setTimeout(() => {
+          try {
+            console.log("🔄 Pre-filling payment details for unpaid student...");
+            
+            // Pre-fill payment information
+            if (existingPayment.onlineAmount > 0) {
+              setGroupOnlineAmount(existingPayment.onlineAmount.toString());
+              setGroupUtrId(existingPayment.utrId || '');
+              console.log("✅ Pre-filled online payment:", existingPayment.onlineAmount, existingPayment.utrId);
+            }
+            
+            if (existingPayment.offlineAmount > 0) {
+              setGroupOfflineAmount(existingPayment.offlineAmount.toString());
+              setGroupReceiptNo(existingPayment.receiptNo || '');
+              console.log("✅ Pre-filled offline payment:", existingPayment.offlineAmount, existingPayment.receiptNo);
+            }
+            
+            setGroupPaymentDate(existingPayment.paymentDate || '');
+            
+            // Create group entries with existing members
+            const totalStudentsNeeded = existingStudentNames.length;
+            setGroupCount(totalStudentsNeeded);
+            
+            const newGroupEntries = existingStudentNames.map((studentName, index) => ({
+              studentName: studentName,
+              amount: '',
+              onlineAmount: '',
+              offlineAmount: '',
+              utrId: '',
+              receiptNo: '',
+              paymentDate: ''
+            }));
+            
+            // Set the current student as the first entry
+            const currentStudentIndex = existingStudentNames.indexOf(currentStudentName);
+            if (currentStudentIndex > 0) {
+              // Move current student to first position
+              [newGroupEntries[0], newGroupEntries[currentStudentIndex]] = 
+              [newGroupEntries[currentStudentIndex], newGroupEntries[0]];
+            }
+            
+            setTimeout(() => {
+              setDynamicGroupEntries(newGroupEntries);
+              setPaymentFieldsReadOnly(true);
+              setErrors({});
+              
+              const successMsg = `✅ UNPAID STUDENT FOUND!\n\n👤 Student: ${currentStudentName}\n📊 Group Members: ${existingStudentNames.length}\n💰 Payment details pre-filled\n\n📝 Note: This student was an unpaid member of existing group payment.\nFather name verification not required for unpaid members.\n\n✨ You can now enter the amount for this student.`;
+              
+              setTimeout(() => {
+                alert(successMsg);
+                
+                // 🔧 FIX: Re-enable duplicate checking after successful prefill
+                console.log("🔧 Re-enabling duplicate checking after successful prefill");
+                setIsProcessingGroupEntry(false);
+                
+              }, 500);
+              
+            }, 300);
+            
+          } catch (error) {
+            console.error("❌ Error during prefilling:", error);
+            alert(`❌ Error occurred while pre-filling: ${error.message}`);
+            
+            // Re-enable duplicate checking on error
+            setIsProcessingGroupEntry(false);
+            clearSavedUnpaidAmount();
+            // Clear all payment fields and reset to single mode on error
+            console.log("🧹 Clearing all payment fields due to prefill error");
+            
+            // Clear group payment fields
+            setGroupUtrId('');
+            setGroupReceiptNo('');
+            setGroupOnlineAmount('');
+            setGroupOfflineAmount('');
+            setGroupPaymentDate('');
+            setGroupCount(0);
+            setDynamicGroupEntries([]);
+            
+            // Reset to single payment mode
+            setPaymentType('single');
+            setPaymentFieldsReadOnly(false);
+            
+            // Clear errors
+            setErrors({});
+          }
+        }, 150);
+      }
+    }}}
+    className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium" >
+    Add to Current Group
+  </button>
+      )}
        // 🔧 CRITICAL FIX: Actually save the unpaid amount!
 if (calculatedUnpaidAmount > 0) {
   setSavedUnpaidAmount(calculatedUnpaidAmount);
