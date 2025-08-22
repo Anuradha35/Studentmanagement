@@ -669,6 +669,28 @@ useEffect(() => {
     setPaymentMode('offline');
   }
 }, [paymentType]);
+  const [calculatedUnpaidAmount, setCalculatedUnpaidAmount] = useState(0);
+
+useEffect(() => {
+  if (duplicateInfo?.paymentType === 'group') {
+    const existingPaymentMembers = duplicateInfo.allGroupMembers || [];
+    const currentPaidMemberNames = existingPaymentMembers.map(
+      m => m.studentInfo.studentName.trim()
+    );
+
+    const allMembers = duplicateInfo.existingPayment.groupStudents
+      ? duplicateInfo.existingPayment.groupStudents.split(', ').map(name => name.trim())
+      : [];
+
+    const actualTotal = duplicateInfo.existingPayment.totalGroupAmount || 0;
+    const actualPaid = existingPaymentMembers.reduce(
+      (sum, m) => sum + (m.existingPayment.amount || 0), 0
+    );
+
+    const remaining = actualTotal - actualPaid;
+    setCalculatedUnpaidAmount(remaining);
+  }
+}, [duplicateInfo]);
 
   // Update course fee when duration changes
   useEffect(() => {
