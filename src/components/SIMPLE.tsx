@@ -212,62 +212,601 @@ blitz.96435430.js:19  [Contextify] [WARNING] running source code in new context
 (anonymous) @ blitz.96435430.js:19
 headless?coep=credentialless&version=1.6.4-internal.3:1  The resource https://w-credentialless-staticblitz.com/fetch.worker.96435430.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
 headless?coep=credentialless&version=1.6.4-internal.3:1  The resource https://w-credentialless-staticblitz.com/fetch.worker.96435430.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:484 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:485 ✅ paymentType: single
+StudentForm.tsx:486 ✅ groupCount: 0
+StudentForm.tsx:487 ✅ dynamicGroupEntries.length: 0
+StudentForm.tsx:490 👀 useEffect watching dynamicGroupEntries: Array(0)
+StudentForm.tsx:484 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:485 ✅ paymentType: single
+StudentForm.tsx:486 ✅ groupCount: 0
+StudentForm.tsx:487 ✅ dynamicGroupEntries.length: 0
+StudentForm.tsx:490 👀 useEffect watching dynamicGroupEntries: Array(0)
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:484 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:485 ✅ paymentType: single
+StudentForm.tsx:486 ✅ groupCount: 0
+StudentForm.tsx:487 ✅ dynamicGroupEntries.length: 1
+StudentForm.tsx:490 👀 useEffect watching dynamicGroupEntries: Array(1)
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:484 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:485 ✅ paymentType: single
+StudentForm.tsx:486 ✅ groupCount: 0
+StudentForm.tsx:487 ✅ dynamicGroupEntries.length: 1
+StudentForm.tsx:490 👀 useEffect watching dynamicGroupEntries: Array(1)
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:484 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:485 ✅ paymentType: single
+StudentForm.tsx:486 ✅ groupCount: 0
+StudentForm.tsx:487 ✅ dynamicGroupEntries.length: 1
+StudentForm.tsx:490 👀 useEffect watching dynamicGroupEntries: Array(1)
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:484 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:485 ✅ paymentType: single
+StudentForm.tsx:486 ✅ groupCount: 0
+StudentForm.tsx:487 ✅ dynamicGroupEntries.length: 1
+StudentForm.tsx:490 👀 useEffect watching dynamicGroupEntries: Array(1)
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:484 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:485 ✅ paymentType: single
+StudentForm.tsx:486 ✅ groupCount: 0
+StudentForm.tsx:487 ✅ dynamicGroupEntries.length: 1
+StudentForm.tsx:490 👀 useEffect watching dynamicGroupEntries: Array(1)
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:484 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:485 ✅ paymentType: group
+StudentForm.tsx:486 ✅ groupCount: 0
+StudentForm.tsx:487 ✅ dynamicGroupEntries.length: 0
+StudentForm.tsx:490 👀 useEffect watching dynamicGroupEntries: Array(0)
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:484 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:485 ✅ paymentType: group
+StudentForm.tsx:486 ✅ groupCount: 5
+StudentForm.tsx:487 ✅ dynamicGroupEntries.length: 0
+StudentForm.tsx:755 ✅ Confirm button clicked
+StudentForm.tsx:756 ✅ groupCount = 5
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:484 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:485 ✅ paymentType: group
+StudentForm.tsx:486 ✅ groupCount: 5
+StudentForm.tsx:487 ✅ dynamicGroupEntries.length: 5
+StudentForm.tsx:490 👀 useEffect watching dynamicGroupEntries: Array(5)
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:484 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:485 ✅ paymentType: group
+StudentForm.tsx:486 ✅ groupCount: 5
+StudentForm.tsx:487 ✅ dynamicGroupEntries.length: 5
+StudentForm.tsx:490 👀 useEffect watching dynamicGroupEntries: Array(5)
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:484 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:485 ✅ paymentType: group
+StudentForm.tsx:486 ✅ groupCount: 5
+StudentForm.tsx:487 ✅ dynamicGroupEntries.length: 5
+StudentForm.tsx:490 👀 useEffect watching dynamicGroupEntries: Array(5)
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:4432 🔥 DIRECT Add to Current Group button clicked
+StudentForm.tsx:702 🧹 Clearing saved unpaid amount
+StudentForm.tsx:4440 🔍 DEBUG - Current student: Y3
+StudentForm.tsx:4441 🔍 DEBUG - Current father: 
+StudentForm.tsx:4442 🔍 DEBUG - DuplicateInfo: Object
+StudentForm.tsx:4467 🔍 DEBUG - Existing group students: Array(3)
+StudentForm.tsx:4499 ✅ STEP 2 PASSED: Student is a member of the existing group
+StudentForm.tsx:4500 🔍 DEBUG - existingPayment: Object
+StudentForm.tsx:4501 🔍 DEBUG - duplicateInfo.studentInfo: Object
+StudentForm.tsx:4502 🔍 DEBUG - duplicateInfo structure: Array(10)
+StudentForm.tsx:4528 ✅ Method 3: Found allGroupMembers array
+StudentForm.tsx:4529 🔍 allGroupMembers: Array(2)
+StudentForm.tsx:4552 🔍 Checking member: Y1 Amount: 3000 Target: Y3
+StudentForm.tsx:4552 🔍 Checking member: Y2 Amount: 4000 Target: Y3
+StudentForm.tsx:4587 ✅ Method 4: Using duplicateInfo.studentInfo
+StudentForm.tsx:4594 🔍 DEBUG - Is paid student? false
+StudentForm.tsx:4595 🔍 DEBUG - Paid student data: null
+StudentForm.tsx:4683 ✅ UNPAID STUDENT - CAN PREFILL PAYMENT DETAILS
+StudentForm.tsx:4689 🔧 Setting flag to disable duplicate checking during prefill
+StudentForm.tsx:4734 🔄 Starting prefill process for unpaid student
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:4739 🔄 Pre-filling payment details for unpaid student...
+StudentForm.tsx:4743 ✅ Pre-filled online payment: 5000 444444444444
+StudentForm.tsx:4748 ✅ Pre-filled offline payment: 5000 44
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:484 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:485 ✅ paymentType: group
+StudentForm.tsx:486 ✅ groupCount: 3
+StudentForm.tsx:487 ✅ dynamicGroupEntries.length: 5
+StudentForm.tsx:560 🔄 Updated group count to match entries: 5
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:484 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:485 ✅ paymentType: group
+StudentForm.tsx:486 ✅ groupCount: 5
+StudentForm.tsx:487 ✅ dynamicGroupEntries.length: 5
+StudentForm.tsx:490 👀 useEffect watching dynamicGroupEntries: Array(5)
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:484 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:485 ✅ paymentType: group
+StudentForm.tsx:486 ✅ groupCount: 5
+StudentForm.tsx:487 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:490 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:560 🔄 Updated group count to match entries: 3
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:484 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:485 ✅ paymentType: group
+StudentForm.tsx:486 ✅ groupCount: 3
+StudentForm.tsx:487 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:490 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:4782 🔧 Re-enabling duplicate checking after successful prefill
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+StudentForm.tsx:1306 📦 Should Render Group Section? Object
+sb1-wudybvnd:1  Uncaught (in promise) AbortError: The play() request was interrupted by a call to pause().
+sb1-wudybvnd:1  Access to fetch at 'https://appsignal-endpoint.net/collect?api_key=80f6fd9e-f80f-40a1-8264-fae5711c9569&version=1.3.31' from origin 'https://bolt.new' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+appsignal-endpoint.net/collect?api_key=80f6fd9e-f80f-40a1-8264-fae5711c9569&version=1.3.31:1   Failed to load resource: net::ERR_FAILED
+sb1-wudybvnd:1  Access to fetch at 'https://appsignal-endpoint.net/collect?api_key=80f6fd9e-f80f-40a1-8264-fae5711c9569&version=1.3.31' from origin 'https://bolt.new' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+appsignal-endpoint.net/collect?api_key=80f6fd9e-f80f-40a1-8264-fae5711c9569&version=1.3.31:1   Failed to load resource: net::ERR_FAILED
+StudentForm.tsx:3352 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:3353 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:3354 🔍 DEBUG - amountNum: 4
+StudentForm.tsx:3371  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+chunk-M324AGAM.js?v=ea9a1383:3748  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+StudentForm.tsx:3352 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:3353 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:3354 🔍 DEBUG - amountNum: 4
+StudentForm.tsx:3371  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+chunk-M324AGAM.js?v=ea9a1383:3748  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+StudentForm.tsx:3352 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:3353 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:3354 🔍 DEBUG - amountNum: 4
+StudentForm.tsx:3371  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+chunk-M324AGAM.js?v=ea9a1383:3748  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+StudentForm.tsx:3352 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:3353 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:3354 🔍 DEBUG - amountNum: 4
+StudentForm.tsx:3371  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+chunk-M324AGAM.js?v=ea9a1383:3748  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+StudentForm.tsx:3352 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:3353 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:3354 🔍 DEBUG - amountNum: 4
+StudentForm.tsx:3371  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+chunk-M324AGAM.js?v=ea9a1383:3748  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+StudentForm.tsx:3352 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:3353 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:3354 🔍 DEBUG - amountNum: 4
+StudentForm.tsx:3371  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+chunk-M324AGAM.js?v=ea9a1383:3748  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+sb1-wudybvnd:1  Access to fetch at 'https://appsignal-endpoint.net/collect?api_key=80f6fd9e-f80f-40a1-8264-fae5711c9569&version=1.3.31' from origin 'https://bolt.new' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+appsignal-endpoint.net/collect?api_key=80f6fd9e-f80f-40a1-8264-fae5711c9569&version=1.3.31:1   Failed to load resource: net::ERR_FAILED
+StudentForm.tsx:3352 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:3353 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:3354 🔍 DEBUG - amountNum: 0
+StudentForm.tsx:3371  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+chunk-M324AGAM.js?v=ea9a1383:3748  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+StudentForm.tsx:3352 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:3353 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:3354 🔍 DEBUG - amountNum: 0
+StudentForm.tsx:3371  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+chunk-M324AGAM.js?v=ea9a1383:3748  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+StudentForm.tsx:3352 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:3353 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:3354 🔍 DEBUG - amountNum: 0
+StudentForm.tsx:3371  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+chunk-M324AGAM.js?v=ea9a1383:3748  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+StudentForm.tsx:3352 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:3353 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:3354 🔍 DEBUG - amountNum: 5
+StudentForm.tsx:3371  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+chunk-M324AGAM.js?v=ea9a1383:3748  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+StudentForm.tsx:3352 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:3353 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:3354 🔍 DEBUG - amountNum: 2
+StudentForm.tsx:3371  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+chunk-M324AGAM.js?v=ea9a1383:3748  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+StudentForm.tsx:3352 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:3353 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:3354 🔍 DEBUG - amountNum: 5
+StudentForm.tsx:3371  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+chunk-M324AGAM.js?v=ea9a1383:3748  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+StudentForm.tsx:3352 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:3353 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:3354 🔍 DEBUG - amountNum: 2
+StudentForm.tsx:3371  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+chunk-M324AGAM.js?v=ea9a1383:3748  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+StudentForm.tsx:3352 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:3353 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:3354 🔍 DEBUG - amountNum: 4
+StudentForm.tsx:3371  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+chunk-M324AGAM.js?v=ea9a1383:3748  Uncaught ReferenceError: unpaidInfo is not defined
+    at onChange (StudentForm.tsx:3371:55)
+    at HTMLUnknownElement.callCallback2 (chunk-M324AGAM.js?v=ea9a1383:3672:22)
+    at Object.invokeGuardedCallbackDev (chunk-M324AGAM.js?v=ea9a1383:3697:24)
+    at invokeGuardedCallback (chunk-M324AGAM.js?v=ea9a1383:3731:39)
+    at invokeGuardedCallbackAndCatchFirstError (chunk-M324AGAM.js?v=ea9a1383:3734:33)
+    at executeDispatch (chunk-M324AGAM.js?v=ea9a1383:7012:11)
+    at processDispatchQueueItemsInOrder (chunk-M324AGAM.js?v=ea9a1383:7032:15)
+    at processDispatchQueue (chunk-M324AGAM.js?v=ea9a1383:7041:13)
+    at dispatchEventsForPlugins (chunk-M324AGAM.js?v=ea9a1383:7049:11)
+    at chunk-M324AGAM.js?v=ea9a1383:7172:20
+Grammarly.js:2  grm ERROR [iterable] ░░ Not supported: in app messages from Iterable
+write @ Grammarly.js:2
+sb1-wudybvnd:1  Access to fetch at 'https://appsignal-endpoint.net/collect?api_key=80f6fd9e-f80f-40a1-8264-fae5711c9569&version=1.3.31' from origin 'https://bolt.new' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+appsignal-endpoint.net/collect?api_key=80f6fd9e-f80f-40a1-8264-fae5711c9569&version=1.3.31:1   Failed to load resource: net::ERR_FAILED
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 0
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
+StudentForm.tsx:777 🔄 Updated group count to match entries: 3
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:1017 ✅ Confirm button clicked
+StudentForm.tsx:1018 ✅ groupCount = 3
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
 StudentForm.tsx:685 ✅ paymentType: single
-StudentForm.tsx:686 ✅ groupCount: 0
+StudentForm.tsx:686 ✅ groupCount: 2
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 0
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(0)
-StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
-StudentForm.tsx:685 ✅ paymentType: single
-StudentForm.tsx:686 ✅ groupCount: 0
-StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 0
-StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(0)
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
 StudentForm.tsx:685 ✅ paymentType: single
-StudentForm.tsx:686 ✅ groupCount: 0
+StudentForm.tsx:686 ✅ groupCount: 2
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 1
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(1)
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
 StudentForm.tsx:685 ✅ paymentType: single
-StudentForm.tsx:686 ✅ groupCount: 0
-StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 1
-StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(1)
-StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
-StudentForm.tsx:685 ✅ paymentType: single
-StudentForm.tsx:686 ✅ groupCount: 0
-StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 1
-StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(1)
-StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
-StudentForm.tsx:685 ✅ paymentType: single
-StudentForm.tsx:686 ✅ groupCount: 0
-StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 1
-StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(1)
-StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
-StudentForm.tsx:685 ✅ paymentType: single
-StudentForm.tsx:686 ✅ groupCount: 0
+StudentForm.tsx:686 ✅ groupCount: 2
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 1
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(1)
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
 StudentForm.tsx:685 ✅ paymentType: group
-StudentForm.tsx:686 ✅ groupCount: 0
+StudentForm.tsx:686 ✅ groupCount: 2
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 0
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(0)
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 0
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 0
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -304,22 +843,6 @@ StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
-StudentForm.tsx:685 ✅ paymentType: group
-StudentForm.tsx:686 ✅ groupCount: 5
-StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 5
-StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(5)
-StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
-StudentForm.tsx:685 ✅ paymentType: group
-StudentForm.tsx:686 ✅ groupCount: 5
-StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 5
-StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(5)
-StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
 StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 5
@@ -358,31 +881,35 @@ StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:3329 🔥 DIRECT Add to Current Group button clicked
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:1728 📦 Should Render Group Section? Object
+StudentForm.tsx:3319 🔥 DIRECT Add to Current Group button clicked
 StudentForm.tsx:955 🧹 Clearing saved unpaid amount
-StudentForm.tsx:3343 🔍 DEBUG - Current student: Y3
-StudentForm.tsx:3344 🔍 DEBUG - Current father: BBB
-StudentForm.tsx:3345 🔍 DEBUG - DuplicateInfo: Object
-StudentForm.tsx:3383 🔍 DEBUG - Existing group students: Array(3)
-StudentForm.tsx:3416 ✅ STEP 2 PASSED: Student is a member of the existing group
-StudentForm.tsx:3421 🔍 DEBUG - existingPayment: Object
-StudentForm.tsx:3422 🔍 DEBUG - duplicateInfo.studentInfo: Object
-StudentForm.tsx:3423 🔍 DEBUG - duplicateInfo structure: Array(10)
-StudentForm.tsx:3463 ✅ Method 3: Found allGroupMembers array
-StudentForm.tsx:3464 🔍 allGroupMembers: Array(2)
-StudentForm.tsx:3499 🔍 Checking member: Y1 Amount: 3000 Target: Y3
-StudentForm.tsx:3499 🔍 Checking member: Y2 Amount: 4000 Target: Y3
-StudentForm.tsx:3546 ✅ Method 4: Using duplicateInfo.studentInfo
-StudentForm.tsx:3554 🔍 DEBUG - Is paid student? false
-StudentForm.tsx:3555 🔍 DEBUG - Paid student data: null
-StudentForm.tsx:3650 ✅ UNPAID STUDENT - CAN PREFILL PAYMENT DETAILS
-StudentForm.tsx:3658 🔧 Setting flag to disable duplicate checking during prefill
-StudentForm.tsx:3708 🔄 Starting prefill process for unpaid student
+StudentForm.tsx:3333 🔍 DEBUG - Current student: Y3
+StudentForm.tsx:3334 🔍 DEBUG - Current father: BBB
+StudentForm.tsx:3335 🔍 DEBUG - DuplicateInfo: Object
+StudentForm.tsx:3373 🔍 DEBUG - Existing group students: Array(3)
+StudentForm.tsx:3406 ✅ STEP 2 PASSED: Student is a member of the existing group
+StudentForm.tsx:3411 🔍 DEBUG - existingPayment: Object
+StudentForm.tsx:3412 🔍 DEBUG - duplicateInfo.studentInfo: Object
+StudentForm.tsx:3413 🔍 DEBUG - duplicateInfo structure: Array(10)
+StudentForm.tsx:3453 ✅ Method 3: Found allGroupMembers array
+StudentForm.tsx:3454 🔍 allGroupMembers: Array(2)
+StudentForm.tsx:3489 🔍 Checking member: Y1 Amount: 3000 Target: Y3
+StudentForm.tsx:3489 🔍 Checking member: Y2 Amount: 4000 Target: Y3
+StudentForm.tsx:3536 ✅ Method 4: Using duplicateInfo.studentInfo
+StudentForm.tsx:3544 🔍 DEBUG - Is paid student? false
+StudentForm.tsx:3545 🔍 DEBUG - Paid student data: null
+StudentForm.tsx:3640 ✅ UNPAID STUDENT - CAN PREFILL PAYMENT DETAILS
+StudentForm.tsx:3648 🔧 Setting flag to disable duplicate checking during prefill
+StudentForm.tsx:3698 🔄 Starting prefill process for unpaid student
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:3717 🔄 Pre-filling payment details for unpaid student...
-StudentForm.tsx:3723 ✅ Pre-filled online payment: 5000 444444444444
-StudentForm.tsx:3729 ✅ Pre-filled offline payment: 5000 44
+StudentForm.tsx:3707 🔄 Pre-filling payment details for unpaid student...
+StudentForm.tsx:3713 ✅ Pre-filled online payment: 5000 444444444444
+StudentForm.tsx:3719 ✅ Pre-filled offline payment: 5000 44
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -396,7 +923,6 @@ StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
 StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 5
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 5
-StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(5)
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -412,20 +938,13 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:3767 🔧 Re-enabling duplicate checking after successful prefill
+StudentForm.tsx:3757 🔧 Re-enabling duplicate checking after successful prefill
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 5
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 5
-StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
-StudentForm.tsx:685 ✅ paymentType: group
-StudentForm.tsx:686 ✅ groupCount: 3
-StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
-StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 50
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 50
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 4
+StudentForm.tsx:2768 🔍amountNum: 4
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -433,8 +952,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 500
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 500
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 40
+StudentForm.tsx:2768 🔍amountNum: 40
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -442,8 +963,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 50
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 50
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 400
+StudentForm.tsx:2768 🔍amountNum: 400
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -451,8 +974,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 5
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 5
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 4000
+StudentForm.tsx:2768 🔍amountNum: 4000
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -460,8 +985,13 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 0
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 0
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 40000
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 400
+StudentForm.tsx:2768 🔍amountNum: 400
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -469,8 +999,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 2
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 2
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 40
+StudentForm.tsx:2768 🔍amountNum: 40
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -478,8 +1010,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 20
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 20
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 4
+StudentForm.tsx:2768 🔍amountNum: 4
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -487,8 +1021,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 200
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 200
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 0
+StudentForm.tsx:2768 🔍amountNum: 0
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -496,8 +1032,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 2000
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 2000
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 2
+StudentForm.tsx:2768 🔍amountNum: 2
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -505,8 +1043,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 200
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 200
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 20
+StudentForm.tsx:2768 🔍amountNum: 20
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -514,8 +1054,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 20
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 20
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 200
+StudentForm.tsx:2768 🔍amountNum: 200
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -523,8 +1065,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 2
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 2
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 2000
+StudentForm.tsx:2768 🔍amountNum: 2000
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -532,8 +1076,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 0
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 0
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 200
+StudentForm.tsx:2768 🔍amountNum: 200
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -541,8 +1087,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 4
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 4
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 20
+StudentForm.tsx:2768 🔍amountNum: 20
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -550,8 +1098,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 40
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 40
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 2
+StudentForm.tsx:2768 🔍amountNum: 2
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -559,8 +1109,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 400
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 400
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 0
+StudentForm.tsx:2768 🔍amountNum: 0
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -568,8 +1120,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 4000
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 4000
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 3
+StudentForm.tsx:2768 🔍amountNum: 3
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -577,8 +1131,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 400
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 400
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 35
+StudentForm.tsx:2768 🔍amountNum: 35
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -586,8 +1142,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 40
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 40
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 350
+StudentForm.tsx:2768 🔍amountNum: 350
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -595,17 +1153,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 4
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 4
-StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:1728 📦 Should Render Group Section? Object
-StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
-StudentForm.tsx:685 ✅ paymentType: group
-StudentForm.tsx:686 ✅ groupCount: 3
-StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
-StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 0
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 0
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 3500
+StudentForm.tsx:2768 🔍amountNum: 3500
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:1728 📦 Should Render Group Section? Object
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -619,8 +1170,10 @@ StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: Array(3)
         Learn more
         Don't show again
 headless?coep=credentialless&version=1.6.4-internal.3:1  The resource https://w-credentialless-staticblitz.com/fetch.worker.96435430.js was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 4
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 4
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 350
+StudentForm.tsx:2768 🔍amountNum: 350
 StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
 StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -628,8 +1181,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: (3) [{…}, {…}, {…}]
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 40
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 40
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 35
+StudentForm.tsx:2768 🔍amountNum: 35
 StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
 StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -637,8 +1192,10 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: (3) [{…}, {…}, {…}]
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 400
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 400
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 3
+StudentForm.tsx:2768 🔍amountNum: 3
 StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
 StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
@@ -646,8 +1203,54 @@ StudentForm.tsx:685 ✅ paymentType: group
 StudentForm.tsx:686 ✅ groupCount: 3
 StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
 StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: (3) [{…}, {…}, {…}]
-StudentForm.tsx:2771 🔍 unpaidInfo: undefined amountNum: 4000
-StudentForm.tsx:2778 🔍 unpaidInfo: undefined amountNum: 4000
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 0
+StudentForm.tsx:2768 🔍amountNum: 0
+StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
+StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: (3) [{…}, {…}, {…}]
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 4
+StudentForm.tsx:2768 🔍amountNum: 4
+StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
+StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: (3) [{…}, {…}, {…}]
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 40
+StudentForm.tsx:2768 🔍amountNum: 40
+StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
+StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: (3) [{…}, {…}, {…}]
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 400
+StudentForm.tsx:2768 🔍amountNum: 400
+StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
+StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
+StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
+StudentForm.tsx:685 ✅ paymentType: group
+StudentForm.tsx:686 ✅ groupCount: 3
+StudentForm.tsx:687 ✅ dynamicGroupEntries.length: 3
+StudentForm.tsx:691 👀 useEffect watching dynamicGroupEntries: (3) [{…}, {…}, {…}]
+StudentForm.tsx:2750 🔍 DEBUG - savedUnpaidAmount: 0
+StudentForm.tsx:2751 🔍 DEBUG - unpaidMemberName: 
+StudentForm.tsx:2752 🔍 DEBUG - amountNum: 4000
+StudentForm.tsx:2768 🔍amountNum: 4000
 StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
 StudentForm.tsx:1728 📦 Should Render Group Section? {paymentType: 'group', groupCount: 3, entries: 3}
 StudentForm.tsx:684 👀 Should Render Dynamic Group Inputs?
