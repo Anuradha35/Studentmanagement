@@ -3538,24 +3538,7 @@ console.log("🔍amountNum:", amountNum);
             };
           } else {
             paidStudentData = paidStudent;
-            // Find unpaid amount for current student
-        const unpaidMember = duplicateInfo.allGroupMembers.find((member) => {
-          if (!member || !member.studentInfo) return false;
-          const memberName = member.studentInfo.studentName.trim().toUpperCase();
-          return memberName === currentStudentName;
-        });
-        
-        if (unpaidMember && unpaidMember.studentInfo) {
-          // Calculate unpaid amount from the orange remaining amount shown in modal
-          const totalGroupPayment = existingPayment.totalGroupAmount || 0;
-          const totalPaidAmount = duplicateInfo.allGroupMembers
-            .filter(m => m && m.amount && m.amount > 0)
-            .reduce((sum, m) => sum + (m.amount || 0), 0);
-          
-          unpaidAmountForCurrentStudent = totalGroupPayment - totalPaidAmount;
-          
-          console.log("💰 Calculated unpaid amount for current student:", unpaidAmountForCurrentStudent);   
-          }
+                
           console.log("✅ Method 3: Found paid student in allGroupMembers:", paidStudentData);
         }
       }
