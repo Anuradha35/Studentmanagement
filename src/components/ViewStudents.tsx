@@ -222,7 +222,7 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
                   </div>
                 </div>
 
-                {/* Payment Detailss */}
+                {/* Payment Details */}
                 <div>
                   <h3 className="text-gray-300 text-sm font-medium mb-2">Payment History</h3>
                   {renderPaymentDetails(student)}
