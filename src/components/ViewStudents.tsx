@@ -34,66 +34,6 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
     };
   };
 
-  // Function to consolidate same UTR/Receipt payments across students in same batch
-  const consolidateGroupPayments = (studentGroupPayments: any[], currentStudentName: string) => {
-    const consolidatedPayments: any[] = [];
-    const processedKeys = new Set();
-
-    studentGroupPayments.forEach(payment => {
-      // Create unique key for UTR/Receipt combination
-      const utrKey = payment.utrId || '';
-      const receiptKey = payment.receiptNo || '';
-      const dateKey = payment.paymentDate || '';
-      const uniqueKey = `${utrKey}-${receiptKey}-${dateKey}`;
-
-      if (!processedKeys.has(uniqueKey)) {
-        // Find all payments with same UTR/Receipt across ALL students in batch
-        const samePaymentGroup = groupPayments.filter(gp => {
-          const gpUtrKey = gp.utrId || '';
-          const gpReceiptKey = gp.receiptNo || '';
-          const gpDateKey = gp.paymentDate || '';
-          return `${gpUtrKey}-${gpReceiptKey}-${gpDateKey}` === uniqueKey;
-        });
-
-        if (samePaymentGroup.length > 1) {
-          // Multiple students have same UTR/Receipt - combine them
-          const allStudentsInPayment = samePaymentGroup.map(gp => gp.studentName);
-          const totalCombinedAmount = samePaymentGroup.reduce((sum, gp) => sum + (gp.amount || 0), 0);
-          const currentStudentPayment = samePaymentGroup.find(gp => 
-            gp.studentName?.toLowerCase().trim() === currentStudentName?.toLowerCase().trim()
-          );
-
-          if (currentStudentPayment) {
-            consolidatedPayments.push({
-              ...currentStudentPayment,
-              isConsolidated: true,
-              allStudentsInPayment,
-              totalCombinedStudentAmount: totalCombinedAmount,
-              otherStudents: allStudentsInPayment.filter(name => 
-                name?.toLowerCase().trim() !== currentStudentName?.toLowerCase().trim()
-              )
-            });
-          }
-        } else {
-          // Single student payment - show normally
-          const currentStudentPayment = samePaymentGroup.find(gp => 
-            gp.studentName?.toLowerCase().trim() === currentStudentName?.toLowerCase().trim()
-          );
-          if (currentStudentPayment) {
-            consolidatedPayments.push({
-              ...currentStudentPayment,
-              isConsolidated: false
-            });
-          }
-        }
-        
-        processedKeys.add(uniqueKey);
-      }
-    });
-
-    return consolidatedPayments;
-  };
-
   const renderPaymentDetails = (student: any) => {
     const { singlePayments, groupPayments: studentGroupPayments, isGroupPayment } = 
       getStudentPayments(student.id, student.studentName);
@@ -105,9 +45,6 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
         </div>
       );
     }
-
-    // Consolidate group payments
-    const consolidatedGroupPayments = consolidateGroupPayments(studentGroupPayments, student.studentName);
 
     return (
       <div className="space-y-2">
@@ -128,74 +65,41 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
           </div>
         ))}
 
-        {/* Consolidated Group Payments */}
-        {consolidatedGroupPayments.map((payment, index) => (
+        {/* Group Payments - Fixed Display */}
+        {studentGroupPayments.map((payment, index) => (
           <div key={`group-${index}`} className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-3">
               <Users className="w-4 h-4 text-purple-400" />
-              <span className="text-purple-300 text-sm font-medium">
-                {payment.isConsolidated ? "Consolidated Group Payment" : "Group Payment"}
-              </span>
+              <span className="text-purple-300 text-sm font-medium">Group Payment</span>
               <span className="text-green-400 font-bold">₹{payment.totalGroupAmount?.toLocaleString()}</span>
             </div>
             
-            {/* Current Student Share */}
+            {/* Main Student Share */}
             <div className="bg-purple-500/5 rounded-lg p-3 mb-3">
               <div className="flex justify-between items-center mb-1">
                 <span className="text-white font-medium">{payment.studentName}</span>
                 <span className="text-green-400 font-bold">₹{payment.amount?.toLocaleString()}</span>
               </div>
-              <div className="text-xs text-purple-200">
-                {payment.isConsolidated ? "Your Share (Combined Payment)" : "Main Student Share"}
-              </div>
+              <div className="text-xs text-purple-200">Main Student Share</div>
             </div>
 
-            {/* Other Students Combined Display */}
-            {payment.isConsolidated && payment.otherStudents && payment.otherStudents.length > 0 ? (
+            {/* ✅ FIXED: Other Students Combined Display */}
+            {payment.groupStudents && (
               <div className="bg-purple-500/5 rounded-lg p-3 mb-3">
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-purple-100 text-sm">
-                    {payment.otherStudents.join(', ')}
+                    {/* ✅ Show all other students in one line with commas */}
+                    {payment.groupStudents
+                      .split(', ')
+                      .filter(name => name.trim() !== payment.studentName.trim())
+                      .join(', ')
+                    }
                   </span>
                   <span className="text-purple-300 font-bold">
-                    ₹{(payment.totalCombinedStudentAmount - payment.amount).toLocaleString()}
+                    ₹{(payment.totalGroupAmount - payment.amount).toLocaleString()}
                   </span>
                 </div>
-                <div className="text-xs text-purple-200">
-                  Other Students in Same Payment ({payment.otherStudents.length} students)
-                </div>
-              </div>
-            ) : (
-              // Original display for non-consolidated payments
-              payment.groupStudents && (
-                <div className="bg-purple-500/5 rounded-lg p-3 mb-3">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-purple-100 text-sm">
-                      {payment.groupStudents
-                        .split(', ')
-                        .filter(name => name.trim() !== payment.studentName.trim())
-                        .join(', ')
-                      }
-                    </span>
-                    <span className="text-purple-300 font-bold">
-                      ₹{(payment.totalGroupAmount - payment.amount).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="text-xs text-purple-200">Other Group Members (Combined)</div>
-                </div>
-              )
-            )}
-
-            {/* Consolidated Payment Indicator */}
-            {payment.isConsolidated && (
-              <div className="bg-orange-900/20 border border-orange-500/30 rounded-lg p-2 mb-3">
-                <div className="text-orange-300 text-xs font-medium flex items-center gap-1">
-                  <span>🔗</span>
-                  <span>
-                    Same UTR/Receipt shared with {payment.allStudentsInPayment.length} students: {" "}
-                    {payment.allStudentsInPayment.join(', ')}
-                  </span>
-                </div>
+                <div className="text-xs text-purple-200">Other Group Members (Combined)</div>
               </div>
             )}
 
@@ -219,16 +123,6 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
                   <Receipt className="w-3 h-3" />
                   <span>Offline: ₹{payment.offlineAmount?.toLocaleString()}</span>
                   {payment.receiptNo && <span className="ml-2">Receipt: {payment.receiptNo}</span>}
-                </div>
-              )}
-
-              {/* Total Combined Amount for Consolidated Payments */}
-              {payment.isConsolidated && (
-                <div className="mt-2 pt-2 border-t border-purple-500/20">
-                  <div className="flex justify-between text-yellow-300">
-                    <span>Total Combined Student Amount:</span>
-                    <span className="font-bold">₹{payment.totalCombinedStudentAmount?.toLocaleString()}</span>
-                  </div>
                 </div>
               )}
             </div>
