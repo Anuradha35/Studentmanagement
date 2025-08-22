@@ -1681,6 +1681,8 @@ for (const payment of currentPayments) {
     }
 
     alert('✅ Student enrolled successfully!');
+     // On successful submission, clear saved unpaid amount
+    clearSavedUnpaidAmount();
     console.log("✅ Enrollment completed successfully");
   }
 };
@@ -2954,7 +2956,8 @@ console.log("🔍 unpaidInfo:", unpaidInfo, "amountNum:", amountNum);
         open={duplicateCheckModal} 
         onClose={() => {
           console.log("🔥 Dialog onClose triggered - treating as cancel");
-          
+          // Clear saved unpaid amount when modal closes
+    clearSavedUnpaidAmount();
           if (!duplicateInfo) return;
           
           // Clear payment fields on close
@@ -3299,7 +3302,8 @@ console.log("🔍 unpaidInfo:", unpaidInfo, "amountNum:", amountNum);
                 setDuplicateCheckModal(false);
                 setDuplicateInfo(null);
                 console.log("✅ Modal closed after cancel");
-                
+                // Clear saved unpaid amount when cancelling
+    clearSavedUnpaidAmount();
                 // Clear previous group data
                 setGroupStudentName('');
                 setGroupOnlineAmount('');
@@ -3592,7 +3596,7 @@ console.log("🔍 unpaidInfo:", unpaidInfo, "amountNum:", amountNum);
           
           // Clear all payment fields and reset to single mode
           console.log("🧹 Clearing all payment fields due to father name mismatch");
-          
+          clearSavedUnpaidAmount();
           // Clear group payment fields
           setGroupUtrId('');
           setGroupReceiptNo('');
@@ -3620,7 +3624,7 @@ console.log("🔍 unpaidInfo:", unpaidInfo, "amountNum:", amountNum);
         
         // Clear all payment fields and reset to single mode
         console.log("🧹 Clearing all payment fields due to duplicate entry");
-        
+        clearSavedUnpaidAmount();
         // Clear group payment fields
         setGroupUtrId('');
         setGroupReceiptNo('');
@@ -3644,7 +3648,12 @@ console.log("🔍 unpaidInfo:", unpaidInfo, "amountNum:", amountNum);
       } else {
         // 🆕 STEP 5: UNPAID STUDENT - ALLOW PREFILL (NO FATHER NAME CHECK NEEDED)
         console.log("✅ UNPAID STUDENT - CAN PREFILL PAYMENT DETAILS");
-        
+        // Save the unpaid amount for validation
+      if (unpaidAmountForCurrentStudent > 0) {
+        setSavedUnpaidAmount(unpaidAmountForCurrentStudent);
+        setUnpaidMemberName(currentStudentName);
+        console.log(`💾 Saved unpaid amount: ₹${unpaidAmountForCurrentStudent} for ${currentStudentName}`);
+      }
         // 🔧 FIX: Set flag to disable duplicate checking temporarily
         console.log("🔧 Setting flag to disable duplicate checking during prefill");
         
@@ -3768,7 +3777,7 @@ console.log("🔍 unpaidInfo:", unpaidInfo, "amountNum:", amountNum);
             
             // Re-enable duplicate checking on error
             setIsProcessingGroupEntry(false);
-            
+            clearSavedUnpaidAmount();
             // Clear all payment fields and reset to single mode on error
             console.log("🧹 Clearing all payment fields due to prefill error");
             
