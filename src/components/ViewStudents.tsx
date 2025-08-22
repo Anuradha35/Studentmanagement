@@ -16,13 +16,14 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
   onEditStudent,
   onBack,
 }) => {
+  
   const getStudentPayments = (studentId: string, studentName: string) => {
     // Check for single payments first
     const studentSinglePayments = payments.filter(p => p.studentId === studentId);
-
+    
     // Check for group payments
-    const studentGroupPayments = groupPayments.filter(p =>
-      p.studentId === studentId ||
+    const studentGroupPayments = groupPayments.filter(p => 
+      p.studentId === studentId || 
       p.studentName?.toLowerCase().trim() === studentName?.toLowerCase().trim()
     );
 
@@ -33,26 +34,8 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
     };
   };
 
-  const groupPaymentsByUtrReceipt = (payments: any[]) => {
-    const grouped: { [key: string]: any } = {};
-
-    payments.forEach(p => {
-      const key = `${p.utrId || ''}-${p.receiptNo || ''}`;
-      if (!grouped[key]) {
-        grouped[key] = { ...p, students: [] };
-      }
-      grouped[key].students.push({
-        id: p.studentId,
-        name: p.studentName,
-        amount: p.amount
-      });
-    });
-
-    return Object.values(grouped);
-  };
-
   const renderPaymentDetails = (student: any) => {
-    const { singlePayments, groupPayments: studentGroupPayments, isGroupPayment } =
+    const { singlePayments, groupPayments: studentGroupPayments, isGroupPayment } = 
       getStudentPayments(student.id, student.studentName);
 
     if (!singlePayments.length && !studentGroupPayments.length) {
@@ -62,8 +45,6 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
         </div>
       );
     }
-
-    const groupedPayments = groupPaymentsByUtrReceipt(studentGroupPayments);
 
     return (
       <div className="space-y-2">
@@ -84,24 +65,43 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
           </div>
         ))}
 
-        {/* Group Payments - Combined by UTR/Receipt */}
-        {groupedPayments.map((payment: any, index: number) => (
+        {/* Group Payments - Fixed Display */}
+        {studentGroupPayments.map((payment, index) => (
           <div key={`group-${index}`} className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4">
             <div className="flex items-center gap-2 mb-3">
               <Users className="w-4 h-4 text-purple-400" />
               <span className="text-purple-300 text-sm font-medium">Group Payment</span>
               <span className="text-green-400 font-bold">₹{payment.totalGroupAmount?.toLocaleString()}</span>
             </div>
-
-            {/* All Students Shares */}
+            
+            {/* Main Student Share */}
             <div className="bg-purple-500/5 rounded-lg p-3 mb-3">
-              {payment.students.map((s: any) => (
-                <div key={s.id} className="flex justify-between items-center mb-1">
-                  <span className="text-white font-medium">{s.name}</span>
-                  <span className="text-green-400 font-bold">₹{s.amount?.toLocaleString()}</span>
-                </div>
-              ))}
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-white font-medium">{payment.studentName}</span>
+                <span className="text-green-400 font-bold">₹{payment.amount?.toLocaleString()}</span>
+              </div>
+              <div className="text-xs text-purple-200">Main Student Share</div>
             </div>
+
+            {/* ✅ FIXED: Other Students Combined Display */}
+            {payment.groupStudents && (
+              <div className="bg-purple-500/5 rounded-lg p-3 mb-3">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-purple-100 text-sm">
+                    {/* ✅ Show all other students in one line with commas */}
+                    {payment.groupStudents
+                      .split(', ')
+                      .filter(name => name.trim() !== payment.studentName.trim())
+                      .join(', ')
+                    }
+                  </span>
+                  <span className="text-purple-300 font-bold">
+                    ₹{(payment.totalGroupAmount - payment.amount).toLocaleString()}
+                  </span>
+                </div>
+                <div className="text-xs text-purple-200">Other Group Members (Combined)</div>
+              </div>
+            )}
 
             {/* Payment Method Details */}
             <div className="text-xs text-gray-300 space-y-1 border-t border-purple-500/20 pt-2">
@@ -109,7 +109,7 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
                 <span>Date:</span>
                 <span>{payment.paymentDate}</span>
               </div>
-
+              
               {payment.onlineAmount > 0 && (
                 <div className="flex items-center gap-1">
                   <CreditCard className="w-3 h-3" />
@@ -117,7 +117,7 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
                   {payment.utrId && <span className="ml-2">UTR: {payment.utrId}</span>}
                 </div>
               )}
-
+              
               {payment.offlineAmount > 0 && (
                 <div className="flex items-center gap-1">
                   <Receipt className="w-3 h-3" />
@@ -156,7 +156,7 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {students.map((student) => {
             const { isGroupPayment } = getStudentPayments(student.id, student.studentName);
-
+            
             return (
               <div
                 key={student.id || student.studentName}
@@ -222,7 +222,7 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
                   </div>
                 </div>
 
-                {/* Payment Details */}
+                {/* Payment Detailss */}
                 <div>
                   <h3 className="text-gray-300 text-sm font-medium mb-2">Payment History</h3>
                   {renderPaymentDetails(student)}
