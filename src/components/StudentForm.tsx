@@ -2705,16 +2705,7 @@ for (const payment of currentPayments) {
                         )}
                       </div>
                     </div>
-{savedUnpaidAmount > 0 && (
-  <div className="bg-orange-500/20 border border-orange-500/30 rounded-lg p-3 mb-4">
-    <div className="flex items-center gap-2 text-orange-300">
-      <AlertTriangle className="w-4 h-4" />
-      <span className="text-sm font-medium">
-        Unpaid Member Detected: {unpaidMemberName} - Max Amount: ₹{savedUnpaidAmount.toLocaleString()}
-      </span>
-    </div>
-  </div>
-)}
+
                     <label className="block text-gray-300 text-sm font-medium mb-2">
                       Group Student Names *
                     </label>
@@ -2731,7 +2722,16 @@ for (const payment of currentPayments) {
                         {errors[`studentName_0`] && (
                           <p className="text-red-400 text-sm mt-1">{errors[`studentName_0`]}</p>
                         )}
-
+{savedUnpaidAmount > 0 && (
+  <div className="bg-orange-500/20 border border-orange-500/30 rounded-lg p-3 mb-4">
+    <div className="flex items-center gap-2 text-orange-300">
+      <AlertTriangle className="w-4 h-4" />
+      <span className="text-sm font-medium">
+        Unpaid Member Detected: {unpaidMemberName} - Max Amount: ₹{savedUnpaidAmount.toLocaleString()}
+      </span>
+    </div>
+  </div>
+)}
                         <label className="text-sm text-white">Amount</label>
                       <input
   type="text"
