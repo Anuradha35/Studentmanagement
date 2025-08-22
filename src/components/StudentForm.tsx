@@ -2761,9 +2761,9 @@ console.log("🔍 DEBUG - savedUnpaidAmount:", savedUnpaidAmount);
       window.alert(`Amount cannot be more than total group payment ₹${totalGroupPayment.toLocaleString()}`);
       return;
     }
-// Validation 3: Check against saved unpaid amount (MAIN VALIDATION)
-    if (savedUnpaidAmount > 0 && unpaidMemberName && amountNum > savedUnpaidAmount) {
-      window.alert(`❌ Payment exceeds unpaid member amount!\n\nUnpaid Member: ${unpaidMemberName}\nMax allowed: ₹${savedUnpaidAmount.toLocaleString()}\nYou entered: ₹${amountNum.toLocaleString()}`);
+    if(anountNum>unpaidAmountForCurrentStudent)
+    {
+       window.alert(`❌ mount cannot be more than total group payment ₹${unpaidAmountForCurrentStudent.toLocaleString()}`);
       return;
     }
 
@@ -3976,87 +3976,32 @@ let calculatedUnpaidAmount = 0;
         // 🔧 FIXED: Calculate unpaid amount properly
 let calculatedUnpaidAmount = 0;
 
-// Method 1: Find the specific unpaid member's amount from allGroupMembers
-if (duplicateInfo.allGroupMembers && Array.isArray(duplicateInfo.allGroupMembers)) {
-  console.log("✅ Method 1: Looking for current student's unpaid amount in allGroupMembers");
-  
-  const currentStudentMember = duplicateInfo.allGroupMembers.find((member) => {
-    if (!member || !member.studentInfo) return false;
-    const memberName = member.studentInfo.studentName.trim().toUpperCase();
-    return memberName === currentStudentName && (!member.amount || member.amount === 0);
-  });
-  
-  if (currentStudentMember && currentStudentMember.studentInfo) {
-    // Get the unpaid amount for this specific student
-    // This should be available in the member data or calculated from the remaining group amount
-    if (currentStudentMember.unpaidAmount) {
-      calculatedUnpaidAmount = currentStudentMember.unpaidAmount;
-    } else {
-      // Calculate based on equal distribution of remaining amount among unpaid members
-      const totalGroupPayment = existingPayment.totalGroupAmount || 
-                               ((existingPayment.onlineAmount || 0) + (existingPayment.offlineAmount || 0));
-      
-      const totalPaidAmount = duplicateInfo.allGroupMembers
-        .filter(m => m && m.amount && m.amount > 0)
-        .reduce((sum, m) => sum + (m.amount || 0), 0);
-      
-      const remainingAmount = totalGroupPayment - totalPaidAmount;
-      
-      // Count unpaid members
-      const unpaidMembers = duplicateInfo.allGroupMembers.filter(m => 
-        m && m.studentInfo && (!m.amount || m.amount === 0)
-      ).length;
-      
-      // Distribute remaining amount equally among unpaid members
-      calculatedUnpaidAmount = unpaidMembers > 0 ? remainingAmount / unpaidMembers : remainingAmount;
-    }
-    
-    console.log("💰 Method 1: Found unpaid amount for current student:", calculatedUnpaidAmount);
-  }
+// Method 1: Try to get from modal's orange remaining amount
+if (duplicateInfo.remainingAmount && duplicateInfo.remainingAmount > 0) {
+  calculatedUnpaidAmount = duplicateInfo.remainingAmount;
+  console.log("💰 Method 1: Got unpaid amount from modal:", calculatedUnpaidAmount);
 }
-
-// Method 2: Try to get from modal's orange remaining amount (fallback)
-if (calculatedUnpaidAmount === 0 && duplicateInfo.remainingAmount && duplicateInfo.remainingAmount > 0) {
-  // If there's only one unpaid member, use the full remaining amount
-  const unpaidMembersCount = duplicateInfo.allGroupMembers
-    .filter(m => m && m.studentInfo && (!m.amount || m.amount === 0)).length;
-  
-  if (unpaidMembersCount === 1) {
-    calculatedUnpaidAmount = duplicateInfo.remainingAmount;
-    console.log("💰 Method 2: Single unpaid member, using full remaining amount:", calculatedUnpaidAmount);
-  } else {
-    // Distribute equally among unpaid members
-    calculatedUnpaidAmount = duplicateInfo.remainingAmount / unpaidMembersCount;
-    console.log("💰 Method 2: Multiple unpaid members, distributed amount:", calculatedUnpaidAmount);
-  }
-}
-
-// Method 3: Calculate from total vs paid amounts (final fallback)
-if (calculatedUnpaidAmount === 0 && existingPayment.totalGroupAmount) {
+// Method 2: Calculate from total vs paid amounts
+else if (existingPayment.totalGroupAmount) {
   const totalGroupPayment = existingPayment.totalGroupAmount || 0;
   const totalPaidAmount = duplicateInfo.allGroupMembers
     .filter(m => m && m.amount && m.amount > 0)
     .reduce((sum, m) => sum + (m.amount || 0), 0);
   
-  const remainingAmount = totalGroupPayment - totalPaidAmount;
-  const unpaidMembersCount = duplicateInfo.allGroupMembers
-    .filter(m => m && m.studentInfo && (!m.amount || m.amount === 0)).length;
-  
-  calculatedUnpaidAmount = unpaidMembersCount > 0 ? remainingAmount / unpaidMembersCount : remainingAmount;
-  console.log("💰 Method 3: Calculated unpaid amount per student:", calculatedUnpaidAmount);
+  calculatedUnpaidAmount = totalGroupPayment - totalPaidAmount;
+  console.log("💰 Method 2: Calculated unpaid amount:", calculatedUnpaidAmount);
   console.log("💰 Total Group Payment:", totalGroupPayment);
   console.log("💰 Total Paid Amount:", totalPaidAmount);
-  console.log("💰 Remaining Amount:", remainingAmount);
-  console.log("💰 Unpaid Members Count:", unpaidMembersCount);
 }
-
-// 🔧 CRITICAL FIX: Save the correct unpaid amount for THIS SPECIFIC STUDENT
-if (calculatedUnpaidAmount > 0) {
-  setSavedUnpaidAmount(calculatedUnpaidAmount);
-  setUnpaidMemberName(currentStudentName);
-  console.log(`💾 SAVED unpaid amount: ₹${calculatedUnpaidAmount} for ${currentStudentName}`);
-} else {
-  console.log("⚠️ No unpaid amount calculated or amount is 0");
+// Method 3: Calculate from online + offline amounts
+else {
+  const totalAvailable = (existingPayment.onlineAmount || 0) + (existingPayment.offlineAmount || 0);
+  const totalPaidAmount = duplicateInfo.allGroupMembers
+    .filter(m => m && m.amount && m.amount > 0)
+    .reduce((sum, m) => sum + (m.amount || 0), 0);
+  
+  calculatedUnpaidAmount = totalAvailable - totalPaidAmount;
+  console.log("💰 Method 3: Calculated from online+offline amounts:", calculatedUnpaidAmount);
 }
 
        // 🔧 CRITICAL FIX: Actually save the unpaid amount!
