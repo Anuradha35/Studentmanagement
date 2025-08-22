@@ -2746,7 +2746,10 @@ for (const payment of currentPayments) {
     const totalGroupPayment =
       (parseInt(groupOnlineAmount || '0') || 0) +
       (parseInt(groupOfflineAmount || '0') || 0);
-
+// Add this at the top of the onChange handler to debug
+console.log("🔍 DEBUG - savedUnpaidAmount:", savedUnpaidAmount);
+console.log("🔍 DEBUG - unpaidMemberName:", unpaidMemberName);
+console.log("🔍 DEBUG - amountNum:", amountNum);
     if (amountNum > formData.courseFee) {
       window.alert(`Amount cannot be more than ₹${formData.courseFee.toLocaleString()}`);
       return;
