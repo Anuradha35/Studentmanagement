@@ -950,11 +950,19 @@ const handleDuplicateConfirmation = (action: 'proceed' | 'cancel') => {
     }
   }
 };
-
+// Function to clear saved unpaid amount
+const clearSavedUnpaidAmount = () => {
+  console.log("🧹 Clearing saved unpaid amount");
+  setSavedUnpaidAmount(0);
+  setUnpaidMemberName('');
+};
 
   const handlePaymentTypeChange = (newPaymentType) => {
     if (paymentType !== newPaymentType) {
-      
+       // Clear saved unpaid amount when switching payment types
+    console.log("🔄 Payment type changed to:", newPaymentType);
+    clearSavedUnpaidAmount();
+    
       if (paymentType === 'single' && newPaymentType === 'group') {
         setPaymentMode('');
         setPaymentAmount('');
