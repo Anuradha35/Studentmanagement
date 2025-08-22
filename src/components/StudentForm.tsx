@@ -2705,7 +2705,16 @@ for (const payment of currentPayments) {
                         )}
                       </div>
                     </div>
-
+{savedUnpaidAmount > 0 && (
+  <div className="bg-orange-500/20 border border-orange-500/30 rounded-lg p-3 mb-4">
+    <div className="flex items-center gap-2 text-orange-300">
+      <AlertTriangle className="w-4 h-4" />
+      <span className="text-sm font-medium">
+        Unpaid Member Detected: {unpaidMemberName} - Max Amount: ₹{savedUnpaidAmount.toLocaleString()}
+      </span>
+    </div>
+  </div>
+)}
                     <label className="block text-gray-300 text-sm font-medium mb-2">
                       Group Student Names *
                     </label>
@@ -2798,17 +2807,8 @@ console.log("🔍 unpaidInfo:", unpaidInfo, "amountNum:", amountNum);
   }}
   className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white"
 />
-/ Add visual indicator when unpaid amount is saved (place this above the amount fields)
-{savedUnpaidAmount > 0 && (
-  <div className="bg-orange-500/20 border border-orange-500/30 rounded-lg p-3 mb-4">
-    <div className="flex items-center gap-2 text-orange-300">
-      <AlertTriangle className="w-4 h-4" />
-      <span className="text-sm font-medium">
-        Unpaid Member Detected: {unpaidMemberName} - Max Amount: ₹{savedUnpaidAmount.toLocaleString()}
-      </span>
-    </div>
-  </div>
-)}
+
+
 
                         {errors[`amount_0`] && (
                           <p className="text-red-400 text-sm">{errors[`amount_0`]}</p>
