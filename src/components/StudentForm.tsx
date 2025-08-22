@@ -3328,6 +3328,9 @@ console.log("🔍 unpaidInfo:", unpaidInfo, "amountNum:", amountNum);
         console.log("❌ No duplicateInfo found, returning");
         return;
       }
+      / Clear previous saved unpaid amount before processing new detection
+    clearSavedUnpaidAmount();
+
 
       // 🆕 STEP 1: GET BASIC INFO
       const currentStudentName = formData.studentName.trim().toUpperCase();
@@ -3381,7 +3384,7 @@ console.log("🔍 unpaidInfo:", unpaidInfo, "amountNum:", amountNum);
       if (!isStudentInGroup) {
         console.log("❌ STUDENT NOT IN GROUP");
         alert(`❌ STUDENT NOT IN GROUP!\n\nYou entered: "${formData.studentName}"\n\nBut this ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'} belongs to group:\n"${existingGroupStudents}"\n\n"${formData.studentName}" is NOT a member of this group.\n\nPlease verify:\n1. Student name spelling\n2. Correct ${duplicateInfo.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'}`);
-        
+        clearSavedUnpaidAmount();
         // Clear all payment fields and reset to single mode
         console.log("🧹 Clearing all payment fields and resetting to single mode");
         
@@ -3416,6 +3419,8 @@ console.log("🔍 unpaidInfo:", unpaidInfo, "amountNum:", amountNum);
       console.log("🔍 DEBUG - duplicateInfo structure:", Object.keys(duplicateInfo));
       let isPaidStudent = false;
       let paidStudentData = null;
+      let unpaidAmountForCurrentStudent = 0;
+
 
       // Method 1: If you have individualPaidStudents array in existingPayment
       if (existingPayment.individualPaidStudents && Array.isArray(existingPayment.individualPaidStudents)) {
@@ -3511,6 +3516,24 @@ console.log("🔍 unpaidInfo:", unpaidInfo, "amountNum:", amountNum);
             };
           } else {
             paidStudentData = paidStudent;
+            // Find unpaid amount for current student
+        const unpaidMember = duplicateInfo.allGroupMembers.find((member) => {
+          if (!member || !member.studentInfo) return false;
+          const memberName = member.studentInfo.studentName.trim().toUpperCase();
+          return memberName === currentStudentName;
+        });
+        
+        if (unpaidMember && unpaidMember.studentInfo) {
+          // Calculate unpaid amount from the orange remaining amount shown in modal
+          const totalGroupPayment = existingPayment.totalGroupAmount || 0;
+          const totalPaidAmount = duplicateInfo.allGroupMembers
+            .filter(m => m && m.amount && m.amount > 0)
+            .reduce((sum, m) => sum + (m.amount || 0), 0);
+          
+          unpaidAmountForCurrentStudent = totalGroupPayment - totalPaidAmount;
+          
+          console.log("💰 Calculated unpaid amount for current student:", unpaidAmountForCurrentStudent);
+        }
           }
           console.log("✅ Method 3: Found paid student in allGroupMembers:", paidStudentData);
         }
