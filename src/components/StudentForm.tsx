@@ -2749,7 +2749,7 @@ for (const payment of currentPayments) {
     <div className="flex items-center gap-2 text-orange-300">
       <AlertTriangle className="w-4 h-4" />
       <span className="text-sm font-medium">
-        Unpaid Member Detected: {unpaidMemberName} - Max Amount: ₹{savedUnpaidAmount.toLocaleString()}
+        Unpaid Member Detected: {unpaidMemberName} - Max Amount: ₹{calculatedUnpaidAmount.toLocaleString()}
       </span>
     </div>
   </div>
@@ -2785,7 +2785,7 @@ console.log("🔍 DEBUG - savedUnpaidAmount:", savedUnpaidAmount);
     }
     if(amountNum > calculatedUnpaidAmount)
     {
-      window.alert(`Amount cannot be more than total group payment ₹${calculatedUnpaidAmount.toLocaleString()}`);
+      window.alert(`Amount cannot be more than UnPaid Member payment ₹${calculatedUnpaidAmount.toLocaleString()}`);
       return;
     }
 
