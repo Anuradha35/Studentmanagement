@@ -78,6 +78,9 @@ const StudentForm: React.FC<StudentFormProps> = ({
   const [groupRemainingAmount, setGroupRemainingAmount] = useState('');
   const [groupCourseName, setGroupCourseName] = useState('');
   const [groupCourseDuration, setGroupCourseDuration] = useState('');
+  // Add these state variables at the top of your component (where other useState declarations are)
+const [savedUnpaidAmount, setSavedUnpaidAmount] = useState(0);
+const [unpaidMemberName, setUnpaidMemberName] = useState('');
   const studentNameRef = useRef<HTMLInputElement>(null);
 
   // Group payment states
