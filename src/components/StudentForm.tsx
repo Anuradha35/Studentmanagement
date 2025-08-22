@@ -3332,7 +3332,7 @@ console.log("🔍 unpaidInfo:", unpaidInfo, "amountNum:", amountNum);
         console.log("❌ No duplicateInfo found, returning");
         return;
       }
-      / Clear previous saved unpaid amount before processing new detection
+      // Clear previous saved unpaid amount before processing new detection
     clearSavedUnpaidAmount();
 
 
