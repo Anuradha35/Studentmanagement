@@ -2679,7 +2679,24 @@ for (const payment of currentPayments) {
                                 
                                 if (errors.groupUtrId) setErrors({ ...errors, groupUtrId: '' });
                               }}
-                              className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              
+                             onFocus={() => {
+    // 🔧 ADDITIONAL FIX: Prevent focus events in readOnly mode
+    if (paymentFieldsReadOnly) {
+      console.log("🔧 UTR field is readOnly - preventing focus interactions");
+      // Blur the field immediately to prevent any interactions
+      setTimeout(() => {
+        if (document.activeElement) {
+          document.activeElement.blur();
+        }
+      }, 0);
+    }
+  }}
+  className={`w-full p-3 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+    paymentFieldsReadOnly 
+      ? 'bg-slate-800 border-slate-600 cursor-not-allowed opacity-75' 
+      : 'bg-slate-700 border-white/30'
+  }`}
                               placeholder="Enter 12-digit UTR/UPI ID"
                               maxLength={12}
                             />
