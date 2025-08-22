@@ -3516,12 +3516,7 @@ console.log("🔍 unpaidInfo:", unpaidInfo, "amountNum:", amountNum);
             };
           } else {
             paidStudentData = paidStudent;
-             // Find unpaid amount for current student
-        const unpaidMember = duplicateInfo.allGroupMembers.find((member) => {
-          if (!member || !member.studentInfo) return false;
-          const memberName = member.studentInfo.studentName.trim().toUpperCase();
-          return memberName === currentStudentName;
-        });
+            
           }
           console.log("✅ Method 3: Found paid student in allGroupMembers:", paidStudentData);
         }
