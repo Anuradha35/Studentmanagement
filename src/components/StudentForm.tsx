@@ -2765,7 +2765,7 @@ console.log("🔍 DEBUG - amountNum:", amountNum);
       return;
     }
 
-console.log("🔍 unpaidInfo:", unpaidInfo, "amountNum:", amountNum);
+console.log("🔍amountNum:", amountNum);
     setErrors(prev => ({ ...prev, [`amount_0`]: '' }));
 
     const updatedEntries = [...dynamicGroupEntries];
