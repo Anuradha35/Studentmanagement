@@ -2859,17 +2859,17 @@ console.log("🔍 DEBUG - savedUnpaidAmount:", savedUnpaidAmount);
 
   
     if (amountNum > formData.courseFee) {
-      window.alert(`Amount cannot be more than ₹${formData.courseFee.toLocaleString()}`);
+      window.alert(`Payment amount exceeds Course Fee! Maximum allowed: ₹${formData.courseFee.toLocaleString()}`);
       return;
     }
 
     if (amountNum > totalGroupPayment) {
-      window.alert(`Amount cannot be more than total group payment ₹${totalGroupPayment.toLocaleString()}`);
+      window.alert(`Payment amount exceeds Total Group Payment! Maximum allowed: ₹${totalGroupPayment.toLocaleString()}`);
       return;
     }
     if(amountNum > calculatedUnpaidAmount)
     {
-      window.alert(`Amount cannot be more than UnPaid Member payment ₹${calculatedUnpaidAmount.toLocaleString()}`);
+      window.alert(`Payment amount exceeds Unpaid Member Remaining Amount From Total Group Payment! ₹${calculatedUnpaidAmount.toLocaleString()}`);
       return;
     }
 
