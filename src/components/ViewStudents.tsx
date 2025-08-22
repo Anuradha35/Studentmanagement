@@ -34,6 +34,35 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
     };
   };
 
+  // Function to group payments by UTR/Receipt to avoid duplicates
+  const groupPaymentsByIdentifier = (payments: any[]) => {
+    const grouped = new Map();
+    
+    payments.forEach(payment => {
+      // Create a unique key based on UTR, Receipt, Date, and Amount
+      const key = `${payment.utrId || 'no-utr'}-${payment.receiptNo || 'no-receipt'}-${payment.paymentDate}-${payment.totalGroupAmount || payment.amount}`;
+      
+      if (!grouped.has(key)) {
+        // First occurrence - store the payment
+        grouped.set(key, {
+          ...payment,
+          allStudentsInGroup: [payment.studentName],
+          combinedAmount: payment.amount,
+          isMainEntry: true
+        });
+      } else {
+        // Duplicate found - merge student names and amounts
+        const existing = grouped.get(key);
+        if (!existing.allStudentsInGroup.includes(payment.studentName)) {
+          existing.allStudentsInGroup.push(payment.studentName);
+          existing.combinedAmount += payment.amount;
+        }
+      }
+    });
+    
+    return Array.from(grouped.values());
+  };
+
   const renderPaymentDetails = (student: any) => {
     const { singlePayments, groupPayments: studentGroupPayments, isGroupPayment } = 
       getStudentPayments(student.id, student.studentName);
@@ -45,6 +74,9 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
         </div>
       );
     }
+
+    // Group the payments to avoid duplicates
+    const groupedPayments = groupPaymentsByIdentifier(studentGroupPayments);
 
     return (
       <div className="space-y-2">
@@ -65,69 +97,94 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
           </div>
         ))}
 
-        {/* Group Payments - Fixed Display */}
-        {studentGroupPayments.map((payment, index) => (
-          <div key={`group-${index}`} className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Users className="w-4 h-4 text-purple-400" />
-              <span className="text-purple-300 text-sm font-medium">Group Payment</span>
-              <span className="text-green-400 font-bold">₹{payment.totalGroupAmount?.toLocaleString()}</span>
-            </div>
-            
-            {/* Main Student Share */}
-            <div className="bg-purple-500/5 rounded-lg p-3 mb-3">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-white font-medium">{payment.studentName}</span>
-                <span className="text-green-400 font-bold">₹{payment.amount?.toLocaleString()}</span>
-              </div>
-              <div className="text-xs text-purple-200">Main Student Share</div>
-            </div>
+        {/* Group Payments - Consolidated Display */}
+        {groupedPayments.map((payment, index) => {
+          // Check if current student is part of this grouped payment
+          const isCurrentStudentIncluded = payment.allStudentsInGroup.some(
+            name => name.toLowerCase().trim() === student.studentName.toLowerCase().trim()
+          );
+          
+          if (!isCurrentStudentIncluded) return null;
 
-            {/* ✅ FIXED: Other Students Combined Display */}
-            {payment.groupStudents && (
+          return (
+            <div key={`group-${index}`} className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Users className="w-4 h-4 text-purple-400" />
+                <span className="text-purple-300 text-sm font-medium">Group Payment</span>
+                <span className="text-green-400 font-bold">₹{payment.totalGroupAmount?.toLocaleString()}</span>
+              </div>
+              
+              {/* All Students in This Group Payment */}
+              <div className="bg-purple-500/5 rounded-lg p-3 mb-3">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-white font-medium">All Students in Group:</span>
+                    <span className="text-green-400 font-bold">₹{payment.combinedAmount?.toLocaleString()}</span>
+                  </div>
+                  <div className="text-sm text-purple-200">
+                    {payment.allStudentsInGroup.join(', ')}
+                  </div>
+                  <div className="text-xs text-purple-300">
+                    {payment.allStudentsInGroup.length} student(s) • Combined share
+                  </div>
+                </div>
+              </div>
+
+              {/* Individual Student's Share */}
               <div className="bg-purple-500/5 rounded-lg p-3 mb-3">
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-purple-100 text-sm">
-                    {/* ✅ Show all other students in one line with commas */}
-                    {payment.groupStudents
-                      .split(', ')
-                      .filter(name => name.trim() !== payment.studentName.trim())
-                      .join(', ')
-                    }
-                  </span>
-                  <span className="text-purple-300 font-bold">
-                    ₹{(payment.totalGroupAmount - payment.amount).toLocaleString()}
+                  <span className="text-yellow-200 font-medium">{student.studentName}</span>
+                  <span className="text-yellow-400 font-bold">
+                    ₹{(payment.studentName === student.studentName ? payment.amount : 
+                        (payment.totalGroupAmount / payment.allStudentsInGroup.length))?.toLocaleString()}
                   </span>
                 </div>
-                <div className="text-xs text-purple-200">Other Group Members (Combined)</div>
+                <div className="text-xs text-yellow-300">Your share in this group</div>
               </div>
-            )}
 
-            {/* Payment Method Details */}
-            <div className="text-xs text-gray-300 space-y-1 border-t border-purple-500/20 pt-2">
-              <div className="flex justify-between">
-                <span>Date:</span>
-                <span>{payment.paymentDate}</span>
+              {/* Payment Method Details */}
+              <div className="text-xs text-gray-300 space-y-1 border-t border-purple-500/20 pt-2">
+                <div className="flex justify-between">
+                  <span>Date:</span>
+                  <span>{payment.paymentDate}</span>
+                </div>
+                
+                {payment.onlineAmount > 0 && (
+                  <div className="flex items-center gap-1">
+                    <CreditCard className="w-3 h-3" />
+                    <span>Online: ₹{payment.onlineAmount?.toLocaleString()}</span>
+                    {payment.utrId && payment.utrId !== 'no-utr' && (
+                      <span className="ml-2 bg-blue-900/30 px-2 py-1 rounded text-blue-300">
+                        UTR: {payment.utrId}
+                      </span>
+                    )}
+                  </div>
+                )}
+                
+                {payment.offlineAmount > 0 && (
+                  <div className="flex items-center gap-1">
+                    <Receipt className="w-3 h-3" />
+                    <span>Offline: ₹{payment.offlineAmount?.toLocaleString()}</span>
+                    {payment.receiptNo && payment.receiptNo !== 'no-receipt' && (
+                      <span className="ml-2 bg-green-900/30 px-2 py-1 rounded text-green-300">
+                        Receipt: {payment.receiptNo}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {/* Show if this is a consolidated entry */}
+                {payment.allStudentsInGroup.length > 1 && (
+                  <div className="mt-2 p-2 bg-orange-900/20 rounded border border-orange-500/30">
+                    <div className="text-orange-300 text-xs font-medium">
+                      ℹ️ Consolidated Payment: Same UTR/Receipt shared across {payment.allStudentsInGroup.length} students
+                    </div>
+                  </div>
+                )}
               </div>
-              
-              {payment.onlineAmount > 0 && (
-                <div className="flex items-center gap-1">
-                  <CreditCard className="w-3 h-3" />
-                  <span>Online: ₹{payment.onlineAmount?.toLocaleString()}</span>
-                  {payment.utrId && <span className="ml-2">UTR: {payment.utrId}</span>}
-                </div>
-              )}
-              
-              {payment.offlineAmount > 0 && (
-                <div className="flex items-center gap-1">
-                  <Receipt className="w-3 h-3" />
-                  <span>Offline: ₹{payment.offlineAmount?.toLocaleString()}</span>
-                  {payment.receiptNo && <span className="ml-2">Receipt: {payment.receiptNo}</span>}
-                </div>
-              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   };
