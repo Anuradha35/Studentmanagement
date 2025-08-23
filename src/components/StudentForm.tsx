@@ -47,6 +47,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
     courseDuration: preSelectedDuration || '',
     startDate: preSelectedStartDate || '',
     endDate: '',
+    registrationDate: '',   // ✅ NEW FIELD
     courseFee: 0,
     totalPaid: 0,
     remainingFee: 0
@@ -219,6 +220,12 @@ const checkForAllStudentEnrollments = (studentName: string, fatherName: string) 
 
   return enrollments;
 };
+const student: Student = {
+  id: Date.now().toString(),
+  ...formData,
+  createdAt: new Date().toISOString()
+};
+
 
 // ✅ GLOBAL PAYMENT DUPLICATE CHECK (across all courses)
 const isPaymentDuplicateGlobal = (utrId?: string, receiptNo?: string) => {
@@ -288,6 +295,7 @@ const resetFormToCleanState = () => {
     courseDuration: preSelectedDuration || '',
     startDate: preSelectedStartDate || '',
     endDate: calculatedEndDate,
+    registrationDate: '',   // ✅ NEW FIELD
     courseFee: fee,
     totalPaid: 0,
     remainingFee: fee
@@ -1371,6 +1379,15 @@ const handleSubmit = (e: React.FormEvent) => {
   } else if (formData.startDate.length !== 10 || !validateDate(formData.startDate)) {
     newErrors.startDate = 'Please enter a valid date (DD.MM.YYYY)';
   }
+if (!formData.registrationDate.trim()) {
+  newErrors.registrationDate = 'Registration date is required';
+} else if (
+  formData.registrationDate.length !== 10 ||
+  !validateDate(formData.registrationDate)
+) {
+  newErrors.registrationDate = 'Please enter a valid date (DD.MM.YYYY)';
+}
+
 
   if (!paymentType) {
     newErrors.paymentType = "Please select a payment method (Single or Group)";
@@ -2019,6 +2036,25 @@ for (const payment of currentPayments) {
                 <option value="Yes">Yes</option>
               </select>
             </div>
+	 <div>
+           <label className="block text-gray-300 text-sm font-medium mb-2">
+            Registration Date *
+            </label>
+           <input
+    		type="text"
+    		value={formData.registrationDate}
+    		onChange={(e) =>
+      			setFormData({ ...formData, registrationDate: formatDate(e.target.value) })
+   		 }
+    		placeholder="DD.MM.YYYY"
+    		className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white 
+               placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  		/>
+  		{errors.registrationDate && (
+   		 <p className="text-red-400 text-sm mt-1">{errors.registrationDate}</p>
+  			)}
+		</div>
+
           </div>
         </div>
 
@@ -2312,7 +2348,7 @@ for (const payment of currentPayments) {
 
           {paymentType === 'single' && (
             <>
-              {/* Payment Summary */}
+              {/* Payment SummaryW */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-blue-500/20 rounded-lg p-4 border border-blue-500/30">
                   <p className="text-blue-300 text-sm">Course Fee</p>
@@ -2405,7 +2441,7 @@ for (const payment of currentPayments) {
       console.log("🔧 Skipping duplicate modal (processing)");
       return;
     }
-                            const duplicate = findDuplicatePaymentWithAllMembers(undefined, receiptNo.trim());
+                            const duplicate =                             findDuplicatePaymentWithAllMembers(undefined, receiptNo.trim());
                               window.alert('Please enter online or offline amount first');
                               setDuplicateInfo(duplicate);
                               setDuplicateCheckModal(true);
