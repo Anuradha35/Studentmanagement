@@ -325,6 +325,123 @@ Combined Payment → Uses course payment details
 Separate Payment → Shows separate payment fields
 Next Step 2 में हम करेंगे:
 
+
+
+
+
+  I’ll outline a clean design so hostel + mess fit your current payment logic without duplicates, then you can implement step-by-step.
+
+Recommended design (robust and future‑proof)
+Core idea: Split “payment slip/transaction” vs “where money is used”.
+One real-world slip/UTR can be split across multiple heads (course, hostel rent, mess) and across multiple students (group).
+We keep UTR/Receipt unique at the Transaction level; allocations are flexible.
+Data model
+Transaction: represents one receipt/UTR (single or group)
+type PaymentTransaction = {
+  id: string;
+  mode: 'online' | 'offline' | 'mixed';
+  utrId?: string;          // unique across all transactions (if online/mixed)
+  receiptNo?: string;      // unique across all transactions (if offline/mixed)
+  paymentDate: string;     // DD.MM.YYYY
+  totalAmount: number;     // online + offline
+  onlineAmount?: number;   // optional breakdown
+  offlineAmount?: number;
+  type: 'single' | 'group';
+  groupId?: string;        // for group
+  groupStudents?: string;  // comma separated names (optional)
+  meta?: Record<string, any>;
+};
+Allocation: how that transaction is applied
+type PaymentAllocation = {
+  id: string;
+  transactionId: string;
+  studentId: string;
+  head: 'course' | 'hostel_rent' | 'mess_fee'; // extendable
+  amount: number;
+  createdAt: string;
+};
+Optional: keep per-student hostel details
+type HostelProfile = {
+  hostelRequired: 'Yes' | 'No';
+  hostelStartDate?: string;  // DD.MM.YYYY
+  hostelEndDate?: string;
+};
+Your existing Payment list becomes:
+appData.transactions: PaymentTransaction[]
+appData.allocations: PaymentAllocation[]
+You can keep legacy appData.payments temporarily and migrate.
+Validation rules (no duplicacy)
+UTR/Receipt uniqueness: Unique per PaymentTransaction. You can reuse the same UTR/Receipt across heads or students only via the same transaction (not by creating a new one).
+Allocation sum check: For each transaction, sum of all its allocations must be ≤ totalAmount.
+Group transaction: type === 'group' can allocate to multiple students (any course/batch/year).
+Single vs Group later:
+If student uses “same slip as course” for hostel/mess, you don’t create a new transaction; you add new allocations under the same transaction.
+If student pays later with a different slip, you create a new transaction and then add allocations.
+Duplicate guard:
+Block creating a second transaction with an already used UTR/Receipt.
+Allow adding allocations to an existing transaction if head/student still has remaining amount capacity within that transaction.
+UI/UX changes
+When Hostler = Yes show a new “Hostel & Mess” panel:
+
+Fields (hostel profile): Hostel Start Date, End Date.
+Tabs or sections:
+Hostel Rent
+Mess Fee
+Each section has two paths:
+
+Use existing slip/UTR:
+Input UTR/Receipt → fetch that Transaction → show summary and remaining allocatable amount → add Allocation for current student and head (hostel_rent/mess_fee).
+Create new slip/UTR:
+Single or Group (reuse your existing group UI with a head prop)
+Enter date, amounts, UTR/Receipt → create Transaction → immediately add Allocation(s) for this student/head; for group, add multiple Allocations.
+Re-use your group flow:
+
+Your current group UI logic can be reused verbatim by just setting allocationHead = 'hostel_rent' or 'mess_fee' and writing Allocations instead of student Payments.
+Duplicate check modals now check only at Transaction creation time, not at allocation time.
+Per-student balances (computed):
+
+For student dashboard, compute:
+Course paid = sum allocations where head === 'course'
+Hostel paid = sum allocations where head === 'hostel_rent'
+Mess paid = sum allocations where head === 'mess_fee'
+Course/hostel/mess remaining = configured fee − sum of allocations for that head.
+How your scenarios map
+Single payment student uses same slip for course + hostel + mess:
+One Transaction with that UTR/Receipt.
+Three Allocations: course, hostel_rent, mess_fee.
+Single payment student pays later with different slip; sometimes hostel rent is grouped:
+Create a new Transaction (single or group) later, then add corresponding Allocations.
+Group payment immediate (same UTR/Receipt for many):
+One group Transaction (type='group') with total amount.
+Multiple Allocations to each student for hostel_rent/mess_fee as required.
+Group payment later with different slip:
+Create a new group Transaction later, then Allocations accordingly.
+Minimal-change alternative (if you can’t refactor now)
+Keep your current payments array but add:
+feeHead: 'course' | 'hostel_rent' | 'mess_fee'
+parentPaymentId?: string to link “same slip reused” cases
+Duplicate rule:
+Allow identical UTR/Receipt only if the record shares the same parentPaymentId (i.e., the same slip).
+Else block duplicates.
+This works but gets complicated for cross-student allocations; the Transaction+Allocation model is cleaner.
+Implementation steps (short)
+Add new types for PaymentTransaction and PaymentAllocation.
+Build Transaction create UI (single/group) by reusing your existing form logic; move duplicate checks to “transaction create”.
+Add “Attach to existing slip” flow by UTR/Receipt search; on select, create Allocation(s).
+Show hostel panel when hostler === 'Yes'; add two sub-sections (Hostel Rent, Mess Fee).
+Compute balances per head from allocations (don’t store totals on student; derive on render or cache).
+Migration: convert existing payments into transactions + allocations (one payment → one transaction + one allocation with head='course').
+Guardrails to keep data clean
+Enforce unique index on utrId and receiptNo at Transaction level.
+Disallow allocations that would exceed transaction.totalAmount.
+For group transactions, keep an at-a-glance “remaining to allocate” badge.
+Keep all duplicate detection modals focused on Transaction creation, not allocation.
+If you want, I can convert your current onAddPayment to onCreateTransaction + onAddAllocation, and wire the hostel panel with the same group UX you
+  already built.
+
+I proposed a Transaction + Allocation model so the same UTR/receipt can be reused safely across course/hostel/mess and across students, with strict 
+  uniqueness at the slip level and flexible allocations, plus the exact UI flows you need for “same slip now”, “new slip later”, and “group” cases.
+
 Payment calculation integration
 Group hostel payments
 Advanced scenarios
