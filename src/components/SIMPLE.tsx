@@ -276,4 +276,55 @@ Group payment logic को hostel के लिए भी implement करें
 
 Option A: Step-by-step implementation (पहले basic, फिर advanced)
 Option B: Complete design planning पहले, implementation बाद में
-  
+
+
+  1. New Hostel Fields (Show only when Hostler = "Yes")
+
+✅ Hostel Registration Start Date
+✅ Hostel Registration End Date  
+✅ Hostel Rent Amount
+✅ Mess Fee Amount
+✅ Payment Method Selection (Combined/Separate)
+2. Payment Integration Options
+
+🔄 Combined Payment: Same receipt/UTR as course fee
+🔄 Separate Payment: Different receipt/UTR for hostel & mess
+3. Smart Validation
+
+✅ Required field validation for hostel students
+✅ Date validation (end date > start date)
+✅ Payment details validation for separate payments
+✅ Numeric validation for amounts
+4. Data Structure
+
+hostelInfo?: {
+  registrationStartDate: string;
+  registrationEndDate: string;
+  hostelRent: number;
+  messFee: number;
+  paymentMethod: 'combined' | 'separate';
+  hostelPaymentDetails?: { ... };
+  messPaymentDetails?: { ... };
+}
+🎯 How It Works:
+Scenario 1: Hostler = "No"
+
+Normal form → No hostel fields → Simple course payment
+Scenario 2: Hostler = "Yes" + Combined Payment
+
+Hostel fields show → Combined payment selected → Same UTR/Receipt as course
+Scenario 3: Hostler = "Yes" + Separate Payment
+
+Hostel fields show → Separate payment selected → Different UTR/Receipt fields
+✅ Ready for Step 2!
+अब आप test कर सकते हैं:
+
+Hostler = "No" → Normal form
+Hostler = "Yes" → Hostel section appears
+Combined Payment → Uses course payment details
+Separate Payment → Shows separate payment fields
+Next Step 2 में हम करेंगे:
+
+Payment calculation integration
+Group hostel payments
+Advanced scenarios
