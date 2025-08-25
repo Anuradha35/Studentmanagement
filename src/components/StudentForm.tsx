@@ -17,6 +17,7 @@ interface StudentFormProps {
   onAddBranch: (branchName: string) => void;
   onAddCourseDuration: (duration: string) => void;
   onAddPayment: (studentId: string, payment: Omit<Payment, 'id' | 'studentId' | 'createdAt'>) => void;
+  onAddHostelPayment: (studentId: string, hostelPayment: any) => void; // 🆕 NEW
   onBack: () => void;
 }
 
@@ -32,6 +33,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
   onAddBranch,
   onAddCourseDuration,
   onAddPayment,
+  onAddHostelPayment, // 🆕 NEW
   onBack
 }) => {
   const [formData, setFormData] = useState({
@@ -83,6 +85,32 @@ const StudentForm: React.FC<StudentFormProps> = ({
 const [savedUnpaidAmount, setSavedUnpaidAmount] = useState(0);
 const [unpaidMemberName, setUnpaidMemberName] = useState('');
   const studentNameRef = useRef<HTMLInputElement>(null);
+
+  // 🆕 NEW: Hostel and Mess Fee State
+  const [hostelData, setHostelData] = useState({
+    hostelRegistrationStartDate: '',
+    hostelRegistrationEndDate: '',
+    hostelRent: '',
+    hostelReceiptNo: '',
+    hostelUtrId: '',
+    messFee: '',
+    messReceiptNo: '',
+    messUtrId: '',
+    hostelPaymentDate: '',
+    messPaymentDate: '',
+    hostelPaymentMode: 'offline' as 'online' | 'offline' | 'mixed',
+    messPaymentMode: 'offline' as 'online' | 'offline' | 'mixed',
+    isHostelGroupPayment: false,
+    isMessGroupPayment: false,
+    hostelGroupId: '',
+    messGroupId: '',
+    hostelGroupMembers: [] as string[],
+    messGroupMembers: [] as string[]
+  });
+
+  // 🆕 NEW: Hostel Payment Validation State
+  const [hostelPaymentErrors, setHostelPaymentErrors] = useState<{ [key: string]: string }>({});
+  const [showHostelFields, setShowHostelFields] = useState(false);
 
   // Group payment states
   const [groupPayments, setGroupPayments] = useState<Array<{
@@ -327,11 +355,36 @@ const resetFormToCleanState = () => {
   // Clear errors
   setErrors({});
   
-  // Clear college/branch inputs
-  setNewCollegeName('');
-  setNewBranch('');
-  setShowNewCollegeInput(false);
-  setShowNewBranchInput(false);
+      // Clear college/branch inputs
+    setNewCollegeName('');
+    setNewBranch('');
+    setShowNewCollegeInput(false);
+    setShowNewBranchInput(false);
+    
+    // 🆕 NEW: Reset hostel data
+    setHostelData({
+      hostelRegistrationStartDate: '',
+      hostelRegistrationEndDate: '',
+      hostelRent: '',
+      hostelReceiptNo: '',
+      hostelUtrId: '',
+      messFee: '',
+      messReceiptNo: '',
+      messUtrId: '',
+      hostelPaymentDate: '',
+      messPaymentDate: '',
+      hostelPaymentMode: 'offline',
+      messPaymentMode: 'offline',
+      isHostelGroupPayment: false,
+      isMessGroupPayment: false,
+      hostelGroupId: '',
+      messGroupId: '',
+      hostelGroupMembers: [],
+      messGroupMembers: []
+    });
+    
+    setHostelPaymentErrors({});
+    setShowHostelFields(false);
 
   // Focus on student name
   setTimeout(() => {
@@ -1124,6 +1177,32 @@ const clearSavedUnpaidAmount = () => {
   setExistingPayments({ utrIds, receiptNos, details });
 }, [appData]);
 
+  // 🆕 NEW: Calculate hostel registration end date
+  useEffect(() => {
+    if (hostelData.hostelRegistrationStartDate && formData.startDate && formData.courseDuration) {
+      const [startDay, startMonth, startYear] = formData.startDate.split('.');
+      const startDate = new Date(parseInt(startYear), parseInt(startMonth) - 1, parseInt(startDay));
+      const durationDays = parseInt(formData.courseDuration.replace(' Days', ''));
+      
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + durationDays - 1);
+      
+      const endDay = endDate.getDate().toString().padStart(2, '0');
+      const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
+      const endYear = endDate.getFullYear();
+      
+      setHostelData(prev => ({
+        ...prev,
+        hostelRegistrationEndDate: `${endDay}.${endMonth}.${endYear}`
+      }));
+    }
+  }, [hostelData.hostelRegistrationStartDate, formData.startDate, formData.courseDuration]);
+
+  // 🆕 NEW: Show hostel fields when hostler is Yes
+  useEffect(() => {
+    setShowHostelFields(formData.hostler === 'Yes');
+  }, [formData.hostler]);
+
 
 
   // Update total paid and remaining fee when payments change
@@ -1165,6 +1244,108 @@ const clearSavedUnpaidAmount = () => {
       return `Receipt number ${receiptNo} has already been used by another student`;
     }
     return null;
+  };
+
+  // 🆕 NEW: Hostel Payment Validation Functions
+  const validateHostelPayment = (type: 'hostel' | 'mess') => {
+    const errors: { [key: string]: string } = {};
+    const isHostel = type === 'hostel';
+    const prefix = isHostel ? 'hostel' : 'mess';
+    
+    // Validate dates
+    if (!hostelData[`${prefix}RegistrationStartDate` as keyof typeof hostelData]) {
+      errors[`${prefix}StartDate`] = `${type === 'hostel' ? 'Hostel' : 'Mess'} registration start date is required`;
+    }
+    if (!hostelData[`${prefix}RegistrationEndDate` as keyof typeof hostelData]) {
+      errors[`${prefix}EndDate`] = `${type === 'hostel' : 'Mess'} registration end date is required`;
+    }
+    
+    // Validate amounts
+    const amount = parseInt(hostelData[`${prefix}Rent` as keyof typeof hostelData] || '0');
+    if (amount <= 0) {
+      errors[`${prefix}Amount`] = `${type === 'hostel' ? 'Hostel rent' : 'Mess fee'} must be greater than 0`;
+    }
+    
+    // Validate payment details
+    const paymentMode = hostelData[`${prefix}PaymentMode` as keyof typeof hostelData];
+    const receiptNo = hostelData[`${prefix}ReceiptNo` as keyof typeof hostelData];
+    const utrId = hostelData[`${prefix}UtrId` as keyof typeof hostelData];
+    
+    if (paymentMode === 'offline' && !receiptNo.trim()) {
+      errors[`${prefix}Receipt`] = `Receipt number is required for ${type === 'hostel' ? 'hostel' : 'mess'} offline payment`;
+    }
+    if (paymentMode === 'online' && !utrId.trim()) {
+      errors[`${prefix}Utr`] = `UTR/UPI ID is required for ${type === 'hostel' : 'mess'} online payment`;
+    }
+    if (paymentMode === 'mixed' && (!receiptNo.trim() || !utrId.trim())) {
+      errors[`${prefix}Mixed`] = `Both receipt number and UTR/UPI ID are required for ${type === 'hostel' : 'mess'} mixed payment`;
+    }
+    
+    // Validate UTR ID length
+    if (utrId && utrId.length !== 12) {
+      errors[`${prefix}Utr`] = 'UTR/UPI ID must be exactly 12 digits';
+    }
+    
+    return errors;
+  };
+
+  // 🆕 NEW: Check for Hostel Payment Duplicates (Separate from Course Payments)
+  const checkHostelPaymentDuplicate = (utrId?: string, receiptNo?: string, type: 'hostel' | 'mess') => {
+    if (!utrId && !receiptNo) return null;
+    
+    // Search through existing hostel payments (you'll need to add this to your appData)
+    const existingHostelPayments = appData.hostelPayments || [];
+    
+    for (const payment of existingHostelPayments) {
+      if (payment.type === type) {
+        if (utrId && payment.utrId === utrId.trim()) {
+          return {
+            isDuplicate: true,
+            type: 'utr' as const,
+            value: utrId,
+            existingPayment: payment,
+            message: `${type === 'hostel' ? 'Hostel' : 'Mess'} UTR/UPI ID already used`
+          };
+        }
+        if (receiptNo && payment.receiptNo === receiptNo.trim()) {
+          return {
+            isDuplicate: true,
+            type: 'receipt' as const,
+            value: receiptNo,
+            existingPayment: payment,
+            message: `${type === 'hostel' ? 'Hostel' : 'Mess'} receipt number already used`
+          };
+        }
+      }
+    }
+    
+    return null;
+  };
+
+  // 🆕 NEW: Handle Hostel Payment Addition
+  const handleAddHostelPayment = (type: 'hostel' | 'mess') => {
+    const errors = validateHostelPayment(type);
+    if (Object.keys(errors).length > 0) {
+      setHostelPaymentErrors(errors);
+      return;
+    }
+    
+    // Check for duplicates
+    const prefix = type === 'hostel' ? 'hostel' : 'mess';
+    const utrId = hostelData[`${prefix}UtrId` as keyof typeof hostelData];
+    const receiptNo = hostelData[`${prefix}ReceiptNo` as keyof typeof hostelData];
+    
+    const duplicate = checkHostelPaymentDuplicate(utrId, receiptNo, type);
+    if (duplicate) {
+      alert(`❌ ${duplicate.message}!\n\nThis ${duplicate.type === 'utr' ? 'UTR/UPI ID' : 'Receipt Number'} has already been used for ${type} payment.\n\nPlease use a different payment method.`);
+      return;
+    }
+    
+    // Clear errors
+    setHostelPaymentErrors({});
+    
+    // Success - payment will be added when student is submitted
+    alert(`✅ ${type === 'hostel' ? 'Hostel' : 'Mess'} payment details saved successfully!\n\nPayment will be recorded when you submit the student enrollment.`);
   };
 
   const handleAddPayment = () => {
@@ -1397,6 +1578,18 @@ if (!formData.registrationDate.trim()) {
     }
     if (paymentType === "group" && groupPayments.length === 0) {
       newErrors.paymentType = "Please add at least one group payment before submitting";
+    }
+  }
+
+  // 🆕 NEW: Validate hostel payments if hostler is Yes
+  if (formData.hostler === 'Yes') {
+    const hostelErrors = validateHostelPayment('hostel');
+    const messErrors = validateHostelPayment('mess');
+    
+    if (Object.keys(hostelErrors).length > 0 || Object.keys(messErrors).length > 0) {
+      setHostelPaymentErrors({ ...hostelErrors, ...messErrors });
+      alert('❌ Please fix hostel/mess payment errors before submitting.');
+      return;
     }
   }
 
@@ -1658,6 +1851,43 @@ for (const payment of currentPayments) {
         studentIndex: 0
       });
     }
+
+    // 🆕 NEW: Add hostel payments if hostler is Yes
+    if (formData.hostler === 'Yes') {
+      // Add hostel payment
+      if (hostelData.hostelRent && parseInt(hostelData.hostelRent) > 0) {
+        onAddHostelPayment(student.id, {
+          type: 'hostel',
+          registrationStartDate: hostelData.hostelRegistrationStartDate,
+          registrationEndDate: hostelData.hostelRegistrationEndDate,
+          amount: parseInt(hostelData.hostelRent),
+          receiptNo: hostelData.hostelReceiptNo || undefined,
+          utrId: hostelData.hostelUtrId || undefined,
+          paymentDate: hostelData.hostelPaymentDate || new Date().toISOString(),
+          paymentMode: hostelData.hostelPaymentMode,
+          isGroupPayment: hostelData.isHostelGroupPayment,
+          groupId: hostelData.hostelGroupId || undefined,
+          groupMembers: hostelData.hostelGroupMembers
+        });
+      }
+
+      // Add mess payment
+      if (hostelData.messFee && parseInt(hostelData.messFee) > 0) {
+        onAddHostelPayment(student.id, {
+          type: 'mess',
+          registrationStartDate: hostelData.hostelRegistrationStartDate,
+          registrationEndDate: hostelData.hostelRegistrationEndDate,
+          amount: parseInt(hostelData.messFee),
+          receiptNo: hostelData.messReceiptNo || undefined,
+          utrId: hostelData.messUtrId || undefined,
+          paymentDate: hostelData.messPaymentDate || new Date().toISOString(),
+          paymentMode: hostelData.messPaymentMode,
+          isGroupPayment: hostelData.isMessGroupPayment,
+          groupId: hostelData.messGroupId || undefined,
+          groupMembers: hostelData.messGroupMembers
+        });
+      }
+    }
     
     // Calculate end date manually after reset
     let calculatedEndDate = '';
@@ -1713,6 +1943,31 @@ for (const payment of currentPayments) {
     setGroupPaymentDate('');
     setDynamicGroupEntries([]);
     setPaymentFieldsReadOnly(false);
+
+    // 🆕 NEW: Reset hostel data
+    setHostelData({
+      hostelRegistrationStartDate: '',
+      hostelRegistrationEndDate: '',
+      hostelRent: '',
+      hostelReceiptNo: '',
+      hostelUtrId: '',
+      messFee: '',
+      messReceiptNo: '',
+      messUtrId: '',
+      hostelPaymentDate: '',
+      messPaymentDate: '',
+      hostelPaymentMode: 'offline',
+      messPaymentMode: 'offline',
+      isHostelGroupPayment: false,
+      isMessGroupPayment: false,
+      hostelGroupId: '',
+      messGroupId: '',
+      hostelGroupMembers: [],
+      messGroupMembers: []
+    });
+    
+    setHostelPaymentErrors({});
+    setShowHostelFields(false);
 
     // Focus on Student Name after adding
     if (studentNameRef.current) {
@@ -2250,6 +2505,468 @@ for (const payment of currentPayments) {
             </div>
           </div>
         </div>
+
+        {/* 🆕 NEW: Hostel and Mess Information Section */}
+        {showHostelFields && (
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+              🏠 Hostel & Mess Information
+            </h2>
+            
+            <div className="space-y-6">
+              {/* Hostel Registration Dates */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    Hostel Registration Start Date *
+                  </label>
+                  <input
+                    type="text"
+                    value={hostelData.hostelRegistrationStartDate}
+                    onChange={(e) => {
+                      const formatted = formatDate(e.target.value);
+                      setHostelData(prev => ({
+                        ...prev,
+                        hostelRegistrationStartDate: formatted
+                      }));
+                      if (hostelPaymentErrors.hostelStartDate) {
+                        setHostelPaymentErrors(prev => ({ ...prev, hostelStartDate: '' }));
+                      }
+                    }}
+                    className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="DD.MM.YYYY"
+                    maxLength={10}
+                  />
+                  {hostelPaymentErrors.hostelStartDate && (
+                    <p className="text-red-400 text-sm mt-1">{hostelPaymentErrors.hostelStartDate}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-gray-300 text-sm font-medium mb-2">
+                    Hostel Registration End Date
+                  </label>
+                  <div className="p-3 bg-slate-700 border border-white/30 rounded-lg">
+                    <p className="text-white">{hostelData.hostelRegistrationEndDate || 'Auto-calculated'}</p>
+                    <p className="text-gray-400 text-sm">Based on course duration</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Hostel Rent Payment */}
+              <div className="bg-slate-800/50 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-white mb-4">🏠 Hostel Rent Payment</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-gray-300 text-sm font-medium mb-2">
+                      Hostel Rent Amount *
+                    </label>
+                    <input
+                      type="text"
+                      value={hostelData.hostelRent}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '');
+                        setHostelData(prev => ({
+                          ...prev,
+                          hostelRent: value
+                        }));
+                        if (hostelPaymentErrors.hostelAmount) {
+                          setHostelPaymentErrors(prev => ({ ...prev, hostelAmount: '' }));
+                        }
+                      }}
+                      className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter hostel rent amount"
+                    />
+                    {hostelPaymentErrors.hostelAmount && (
+                      <p className="text-red-400 text-sm mt-1">{hostelPaymentErrors.hostelAmount}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-300 text-sm font-medium mb-2">
+                      Payment Mode
+                    </label>
+                    <select
+                      value={hostelData.hostelPaymentMode}
+                      onChange={(e) => setHostelData(prev => ({
+                        ...prev,
+                        hostelPaymentMode: e.target.value as 'online' | 'offline' | 'mixed'
+                      }))}
+                      className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="offline">Offline Only</option>
+                      <option value="online">Online Only</option>
+                      <option value="mixed">Mixed (Online + Offline)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-300 text-sm font-medium mb-2">
+                      Payment Date
+                    </label>
+                    <input
+                      type="text"
+                      value={hostelData.hostelPaymentDate}
+                      onChange={(e) => {
+                        const formatted = formatDate(e.target.value);
+                        setHostelData(prev => ({
+                          ...prev,
+                          hostelPaymentDate: formatted
+                        }));
+                      }}
+                      className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="DD.MM.YYYY"
+                      maxLength={10}
+                    />
+                  </div>
+
+                  {hostelData.hostelPaymentMode === 'offline' && (
+                    <div>
+                      <label className="block text-gray-300 text-sm font-medium mb-2">
+                        Receipt Number
+                      </label>
+                      <input
+                        type="text"
+                        value={hostelData.hostelReceiptNo}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '');
+                          setHostelData(prev => ({
+                            ...prev,
+                            hostelReceiptNo: value
+                          }));
+                          if (hostelPaymentErrors.hostelReceipt) {
+                            setHostelPaymentErrors(prev => ({ ...prev, hostelReceipt: '' }));
+                          }
+                        }}
+                        className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter receipt number"
+                      />
+                      {hostelPaymentErrors.hostelReceipt && (
+                        <p className="text-red-400 text-sm mt-1">{hostelPaymentErrors.hostelReceipt}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {hostelData.hostelPaymentMode === 'online' && (
+                    <div>
+                      <label className="block text-gray-300 text-sm font-medium mb-2">
+                        UTR/UPI ID
+                      </label>
+                      <input
+                        type="text"
+                        value={hostelData.hostelUtrId}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+                          setHostelData(prev => ({
+                            ...prev,
+                            hostelUtrId: value
+                          }));
+                          if (hostelPaymentErrors.hostelUtr) {
+                            setHostelPaymentErrors(prev => ({ ...prev, hostelUtr: '' }));
+                          }
+                        }}
+                        className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter 12-digit UTR/UPI ID"
+                        maxLength={12}
+                      />
+                      {hostelPaymentErrors.hostelUtr && (
+                        <p className="text-red-400 text-sm mt-1">{hostelPaymentErrors.hostelUtr}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {hostelData.hostelPaymentMode === 'mixed' && (
+                    <>
+                      <div>
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                          Receipt Number
+                        </label>
+                        <input
+                          type="text"
+                          value={hostelData.hostelReceiptNo}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '');
+                            setHostelData(prev => ({
+                              ...prev,
+                              hostelReceiptNo: value
+                            }));
+                            if (hostelPaymentErrors.hostelReceipt) {
+                              setHostelPaymentErrors(prev => ({ ...prev, hostelReceipt: '' }));
+                            }
+                          }}
+                          className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Enter receipt number"
+                        />
+                        {hostelPaymentErrors.hostelReceipt && (
+                          <p className="text-red-400 text-sm mt-1">{hostelPaymentErrors.hostelReceipt}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                          UTR/UPI ID
+                        </label>
+                        <input
+                          type="text"
+                          value={hostelData.hostelUtrId}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+                            setHostelData(prev => ({
+                              ...prev,
+                              hostelUtrId: value
+                            }));
+                            if (hostelPaymentErrors.hostelUtr) {
+                             setHostelPaymentErrors(prev => ({ ...prev, hostelUtr: '' }));
+                           }
+                          }}
+                          className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Enter 12-digit UTR/UPI ID"
+                          maxLength={12}
+                        />
+                        {hostelPaymentErrors.hostelUtr && (
+                          <p className="text-red-400 text-sm mt-1">{hostelPaymentErrors.hostelUtr}</p>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleAddHostelPayment('hostel')}
+                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  Save Hostel Payment Details
+                </button>
+              </div>
+
+              {/* Mess Fee Payment */}
+              <div className="bg-slate-800/50 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-white mb-4">🍽️ Mess Fee Payment</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-gray-300 text-sm font-medium mb-2">
+                      Mess Fee Amount *
+                    </label>
+                    <input
+                      type="text"
+                      value={hostelData.messFee}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '');
+                        setHostelData(prev => ({
+                          ...prev,
+                          messFee: value
+                        }));
+                        if (hostelPaymentErrors.messAmount) {
+                          setHostelPaymentErrors(prev => ({ ...prev, messAmount: '' }));
+                        }
+                      }}
+                      className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter mess fee amount"
+                    />
+                    {hostelPaymentErrors.messAmount && (
+                      <p className="text-red-400 text-sm mt-1">{hostelPaymentErrors.messAmount}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-300 text-sm font-medium mb-2">
+                      Payment Mode
+                    </label>
+                    <select
+                      value={hostelData.messPaymentMode}
+                      onChange={(e) => setHostelData(prev => ({
+                        ...prev,
+                        messPaymentMode: e.target.value as 'online' | 'offline' | 'mixed'
+                      }))}
+                      className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="offline">Offline Only</option>
+                      <option value="online">Online Only</option>
+                      <option value="mixed">Mixed (Online + Offline)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-300 text-sm font-medium mb-2">
+                      Payment Date
+                    </label>
+                    <input
+                      type="text"
+                      value={hostelData.messPaymentDate}
+                      onChange={(e) => {
+                        const formatted = formatDate(e.target.value);
+                        setHostelData(prev => ({
+                          ...prev,
+                          messPaymentDate: formatted
+                        }));
+                      }}
+                      className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                             placeholder="DD.MM.YYYY"
+                      maxLength={10}
+                    />
+                  </div>
+
+                  {hostelData.messPaymentMode === 'offline' && (
+                    <div>
+                      <label className="block text-gray-300 text-sm font-medium mb-2">
+                        Receipt Number
+                      </label>
+                      <input
+                        type="text"
+                        value={hostelData.messReceiptNo}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '');
+                          setHostelData(prev => ({
+                            ...prev,
+                            messReceiptNo: value
+                          }));
+                          if (hostelPaymentErrors.messReceipt) {
+                            setHostelPaymentErrors(prev => ({ ...prev, messReceipt: '' }));
+                          }
+                        }}
+                        className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter receipt number"
+                      />
+                      {hostelPaymentErrors.messReceipt && (
+                        <p className="text-red-400 text-sm mt-1">{hostelPaymentErrors.messReceipt}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {hostelData.messPaymentMode === 'online' && (
+                    <div>
+                      <label className="block text-gray-300 text-sm font-medium mb-2">
+                        UTR/UPI ID
+                      </label>
+                      <input
+                        type="text"
+                        value={hostelData.messUtrId}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+                          setHostelData(prev => ({
+                            ...prev,
+                            messUtrId: value
+                          }));
+                          if (hostelPaymentErrors.messUtr) {
+                            setHostelPaymentErrors(prev => ({ ...prev, messUtr: '' }));
+                          }
+                        }}
+                                                 className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter 12-digit UTR/UPI ID"
+                        maxLength={12}
+                      />
+                      {hostelPaymentErrors.messUtr && (
+                        <p className="text-red-400 text-sm mt-1">{hostelPaymentErrors.messUtr}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {hostelData.messPaymentMode === 'mixed' && (
+                    <>
+                      <div>
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                          Receipt Number
+                        </label>
+                        <input
+                          type="text"
+                          value={hostelData.messReceiptNo}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '');
+                            setHostelData(prev => ({
+                              ...prev,
+                              messReceiptNo: value
+                            }));
+                            if (hostelPaymentErrors.messReceipt) {
+                              setHostelPaymentErrors(prev => ({ ...prev, messReceipt: '' }));
+                            }
+                          }}
+                          className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Enter receipt number"
+                        />
+                        {hostelPaymentErrors.messReceipt && (
+                          <p className="text-red-400 text-sm mt-1">{hostelPaymentErrors.messReceipt}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-gray-300 text-sm font-medium mb-2">
+                          UTR/UPI ID
+                        </label>
+                        <input
+                          type="text"
+                          value={hostelData.messUtrId}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+                            setHostelData(prev => ({
+                              ...prev,
+                              messUtrId: value
+                            }));
+                            if (hostelPaymentErrors.messUtr) {
+                              setHostelPaymentErrors(prev => ({ ...prev, messUtr: '' }));
+                            }
+                          }}
+                          className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Enter 12-digit UTR/UPI ID"
+                          maxLength={12}
+                        />
+                        {hostelPaymentErrors.messUtr && (
+                          <p className="text-red-400 text-sm mt-1">{hostelPaymentErrors.messUtr}</p>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleAddHostelPayment('mess')}
+                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  Save Mess Payment Details
+                </button>
+              </div>
+
+              {/* Group Payment Options for Hostel/Mess */}
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                <h4 className="text-blue-300 font-medium mb-3">👥 Group Payment Options</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={hostelData.isHostelGroupPayment}
+                      onChange={(e) => setHostelData(prev => ({
+                        ...prev,
+                        isHostelGroupPayment: e.target.checked
+                      }))}
+                      className="text-blue-500"
+                    />
+                    <span className="text-white text-sm">Hostel rent is part of group payment</span>
+                  </label>
+                  
+                                     <label className="flex items-center gap-2 cursor-pointer">
+                     <input
+                       type="checkbox"
+                       checked={hostelData.isMessGroupPayment}
+                       onChange={(e) => setHostelData(prev => ({
+                         ...prev,
+                         isMessGroupPayment: e.target.checked
+                       }))}
+                       className="text-blue-500"
+                     />
+                     <span className="text-white text-sm">Mess fee is part of group payment</span>
+                   </label>
+                </div>
+                
+                <p className="text-blue-200 text-xs mt-2">
+                  💡 Check this if hostel/mess fees are paid together with other students using the same UTR/Receipt
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Payment Information */}
         <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
