@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef  } from 'react';
-import { ArrowLeft, User, Phone, Mail, GraduationCap, Calendar, DollarSign, CreditCard, Receipt, Users, Plus, X } from 'lucide-react';
+import { ArrowLeft, User, Phone, Mail, GraduationCap, Calendar, DollarSign, CreditCard, Receipt, Users, Plus, X, Home, Utensils } from 'lucide-react';
 import { AppData, Student, Payment } from '../types';
 import { Dialog } from '@headlessui/react';
 import { v4 as uuidv4 } from 'uuid';
@@ -101,6 +101,88 @@ const [unpaidMemberName, setUnpaidMemberName] = useState('');
   const [groupPaymentDate, setGroupPaymentDate] = useState('');
   const groupInputRef = useRef<HTMLInputElement>(null);
   const [isProcessingGroupEntry, setIsProcessingGroupEntry] = useState(false);
+
+  // 🏨 NEW: Hostel & Mess Payment States
+  const [hostelPaymentType, setHostelPaymentType] = useState<'single' | 'group'>('single');
+  const [messPaymentType, setMessPaymentType] = useState<'single' | 'group'>('single');
+  
+  // Hostel Individual Payment States
+  const [hostelIndividualPaymentMode, setHostelIndividualPaymentMode] = useState('online');
+  const [hostelIndividualAmount, setHostelIndividualAmount] = useState('');
+  const [hostelIndividualPaymentDate, setHostelIndividualPaymentDate] = useState('');
+  const [hostelIndividualReceiptNo, setHostelIndividualReceiptNo] = useState('');
+  const [hostelIndividualPaymentDateError, setHostelIndividualPaymentDateError] = useState('');
+  const [hostelUtrError, setHostelUtrError] = useState('');
+  const [hostelIndividualUtrId, setHostelIndividualUtrId] = useState('');
+  
+  // Hostel Group Payment States
+  const [hostelGroupCount, setHostelGroupCount] = useState(0);
+  const [hostelGroupEntries, setHostelGroupEntries] = useState<Array<{studentName: string, amount: number}>>([]);
+  const [hostelPayments, setHostelPayments] = useState<Array<{
+    paymentMode: 'online' | 'offline' | 'mixed';
+    amount: number;
+    utrId?: string;
+    receiptNo?: string;
+    paymentDate: string;
+  }>>([]);
+  
+  // Mess Individual Payment States
+  const [messIndividualPaymentMode, setMessIndividualPaymentMode] = useState('online');
+  const [messIndividualAmount, setMessIndividualAmount] = useState('');
+  const [messIndividualPaymentDate, setMessIndividualPaymentDate] = useState('');
+  const [messIndividualReceiptNo, setMessIndividualReceiptNo] = useState('');
+  const [messIndividualPaymentDateError, setMessIndividualPaymentDateError] = useState('');
+  const [messUtrError, setMessUtrError] = useState('');
+  const [messIndividualUtrId, setMessIndividualUtrId] = useState('');
+  
+  // Mess Group Payment States
+  const [messGroupCount, setMessGroupCount] = useState(0);
+  const [messGroupEntries, setMessGroupEntries] = useState<Array<{studentName: string, amount: number}>>([]);
+  const [messPayments, setMessPayments] = useState<Array<{
+    paymentMode: 'online' | 'offline' | 'mixed';
+    amount: number;
+    utrId?: string;
+    receiptNo?: string;
+    paymentDate: string;
+  }>>([]);
+  
+  // Modal States
+  const [showHostelGroupModal, setShowHostelGroupModal] = useState(false);
+  const [showMessGroupModal, setShowMessGroupModal] = useState(false);
+  // Group modal input focus refs
+  const hostelGroupCountRef = useRef<HTMLInputElement | null>(null);
+  const messGroupCountRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (showHostelGroupModal && hostelGroupCountRef.current) {
+      hostelGroupCountRef.current.focus();
+    }
+  }, [showHostelGroupModal]);
+
+  useEffect(() => {
+    if (showMessGroupModal && messGroupCountRef.current) {
+      messGroupCountRef.current.focus();
+    }
+  }, [showMessGroupModal]);
+
+  // Hostel/Mess group payment fields (similar to Payment Information group)
+  const [hostelGroupPaymentDate, setHostelGroupPaymentDate] = useState('');
+  const [hostelGroupOnlineAmount, setHostelGroupOnlineAmount] = useState('');
+  const [hostelGroupOfflineAmount, setHostelGroupOfflineAmount] = useState('');
+  const [hostelGroupUtrId, setHostelGroupUtrId] = useState('');
+  const [hostelGroupReceiptNo, setHostelGroupReceiptNo] = useState('');
+  const [hostelGroupDateError, setHostelGroupDateError] = useState('');
+  const [hostelGroupUtrError, setHostelGroupUtrError] = useState('');
+  const [hostelGroupAmountError, setHostelGroupAmountError] = useState('');
+
+  const [messGroupPaymentDate, setMessGroupPaymentDate] = useState('');
+  const [messGroupOnlineAmount, setMessGroupOnlineAmount] = useState('');
+  const [messGroupOfflineAmount, setMessGroupOfflineAmount] = useState('');
+  const [messGroupUtrId, setMessGroupUtrId] = useState('');
+  const [messGroupReceiptNo, setMessGroupReceiptNo] = useState('');
+  const [messGroupDateError, setMessGroupDateError] = useState('');
+  const [messGroupUtrError, setMessGroupUtrError] = useState('');
+  const [messGroupAmountError, setMessGroupAmountError] = useState('');
 
 // chhota helper: processing flag ko thoda delay ke saath reset karna safe hota hai
 const endProcessing = () => {
@@ -1744,6 +1826,217 @@ for (const payment of currentPayments) {
     }
   };
 
+  // 🏨 NEW: Hostel & Mess Payment Handler Functions
+  const handleAddHostelPayment = () => {
+    if (hostelPaymentType === 'single') {
+      if (!hostelIndividualPaymentMode || !hostelIndividualAmount || !hostelIndividualPaymentDate) {
+        alert('Please fill all required fields for hostel payment');
+        return;
+      }
+      
+      // Validate UTR/Receipt based on payment mode
+      if (hostelIndividualPaymentMode === 'online' && hostelIndividualUtrId.length !== 12) {
+        setHostelUtrError('Please enter 12-digit UTR/UPI ID');
+        return;
+      }
+      if (hostelIndividualPaymentMode === 'offline' && !hostelIndividualReceiptNo) {
+        alert('Please enter Receipt Number for offline payment');
+        return;
+      }
+      
+      const newPayment = {
+        paymentMode: hostelIndividualPaymentMode as 'online' | 'offline' | 'mixed',
+        amount: parseInt(hostelIndividualAmount),
+        paymentDate: hostelIndividualPaymentDate,
+        ...(hostelIndividualPaymentMode === 'offline' ? { receiptNo: hostelIndividualReceiptNo } : {}),
+        ...(hostelIndividualPaymentMode === 'online' ? { utrId: hostelIndividualUtrId } : {})
+      };
+      
+      // check duplicate entries by UTR/Receipt in hostelPayments
+      const duplicate = hostelPayments.some(p => (newPayment.utrId && p.utrId && p.utrId === newPayment.utrId) || (newPayment.receiptNo && p.receiptNo && p.receiptNo === newPayment.receiptNo));
+      if (duplicate) {
+        window.alert('This UTR/Receipt already exists in Hostel Payment history. Remove it first to add again.');
+        if (newPayment.utrId) setHostelIndividualUtrId('');
+        if (newPayment.receiptNo) setHostelIndividualReceiptNo('');
+        return;
+      }
+      setHostelPayments([...hostelPayments, newPayment]);
+      
+      // Clear form
+      setHostelIndividualPaymentMode('online');
+      setHostelIndividualAmount('');
+      setHostelIndividualPaymentDate('');
+      setHostelIndividualReceiptNo('');
+      setHostelIndividualUtrId('');
+    }
+  };
+
+  const handleAddMessPayment = () => {
+    if (messPaymentType === 'single') {
+      if (!messIndividualPaymentMode || !messIndividualAmount || !messIndividualPaymentDate) {
+        alert('Please fill all required fields for mess payment');
+        return;
+      }
+      
+      // Validate UTR/Receipt based on payment mode
+      if (messIndividualPaymentMode === 'online' && messIndividualUtrId.length !== 12) {
+        setMessUtrError('Please enter 12-digit UTR/UPI ID');
+        return;
+      }
+      if (messIndividualPaymentMode === 'offline' && !messIndividualReceiptNo) {
+        alert('Please enter Receipt Number for offline payment');
+        return;
+      }
+      
+      const newPayment = {
+        paymentMode: messIndividualPaymentMode as 'online' | 'offline' | 'mixed',
+        amount: parseInt(messIndividualAmount),
+        paymentDate: messIndividualPaymentDate,
+        ...(messIndividualPaymentMode === 'offline' ? { receiptNo: messIndividualReceiptNo } : {}),
+        ...(messIndividualPaymentMode === 'online' ? { utrId: messIndividualUtrId } : {})
+      };
+      
+      // check duplicate entries by UTR/Receipt in messPayments
+      const duplicate = messPayments.some(p => (newPayment.utrId && p.utrId && p.utrId === newPayment.utrId) || (newPayment.receiptNo && p.receiptNo && p.receiptNo === newPayment.receiptNo));
+      if (duplicate) {
+        window.alert('This UTR/Receipt already exists in Mess Payment history. Remove it first to add again.');
+        if (newPayment.utrId) setMessIndividualUtrId('');
+        if (newPayment.receiptNo) setMessIndividualReceiptNo('');
+        return;
+      }
+      setMessPayments([...messPayments, newPayment]);
+      
+      // Clear form
+      setMessIndividualPaymentMode('online');
+      setMessIndividualAmount('');
+      setMessIndividualPaymentDate('');
+      setMessIndividualReceiptNo('');
+      setMessIndividualUtrId('');
+    }
+  };
+
+  const handleAddHostelMessPayment = () => {
+    // This function can be used to combine both payments or for any special logic
+    alert('Hostel & Mess payment added successfully!');
+  };
+
+  const handleHostelGroupCountConfirm = () => {
+    if (hostelGroupCount < 2) {
+      alert('Please enter at least 2 students for group payment');
+      return;
+    }
+    
+    const entries = Array.from({ length: hostelGroupCount }, (_, index) => ({
+      studentName: index === 0 ? formData.studentName.toUpperCase() : ``,
+      amount: 0
+    }));
+    
+    setHostelGroupEntries(entries);
+    setShowHostelGroupModal(false);
+  };
+
+  const handleMessGroupCountConfirm = () => {
+    if (messGroupCount < 2) {
+      alert('Please enter at least 2 students for group payment');
+      return;
+    }
+    
+    const entries = Array.from({ length: messGroupCount }, (_, index) => ({
+      studentName: index === 0 ? formData.studentName.toUpperCase() : ``,
+      amount: 0
+    }));
+    
+    setMessGroupEntries(entries);
+    setShowMessGroupModal(false);
+  };
+
+  // Add group payments (aggregated like Payment Information)
+  const handleAddHostelGroupPayment = () => {
+    if (hostelGroupPaymentDate.length < 10) {
+      setHostelGroupDateError('Please enter a valid date (DD.MM.YYYY)');
+      return;
+    }
+    const online = parseInt(hostelGroupOnlineAmount || '0') || 0;
+    const offline = parseInt(hostelGroupOfflineAmount || '0') || 0;
+    if (online <= 0 && offline <= 0) {
+      window.alert('Please enter online and/or offline amount');
+      return;
+    }
+    if (online > 0 && hostelGroupUtrId.length !== 12) {
+      setHostelGroupUtrError('Please enter 12-digit UTR/UPI ID');
+      return;
+    }
+    if (offline > 0 && !hostelGroupReceiptNo) {
+      window.alert('Please enter Receipt Number');
+      return;
+    }
+    const total = online + offline;
+    const newPayment = {
+      paymentMode: online > 0 && offline > 0 ? ('mixed' as const) : online > 0 ? ('online' as const) : ('offline' as const),
+      amount: total,
+      paymentDate: hostelGroupPaymentDate,
+      ...(online > 0 ? { utrId: hostelGroupUtrId } : {}),
+      ...(offline > 0 ? { receiptNo: hostelGroupReceiptNo } : {}),
+    };
+    // duplicate guard
+    const duplicate = hostelPayments.some(p => (newPayment.utrId && p.utrId === newPayment.utrId) || (newPayment.receiptNo && p.receiptNo === newPayment.receiptNo));
+    if (duplicate) {
+      window.alert('This UTR/Receipt already exists in Hostel Payment history. Remove it first to add again.');
+      return;
+    }
+    setHostelPayments([...hostelPayments, newPayment]);
+    // reset group inputs (not entries)
+    setHostelGroupPaymentDate('');
+    setHostelGroupOnlineAmount('');
+    setHostelGroupOfflineAmount('');
+    setHostelGroupUtrId('');
+    setHostelGroupReceiptNo('');
+    setHostelGroupDateError('');
+    setHostelGroupUtrError('');
+  };
+
+  const handleAddMessGroupPayment = () => {
+    if (messGroupPaymentDate.length < 10) {
+      setMessGroupDateError('Please enter a valid date (DD.MM.YYYY)');
+      return;
+    }
+    const online = parseInt(messGroupOnlineAmount || '0') || 0;
+    const offline = parseInt(messGroupOfflineAmount || '0') || 0;
+    if (online <= 0 && offline <= 0) {
+      window.alert('Please enter online and/or offline amount');
+      return;
+    }
+    if (online > 0 && messGroupUtrId.length !== 12) {
+      setMessGroupUtrError('Please enter 12-digit UTR/UPI ID');
+      return;
+    }
+    if (offline > 0 && !messGroupReceiptNo) {
+      window.alert('Please enter Receipt Number');
+      return;
+    }
+    const total = online + offline;
+    const newPayment = {
+      paymentMode: online > 0 && offline > 0 ? ('mixed' as const) : online > 0 ? ('online' as const) : ('offline' as const),
+      amount: total,
+      paymentDate: messGroupPaymentDate,
+      ...(online > 0 ? { utrId: messGroupUtrId } : {}),
+      ...(offline > 0 ? { receiptNo: messGroupReceiptNo } : {}),
+    };
+    const duplicate = messPayments.some(p => (newPayment.utrId && p.utrId === newPayment.utrId) || (newPayment.receiptNo && p.receiptNo === newPayment.receiptNo));
+    if (duplicate) {
+      window.alert('This UTR/Receipt already exists in Mess Payment history. Remove it first to add again.');
+      return;
+    }
+    setMessPayments([...messPayments, newPayment]);
+    setMessGroupPaymentDate('');
+    setMessGroupOnlineAmount('');
+    setMessGroupOfflineAmount('');
+    setMessGroupUtrId('');
+    setMessGroupReceiptNo('');
+    setMessGroupDateError('');
+    setMessGroupUtrError('');
+  };
+
   // Get available durations for the selected course from course fees
   const getAvailableDurations = () => {
     if (!appData.courseFees) return [];
@@ -1840,6 +2133,278 @@ for (const payment of currentPayments) {
               onClick={handleGroupCountConfirm}
               disabled={!groupCount || groupCount < 1}
               className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Continue
+            </button>
+          </div>
+        </Dialog.Panel>
+      </Dialog>
+
+      {/* Mess Group Entry (below modal) */}
+      {messPaymentType === 'group' && messGroupEntries.length > 0 && (
+        <div className="bg-slate-800/50 rounded-lg p-4 mb-6">
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            Mess Group Payment Entry
+          </h3>
+          <div className="flex flex-wrap gap-4 mb-4">
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-gray-300 text-sm font-medium mb-2">Payment Date *</label>
+              <input
+                type="text"
+                value={messGroupPaymentDate}
+                onChange={(e)=>{const f=formatDate(e.target.value); setMessGroupPaymentDate(f); setMessGroupDateError(f.length<10?'Please enter a valid date (DD.MM.YYYY)':'');}}
+                maxLength={10}
+                placeholder="DD.MM.YYYY"
+                className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white"
+              />
+              {messGroupDateError && <p className="text-red-400 text-xs mt-1">{messGroupDateError}</p>}
+            </div>
+            <div className="flex-1 min-w-[180px]">
+              <label className="block text-gray-300 text-sm font-medium mb-2">Online Amount</label>
+              <input type="number" value={messGroupOnlineAmount} onChange={(e)=>setMessGroupOnlineAmount(e.target.value)} placeholder="Enter online amount (optional)" className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white" />
+            </div>
+            <div className="flex-1 min-w-[180px]">
+              <label className="block text-gray-300 text-sm font-medium mb-2">Offline Amount</label>
+              <input type="number" value={messGroupOfflineAmount} onChange={(e)=>setMessGroupOfflineAmount(e.target.value)} placeholder="Enter offline amount (optional)" className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white" />
+            </div>
+            <div className="flex-1 min-w-[220px]">
+              <label className="block text-gray-300 text-sm font-medium mb-2">UTR/UPI ID</label>
+              <input type="text" value={messGroupUtrId} onChange={(e)=>{const v=e.target.value.replace(/\D/g,'').slice(0,12); setMessGroupUtrId(v); setMessGroupUtrError(v.length===0||v.length===12?'':'Please enter 12-digit UTR/UPI ID');}} placeholder="12-digit UTR/UPI ID" maxLength={12} className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white" />
+              {messGroupUtrError && <p className="text-red-400 text-xs mt-1">{messGroupUtrError}</p>}
+            </div>
+            <div className="flex-1 min-w-[220px]">
+              <label className="block text-gray-300 text-sm font-medium mb-2">Receipt Number</label>
+              <input type="text" value={messGroupReceiptNo} onChange={(e)=>setMessGroupReceiptNo(e.target.value)} placeholder="Receipt No" className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white" />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="bg-slate-900/50 border border-slate-600 rounded-lg p-4">
+              <input readOnly value={formData.studentName.toUpperCase()} className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white" />
+              <div className="mt-2">
+                <label className="block text-gray-400 text-xs mb-1">Amount</label>
+                <input type="number" value={messGroupEntries[0]?.amount || 0} onChange={(e)=>{const v=[...messGroupEntries]; v[0].amount=parseInt(e.target.value)||0; setMessGroupEntries(v);}} className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white" />
+              </div>
+            </div>
+            {messGroupEntries.slice(1).map((entry,idx)=> (
+              <div key={idx} className="bg-slate-900/50 border border-slate-600 rounded-lg p-4">
+                <input type="text" value={entry.studentName} onChange={(e)=>{const v=[...messGroupEntries]; v[idx+1].studentName=e.target.value; setMessGroupEntries(v);}} placeholder={`Student Name #${idx+2}`} className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white" />
+                <div className="mt-2">
+                  <label className="block text-gray-400 text-xs mb-1">Amount</label>
+                  <input type="number" value={entry.amount} onChange={(e)=>{const v=[...messGroupEntries]; v[idx+1].amount=parseInt(e.target.value)||0; setMessGroupEntries(v);}} className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white" />
+                </div>
+              </div>
+            ))}
+          </div>
+          <button type="button" onClick={handleAddMessGroupPayment} className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700">Add to Group Payment</button>
+        </div>
+      )}
+
+      {/* 🏨 NEW: Hostel Group Modal */}
+      <Dialog 
+        open={showHostelGroupModal} 
+        onClose={() => setShowHostelGroupModal(false)} 
+        className="fixed z-50 inset-0 flex items-center justify-center"
+        initialFocus={hostelGroupCountRef}
+      >
+        <div className="bg-black bg-opacity-50 fixed inset-0"></div>
+        <Dialog.Panel className="bg-slate-800 border border-green-500/30 rounded-xl p-8 z-50 w-full max-w-md mx-4 shadow-2xl">
+          <div className="flex items-center gap-3 mb-6">
+            <Home className="w-6 h-6 text-green-400" />
+            <Dialog.Title className="text-xl font-bold text-white">
+              Hostel Group Payment Setup
+            </Dialog.Title>
+          </div>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-gray-300 text-sm font-medium mb-2">
+                How many students will be in this hostel group payment?
+              </label>
+              <input
+                type="number"
+                min={2}
+                max={20}
+                value={hostelGroupCount || ''}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === '') {
+                    setHostelGroupCount(0);
+                  } else {
+                    const num = parseInt(val);
+                    if (!isNaN(num) && num >= 2 && num <= 20) {
+                      setHostelGroupCount(num);
+                    }
+                  }
+                }}
+                ref={hostelGroupCountRef}
+                className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="e.g. 3"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && hostelGroupCount && hostelGroupCount >= 2) {
+                    handleHostelGroupCountConfirm();
+                  }
+                }}
+              />
+              <p className="text-gray-400 text-sm mt-2">
+                💡 Minimum: 2, Maximum: 20 students
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-8">
+            <button 
+              type="button" 
+              onClick={() => {
+                setShowHostelGroupModal(false);
+                setHostelPaymentType('single');
+              }} 
+              className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+            >
+              Cancel
+            </button>
+            <button 
+              type='button'
+              onClick={handleHostelGroupCountConfirm}
+              disabled={!hostelGroupCount || hostelGroupCount < 2}
+              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Continue
+            </button>
+          </div>
+        </Dialog.Panel>
+      </Dialog>
+
+      {/* Hostel Group Entry (below modal) */}
+      {hostelPaymentType === 'group' && hostelGroupEntries.length > 0 && (
+        <div className="bg-slate-800/50 rounded-lg p-4 mb-6">
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            Hostel Group Payment Entry
+          </h3>
+          <div className="flex flex-wrap gap-4 mb-4">
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-gray-300 text-sm font-medium mb-2">Payment Date *</label>
+              <input
+                type="text"
+                value={hostelGroupPaymentDate}
+                onChange={(e)=>{
+                  const f=formatDate(e.target.value); setHostelGroupPaymentDate(f); setHostelGroupDateError(f.length<10?'Please enter a valid date (DD.MM.YYYY)':'');
+                }}
+                maxLength={10}
+                placeholder="DD.MM.YYYY"
+                className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white"
+              />
+              {hostelGroupDateError && <p className="text-red-400 text-xs mt-1">{hostelGroupDateError}</p>}
+            </div>
+            <div className="flex-1 min-w-[180px]">
+              <label className="block text-gray-300 text-sm font-medium mb-2">Online Amount</label>
+              <input type="number" value={hostelGroupOnlineAmount} onChange={(e)=>setHostelGroupOnlineAmount(e.target.value)} placeholder="Enter online amount (optional)" className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white" />
+            </div>
+            <div className="flex-1 min-w-[180px]">
+              <label className="block text-gray-300 text-sm font-medium mb-2">Offline Amount</label>
+              <input type="number" value={hostelGroupOfflineAmount} onChange={(e)=>setHostelGroupOfflineAmount(e.target.value)} placeholder="Enter offline amount (optional)" className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white" />
+            </div>
+            <div className="flex-1 min-w-[220px]">
+              <label className="block text-gray-300 text-sm font-medium mb-2">UTR/UPI ID</label>
+              <input type="text" value={hostelGroupUtrId} onChange={(e)=>{const v=e.target.value.replace(/\D/g,'').slice(0,12); setHostelGroupUtrId(v); setHostelGroupUtrError(v.length===0||v.length===12?'':'Please enter 12-digit UTR/UPI ID');}} placeholder="12-digit UTR/UPI ID" maxLength={12} className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white" />
+              {hostelGroupUtrError && <p className="text-red-400 text-xs mt-1">{hostelGroupUtrError}</p>}
+            </div>
+            <div className="flex-1 min-w-[220px]">
+              <label className="block text-gray-300 text-sm font-medium mb-2">Receipt Number</label>
+              <input type="text" value={hostelGroupReceiptNo} onChange={(e)=>setHostelGroupReceiptNo(e.target.value)} placeholder="Receipt No" className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white" />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="bg-slate-900/50 border border-slate-600 rounded-lg p-4">
+              <input readOnly value={formData.studentName.toUpperCase()} className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white" />
+              <div className="mt-2">
+                <label className="block text-gray-400 text-xs mb-1">Amount</label>
+                <input type="number" value={hostelGroupEntries[0]?.amount || 0} onChange={(e)=>{const v=[...hostelGroupEntries]; v[0].amount=parseInt(e.target.value)||0; setHostelGroupEntries(v);}} className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white" />
+              </div>
+            </div>
+            {hostelGroupEntries.slice(1).map((entry,idx)=> (
+              <div key={idx} className="bg-slate-900/50 border border-slate-600 rounded-lg p-4">
+                <input type="text" value={entry.studentName} onChange={(e)=>{const v=[...hostelGroupEntries]; v[idx+1].studentName=e.target.value; setHostelGroupEntries(v);}} placeholder={`Student Name #${idx+2}`} className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white" />
+                <div className="mt-2">
+                  <label className="block text-gray-400 text-xs mb-1">Amount</label>
+                  <input type="number" value={entry.amount} onChange={(e)=>{const v=[...hostelGroupEntries]; v[idx+1].amount=parseInt(e.target.value)||0; setHostelGroupEntries(v);}} className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white" />
+                </div>
+              </div>
+            ))}
+          </div>
+          <button type="button" onClick={handleAddHostelGroupPayment} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Add to Group Payment</button>
+        </div>
+      )}
+
+      {/* 🏨 NEW: Mess Group Modal */}
+      <Dialog 
+        open={showMessGroupModal} 
+        onClose={() => setShowMessGroupModal(false)} 
+        className="fixed z-50 inset-0 flex items-center justify-center"
+        initialFocus={messGroupCountRef}
+      >
+        <div className="bg-black bg-opacity-50 fixed inset-0"></div>
+        <Dialog.Panel className="bg-slate-800 border border-orange-500/30 rounded-xl p-8 z-50 w-full max-w-md mx-4 shadow-2xl">
+          <div className="flex items-center gap-3 mb-6">
+            <Utensils className="w-6 h-6 text-orange-400" />
+            <Dialog.Title className="text-xl font-bold text-white">
+              Mess Group Payment Setup
+            </Dialog.Title>
+          </div>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-gray-300 text-sm font-medium mb-2">
+                How many students will be in this mess group payment?
+              </label>
+              <input
+                type="number"
+                min={2}
+                max={20}
+                value={messGroupCount || ''}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === '') {
+                    setMessGroupCount(0);
+                  } else {
+                    const num = parseInt(val);
+                    if (!isNaN(num) && num >= 2 && num <= 20) {
+                      setMessGroupCount(num);
+                    }
+                  }
+                }}
+                ref={messGroupCountRef}
+                className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="e.g. 3"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && messGroupCount && messGroupCount >= 2) {
+                    handleMessGroupCountConfirm();
+                  }
+                }}
+              />
+              <p className="text-gray-400 text-sm mt-2">
+                💡 Minimum: 2, Maximum: 20 students
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 mt-8">
+            <button 
+              type="button" 
+              onClick={() => {
+                setShowMessGroupModal(false);
+                setMessPaymentType('single');
+              }} 
+              className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
+            >
+              Cancel
+            </button>
+            <button 
+              type='button'
+              onClick={handleMessGroupCountConfirm}
+              disabled={!messGroupCount || messGroupCount < 2}
+              className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Continue
             </button>
@@ -3078,6 +3643,661 @@ console.log("🔍amountNum:", amountNum);
             </div>
           )}
         </div>
+
+        {/* Hostel & Mess Information */}
+        {formData.hostler === 'Yes' && (
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+              <Home className="w-6 h-6 text-green-400" />
+              HOSTEL & MESS Information
+            </h2>
+
+            {/* Date Information Only */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label className="block text-sm text-white mb-2">HOSTEL START DATE</label>
+                <input
+                  type="text"
+                  value={(formData as any).hostelStartDate || ''}
+                  onChange={(e) => {
+                    const formatted = formatDate(e.target.value);
+                    setFormData(prev => ({ ...(prev as any), hostelStartDate: formatted }));
+                  }}
+                  placeholder="DD.MM.YYYY"
+                  maxLength={10}
+                  className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-white mb-2">HOSTEL END DATE</label>
+                <input
+                  type="text"
+                  value={(formData as any).hostelEndDate || ''}
+                  onChange={(e) => {
+                    const formatted = formatDate(e.target.value);
+                    setFormData(prev => ({ ...(prev as any), hostelEndDate: formatted }));
+                  }}
+                  placeholder="DD.MM.YYYY"
+                  maxLength={10}
+                  className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* Combined Total Amount Display */}
+            <div className="mb-6">
+              <div className="bg-gradient-to-r from-green-500/20 to-orange-500/20 border border-green-500/30 rounded-xl p-4">
+                <h3 className="text-lg font-bold text-white mb-2 text-center">HOSTEL & MESS TOTAL AMOUNT</h3>
+                <div className="text-center">
+                  <p className="text-3xl font-bold text-white">
+                    ₹{(hostelPayments.reduce((s, p) => s + (p.amount || 0), 0) + messPayments.reduce((s, p) => s + (p.amount || 0), 0)).toLocaleString()}
+                  </p>
+                  <p className="text-gray-300 text-sm mt-1">
+                    Hostel Rent: ₹{hostelPayments.reduce((s, p) => s + (p.amount || 0), 0).toLocaleString()} + Mess Fee: ₹{messPayments.reduce((s, p) => s + (p.amount || 0), 0).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Sections - Side by Side */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* HOSTEL PAYMENT Section */}
+              <div className="bg-slate-800/50 border border-slate-600 rounded-xl p-6">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                  <Home className="w-5 h-5 text-green-400" />
+                  HOSTEL PAYMENT
+                </h3>
+                
+                {/* Hostel Rent Amount Display (from section below) */}
+                <div className="mb-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-green-300 text-sm font-medium">Hostel Rent Amount:</span>
+                    <span className="text-white font-bold text-lg">₹{(
+                      hostelPaymentType === 'group'
+                        ? (parseInt(hostelGroupOnlineAmount || '0') || 0) + (parseInt(hostelGroupOfflineAmount || '0') || 0)
+                        : hostelPayments.reduce((sum, p) => sum + (p.amount || 0), 0)
+                    ).toLocaleString()}</span>
+                  </div>
+                </div>
+
+                {/* Payment Type Selection */}
+                <div className="mb-4">
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        value="single"
+                        checked={hostelPaymentType === 'single'}
+                        onChange={(e) => {
+                          // switching to single: clear group inputs and group entries, keep single clean
+                          setHostelPaymentType('single');
+                          setHostelGroupCount(0);
+                          setHostelGroupEntries([]);
+                          // clear inline errors
+                          setHostelIndividualPaymentDateError('');
+                          setHostelUtrError('');
+                        }}
+                        className="text-green-500"
+                      />
+                      <span className="text-white">Single Payment Hostel</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        value="group"
+                        checked={hostelPaymentType === 'group'}
+                        onChange={() => {
+                          // switching to group: clear single inputs and history
+                          setHostelPaymentType('group');
+                          setHostelIndividualPaymentMode('online');
+                          setHostelIndividualAmount('');
+                          setHostelIndividualPaymentDate('');
+                          setHostelIndividualReceiptNo('');
+                          setHostelIndividualUtrId('');
+                          setHostelPayments([]);
+                          // clear inline errors and open modal immediately
+                          setHostelIndividualPaymentDateError('');
+                          setHostelUtrError('');
+                          setShowHostelGroupModal(true);
+                        }}
+                        className="text-green-500"
+                      />
+                      <span className="text-white">Group Hostel Payment</span>
+                    </label>
+                  </div>
+                </div>
+                
+
+                {/* Add Payment Subsection */}
+                <div className="border-t border-slate-600 pt-4">
+                  <h4 className="text-white font-medium mb-3">Add Payment</h4>
+                  
+                  {hostelPaymentType === 'single' ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Payment Mode</label>
+                        <select
+                          value={hostelIndividualPaymentMode}
+                          onChange={(e) => setHostelIndividualPaymentMode(e.target.value)}
+                          className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm"
+                        >
+                          
+                          <option value="online">Online</option>
+                          <option value="offline">Offline</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Payment Amount</label>
+                        <input
+                          type="number"
+                          value={hostelIndividualAmount}
+                          onChange={(e) => {
+                            setHostelIndividualAmount(e.target.value);
+                            const num = parseInt(e.target.value || '0') || 0;
+                            setFormData(prev => ({ ...prev, hostelRent: num }));
+                          }}
+                          placeholder="Amount"
+                          className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Payment Date</label>
+                        <input
+                          type="text"
+                          value={hostelIndividualPaymentDate}
+                          onChange={(e) => {
+                            const formatted = formatDate(e.target.value);
+                            setHostelIndividualPaymentDate(formatted);
+                            if (formatted.length < 10) {
+                              setHostelIndividualPaymentDateError('Please enter a valid date (DD.MM.YYYY)');
+                            } else {
+                              setHostelIndividualPaymentDateError('');
+                            }
+                          }}
+                          placeholder="DD.MM.YYYY"
+                          maxLength={10}
+                          className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm"
+                        />
+                        {hostelIndividualPaymentDateError && (
+                          <p className="text-red-400 text-xs mt-1">{hostelIndividualPaymentDateError}</p>
+                        )}
+                      </div>
+                      {hostelIndividualPaymentMode === 'offline' ? (
+                        <div>
+                          <label className="block text-xs text-gray-400 mb-1">
+                            <Receipt className="w-3 h-3 inline mr-1" />
+                            Receipt Number
+                          </label>
+                          <input
+                            type="text"
+                            value={hostelIndividualReceiptNo}
+                            onChange={(e) => setHostelIndividualReceiptNo(e.target.value)}
+                            placeholder="Receipt No"
+                            className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm"
+                          />
+                        </div>
+                      ) : hostelIndividualPaymentMode === 'online' ? (
+                        <div>
+                          <label className="block text-xs text-gray-400 mb-1">
+                            <CreditCard className="w-3 h-3 inline mr-1" />
+                            UTR/UPI ID
+                          </label>
+                          <input
+                            type="text"
+                            value={hostelIndividualUtrId || ''}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+                              setHostelIndividualUtrId(value);
+                              if (value.length !== 12) {
+                                setHostelUtrError('Please enter 12-digit UTR/UPI ID');
+                              } else {
+                                setHostelUtrError('');
+                              }
+                            }}
+                            placeholder="12-digit UTR/UPI ID"
+                            maxLength={12}
+                            className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm"
+                          />
+                          {hostelUtrError && (
+                            <p className="text-red-400 text-xs mt-1">{hostelUtrError}</p>
+                          )}
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {/* Hostel Group Payment Entry (inline) */}
+                      <div className="space-y-3 mb-2">
+                        <div className="flex-1 min-w-[200px]">
+                          <label className="block text-gray-300 text-sm font-medium mb-2">Payment Date *</label>
+                          <input
+                            type="text"
+                            value={hostelGroupPaymentDate}
+                            onChange={(e)=>{const f=formatDate(e.target.value); setHostelGroupPaymentDate(f); setHostelGroupDateError(f.length<10?'Please enter a valid date (DD.MM.YYYY)':'');}}
+                            maxLength={10}
+                            placeholder="DD.MM.YYYY"
+                            className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm"
+                          />
+                          {hostelGroupDateError && <p className="text-red-400 text-xs mt-1">{hostelGroupDateError}</p>}
+                        </div>
+                        <div className="flex-1 min-w-[160px]">
+                          <label className="block text-gray-300 text-sm font-medium mb-2">Online Amount</label>
+                          <input type="number" value={hostelGroupOnlineAmount} onChange={(e)=>{
+                            const val=e.target.value; setHostelGroupOnlineAmount(val);
+                          }} placeholder="Enter online amount (optional)" className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm" />
+                        </div>
+                        {parseInt(hostelGroupOnlineAmount||'0')>0 && (
+                          <div className="flex-1 min-w-[200px]">
+                            <label className="block text-gray-300 text-sm font-medium mb-2">UTR/UPI ID</label>
+                            <input type="text" value={hostelGroupUtrId} onChange={(e)=>{const v=e.target.value.replace(/\D/g,'').slice(0,12); setHostelGroupUtrId(v); setHostelGroupUtrError(v.length===12?'':'Please enter 12-digit UTR/UPI ID');}} placeholder="12-digit UTR/UPI ID" maxLength={12} className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm" />
+                            {hostelGroupUtrError && <p className="text-red-400 text-xs mt-1">{hostelGroupUtrError}</p>}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-[160px]">
+                          <label className="block text-gray-300 text-sm font-medium mb-2">Offline Amount</label>
+                          <input type="number" value={hostelGroupOfflineAmount} onChange={(e)=>{
+                            const val=e.target.value; setHostelGroupOfflineAmount(val);
+                          }} placeholder="Enter offline amount (optional)" className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm" />
+                        </div>
+                        {parseInt(hostelGroupOfflineAmount||'0')>0 && (
+                          <div className="flex-1 min-w-[200px]">
+                            <label className="block text-gray-300 text-sm font-medium mb-2">Receipt Number</label>
+                            <input type="text" value={hostelGroupReceiptNo} onChange={(e)=>setHostelGroupReceiptNo(e.target.value)} placeholder="Receipt No" className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="bg-slate-900/50 border border-slate-600 rounded-lg p-3">
+                          <input readOnly value={formData.studentName.toUpperCase()} className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm" />
+                          <div className="mt-2">
+                            <label className="block text-gray-400 text-xs mb-1">Amount</label>
+                            <input 
+                              type="number" 
+                              value={hostelGroupEntries[0]?.amount || 0}
+                              readOnly={((formData as any).hostelRent || 0) <= 0}
+                              onChange={(e)=>{
+                                const limit = (parseInt(hostelGroupOnlineAmount||'0')||0) + (parseInt(hostelGroupOfflineAmount||'0')||0);
+                                const val = parseInt(e.target.value)||0;
+                                if (val > limit) {
+                                  setHostelGroupAmountError('Amount cannot exceed Online + Offline total');
+                                } else {
+                                  setHostelGroupAmountError('');
+                                  const v=[...hostelGroupEntries]; v[0].amount=val; setHostelGroupEntries(v);
+                                }
+                              }} 
+                              className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm" 
+                            />
+                            {/* Disabled until hostel rent set; no inline message */}
+                            {hostelGroupAmountError && <p className="text-red-400 text-xs mt-1">{hostelGroupAmountError}</p>}
+                          </div>
+                        </div>
+                        <div className="bg-slate-900/50 border border-slate-600 rounded-lg p-3 md:col-span-2">
+                          <div className="space-y-3">
+                            {hostelGroupEntries.slice(1).map((entry,idx)=> (
+                              <input key={idx} type="text" value={entry.studentName} onChange={(e)=>{const v=[...hostelGroupEntries]; v[idx+1].studentName=e.target.value; setHostelGroupEntries(v);}} placeholder={`Student Name #${idx+2}`} className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm" />
+                            ))}
+                          </div>
+                          <div className="mt-3">
+                            <label className="block text-gray-400 text-xs mb-1">Remaining Amount</label>
+                            <input readOnly value={Math.max(0, (parseInt(hostelGroupOnlineAmount||'0')||0)+(parseInt(hostelGroupOfflineAmount||'0')||0) - (hostelGroupEntries.reduce((s,e)=>s+(e.amount||0),0))).toString()} className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm" />
+                          </div>
+                        </div>
+                      </div>
+                      {/* Conditional IDs display */}
+                      {parseInt(hostelGroupOnlineAmount||'0')>0 && (
+                        <p className="text-gray-300 text-xs">Provide UTR/UPI ID above for online amount.</p>
+                      )}
+                      {parseInt(hostelGroupOfflineAmount||'0')>0 && (
+                        <p className="text-gray-300 text-xs">Provide Receipt Number above for offline amount.</p>
+                      )}
+                      <button type="button" onClick={handleAddHostelGroupPayment} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">Add to Group Payment</button>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleAddHostelPayment}
+                    className="w-full mt-3 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors text-sm"
+                  >
+                    Add Hostel Payment
+                  </button>
+                </div>
+                {/* Payment History Below */}
+                {hostelPayments.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="text-white font-medium mb-2">Hostel Payment History</h4>
+                    <div className="grid grid-cols-1 gap-2">
+                      {hostelPayments.map((payment, index) => (
+                        <div key={index} className="p-3 bg-slate-700 rounded-lg border border-slate-600">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="text-white font-medium text-sm">
+                                {payment.paymentMode === 'online' ? `Online: ₹${payment.amount} (UTR: ${payment.utrId})` : `Offline: ₹${payment.amount} (Receipt: ${payment.receiptNo})`}
+                              </p>
+                              <p className="text-gray-400 text-xs">Date: {payment.paymentDate}</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newPayments = hostelPayments.filter((_, i) => i !== index);
+                                setHostelPayments(newPayments);
+                              }}
+                              className="text-red-400 hover:text-red-300 transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* MESS PAYMENT Section */}
+              <div className="bg-slate-800/50 border border-slate-600 rounded-xl p-6">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                  <Utensils className="w-5 h-5 text-orange-400" />
+                  MESS PAYMENT
+                </h3>
+                
+                {/* Mess Fee Amount Display (from section below) */}
+                <div className="mb-4 p-3 bg-orange-500/20 border border-orange-500/30 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-orange-300 text-sm font-medium">Mess Fee Amount:</span>
+                    <span className="text-white font-bold text-lg">₹{(
+                      messPaymentType === 'group'
+                        ? (parseInt(messGroupOnlineAmount || '0') || 0) + (parseInt(messGroupOfflineAmount || '0') || 0)
+                        : messPayments.reduce((sum, p) => sum + (p.amount || 0), 0)
+                    ).toLocaleString()}</span>
+                  </div>
+                </div>
+
+                {/* Payment Type Selection */}
+                <div className="mb-4">
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        value="single"
+                        checked={messPaymentType === 'single'}
+                        onChange={() => {
+                          setMessPaymentType('single');
+                          setMessGroupCount(0);
+                          setMessGroupEntries([]);
+                          setMessIndividualPaymentDateError('');
+                          setMessUtrError('');
+                        }}
+                        className="text-orange-500"
+                      />
+                      <span className="text-white">Single MESS Payment</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        value="group"
+                        checked={messPaymentType === 'group'}
+                        onChange={() => {
+                          setMessPaymentType('group');
+                          setMessIndividualPaymentMode('online');
+                          setMessIndividualAmount('');
+                          setMessIndividualPaymentDate('');
+                          setMessIndividualReceiptNo('');
+                          setMessIndividualUtrId('');
+                          setMessPayments([]);
+                          setMessIndividualPaymentDateError('');
+                          setMessUtrError('');
+                          setShowMessGroupModal(true);
+                        }}
+                        className="text-orange-500"
+                      />
+                      <span className="text-white">Group Mess Payment</span>
+                    </label>
+                  </div>
+                </div>
+                
+
+                {/* Add Payment Subsection */}
+                <div className="border-t border-slate-600 pt-4">
+                  <h4 className="text-white font-medium mb-3">Add Payment</h4>
+                  
+                  {messPaymentType === 'single' ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Payment Mode</label>
+                        <select
+                          value={messIndividualPaymentMode}
+                          onChange={(e) => setMessIndividualPaymentMode(e.target.value)}
+                          className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm"
+                        >
+                          
+                          <option value="online">Online</option>
+                          <option value="offline">Offline</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Payment Amount</label>
+                        <input
+                          type="number"
+                          value={messIndividualAmount}
+                          onChange={(e) => {
+                            setMessIndividualAmount(e.target.value);
+                            const num = parseInt(e.target.value || '0') || 0;
+                            setFormData(prev => ({ ...prev, messFee: num }));
+                          }}
+                          placeholder="Amount"
+                          className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-1">Payment Date</label>
+                        <input
+                          type="text"
+                          value={messIndividualPaymentDate}
+                          onChange={(e) => {
+                            const formatted = formatDate(e.target.value);
+                            setMessIndividualPaymentDate(formatted);
+                            if (formatted.length < 10) {
+                              setMessIndividualPaymentDateError('Please enter a valid date (DD.MM.YYYY)');
+                            } else {
+                              setMessIndividualPaymentDateError('');
+                            }
+                          }}
+                          placeholder="DD.MM.YYYY"
+                          maxLength={10}
+                          className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm"
+                        />
+                        {messIndividualPaymentDateError && (
+                          <p className="text-red-400 text-xs mt-1">{messIndividualPaymentDateError}</p>
+                        )}
+                      </div>
+                      {messIndividualPaymentMode === 'offline' ? (
+                        <div>
+                          <label className="block text-xs text-gray-400 mb-1">
+                            <Receipt className="w-3 h-3 inline mr-1" />
+                            Receipt Number
+                          </label>
+                          <input
+                            type="text"
+                            value={messIndividualReceiptNo}
+                            onChange={(e) => setMessIndividualReceiptNo(e.target.value)}
+                            placeholder="Receipt No"
+                            className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm"
+                          />
+                        </div>
+                      ) : messIndividualPaymentMode === 'online' ? (
+                        <div>
+                          <label className="block text-xs text-gray-400 mb-1">
+                            <CreditCard className="w-3 h-3 inline mr-1" />
+                            UTR/UPI ID
+                          </label>
+                          <input
+                            type="text"
+                            value={messIndividualUtrId || ''}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+                              setMessIndividualUtrId(value);
+                              if (value.length !== 12) {
+                                setMessUtrError('Please enter 12-digit UTR/UPI ID');
+                              } else {
+                                setMessUtrError('');
+                              }
+                            }}
+                            placeholder="12-digit UTR/UPI ID"
+                            maxLength={12}
+                            className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm"
+                          />
+                          {messUtrError && (
+                            <p className="text-red-400 text-xs mt-1">{messUtrError}</p>
+                          )}
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {/* Mess Group Payment Entry (inline) */}
+                      <div className="space-y-3 mb-2">
+                        <div className="flex-1 min-w-[200px]">
+                          <label className="block text-gray-300 text-sm font-medium mb-2">Payment Date *</label>
+                          <input
+                            type="text"
+                            value={messGroupPaymentDate}
+                            onChange={(e)=>{const f=formatDate(e.target.value); setMessGroupPaymentDate(f); setMessGroupDateError(f.length<10?'Please enter a valid date (DD.MM.YYYY)':'');}}
+                            maxLength={10}
+                            placeholder="DD.MM.YYYY"
+                            className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm"
+                          />
+                          {messGroupDateError && <p className="text-red-400 text-xs mt-1">{messGroupDateError}</p>}
+                        </div>
+                        <div className="flex-1 min-w-[160px]">
+                          <label className="block text-gray-300 text-sm font-medium mb-2">Online Amount</label>
+                          <input type="number" value={messGroupOnlineAmount} onChange={(e)=>{
+                            const val=e.target.value; const online=parseInt(val||'0')||0; const offline=parseInt(messGroupOfflineAmount||'0')||0; const limit=parseInt((formData as any).messFee||'0')||0; if(online+offline>limit){ window.alert('Online + Offline cannot exceed Mess Fee amount'); return;} setMessGroupOnlineAmount(val);
+                          }} placeholder="Enter online amount (optional)" className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm" />
+                        </div>
+                        {parseInt(messGroupOnlineAmount||'0')>0 && (
+                          <div className="flex-1 min-w-[200px]">
+                            <label className="block text-gray-300 text-sm font-medium mb-2">UTR/UPI ID</label>
+                            <input type="text" value={messGroupUtrId} onChange={(e)=>{const v=e.target.value.replace(/\D/g,'').slice(0,12); setMessGroupUtrId(v); setMessGroupUtrError(v.length===12?'':'Please enter 12-digit UTR/UPI ID');}} placeholder="12-digit UTR/UPI ID" maxLength={12} className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm" />
+                            {messGroupUtrError && <p className="text-red-400 text-xs mt-1">{messGroupUtrError}</p>}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-[160px]">
+                          <label className="block text-gray-300 text-sm font-medium mb-2">Offline Amount</label>
+                          <input type="number" value={messGroupOfflineAmount} onChange={(e)=>{
+                            const val=e.target.value; const offline=parseInt(val||'0')||0; const online=parseInt(messGroupOnlineAmount||'0')||0; const limit=parseInt((formData as any).messFee||'0')||0; if(online+offline>limit){ window.alert('Online + Offline cannot exceed Mess Fee amount'); return;} setMessGroupOfflineAmount(val);
+                          }} placeholder="Enter offline amount (optional)" className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm" />
+                        </div>
+                        {parseInt(messGroupOfflineAmount||'0')>0 && (
+                          <div className="flex-1 min-w-[200px]">
+                            <label className="block text-gray-300 text-sm font-medium mb-2">Receipt Number</label>
+                            <input type="text" value={messGroupReceiptNo} onChange={(e)=>setMessGroupReceiptNo(e.target.value)} placeholder="Receipt No" className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="bg-slate-900/50 border border-slate-600 rounded-lg p-3">
+                          <input readOnly value={formData.studentName.toUpperCase()} className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm" />
+                          <div className="mt-2">
+                            <label className="block text-gray-400 text-xs mb-1">Amount</label>
+                            <input 
+                              type="number" 
+                              value={messGroupEntries[0]?.amount || 0}
+                              readOnly={((formData as any).messFee || 0) <= 0}
+                              onChange={(e)=>{
+                                const limit = (parseInt(messGroupOnlineAmount||'0')||0) + (parseInt(messGroupOfflineAmount||'0')||0);
+                                const val = parseInt(e.target.value)||0;
+                                if (val > limit) {
+                                  setMessGroupAmountError('Amount cannot exceed Online + Offline total');
+                                } else {
+                                  setMessGroupAmountError('');
+                                  const v=[...messGroupEntries]; v[0].amount=val; setMessGroupEntries(v);
+                                }
+                              }} 
+                              className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm" 
+                            />
+                            {((formData as any).messFee || 0) <= 0 && (
+                              <p className="text-red-400 text-xs mt-1">Enter Mess Fee amount to enable</p>
+                            )}
+                            {messGroupAmountError && <p className="text-red-400 text-xs mt-1">{messGroupAmountError}</p>}
+                          </div>
+                        </div>
+                        <div className="bg-slate-900/50 border border-slate-600 rounded-lg p-3 md:col-span-2">
+                          <div className="space-y-3">
+                            {messGroupEntries.slice(1).map((entry,idx)=> (
+                              <input key={idx} type="text" value={entry.studentName} onChange={(e)=>{const v=[...messGroupEntries]; v[idx+1].studentName=e.target.value; setMessGroupEntries(v);}} placeholder={`Student Name #${idx+2}`} className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm" />
+                            ))}
+                          </div>
+                          <div className="mt-3">
+                            <label className="block text-gray-400 text-xs mb-1">Remaining Amount</label>
+                            <input readOnly value={Math.max(0, (parseInt(messGroupOnlineAmount||'0')||0)+(parseInt(messGroupOfflineAmount||'0')||0) - (messGroupEntries.reduce((s,e)=>s+(e.amount||0),0))).toString()} className="w-full p-2 bg-slate-700 border border-white/30 rounded text-white text-sm" />
+                          </div>
+                        </div>
+                      </div>
+                      {/* Conditional IDs display */}
+                      {parseInt(messGroupOnlineAmount||'0')>0 && (
+                        <p className="text-gray-300 text-xs">Provide UTR/UPI ID above for online amount.</p>
+                      )}
+                      {parseInt(messGroupOfflineAmount||'0')>0 && (
+                        <p className="text-gray-300 text-xs">Provide Receipt Number above for offline amount.</p>
+                      )}
+                      <button type="button" onClick={handleAddMessGroupPayment} className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 text-sm">Add to Group Payment</button>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleAddMessPayment}
+                    className="w-full mt-3 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors text-sm"
+                  >
+                    Add Mess Payment
+                  </button>
+                </div>
+                {/* Payment History Below */}
+                {messPayments.length > 0 && (
+                  <div className="mt-4">
+                    <h4 className="text-white font-medium mb-2">Mess Payment History</h4>
+                    <div className="grid grid-cols-1 gap-2">
+                      {messPayments.map((payment, index) => (
+                        <div key={index} className="p-3 bg-slate-700 rounded-lg border border-slate-600">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="text-white font-medium text-sm">
+                                {payment.paymentMode === 'online' ? `Online: ₹${payment.amount} (UTR: ${payment.utrId})` : `Offline: ₹${payment.amount} (Receipt: ${payment.receiptNo})`}
+                              </p>
+                              <p className="text-gray-400 text-xs">Date: {payment.paymentDate}</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newPayments = messPayments.filter((_, i) => i !== index);
+                                setMessPayments(newPayments);
+                              }}
+                              className="text-red-400 hover:text-red-300 transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Combined Add Button */}
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={handleAddHostelMessPayment}
+                className="w-full px-6 py-3 bg-gradient-to-r from-green-500 to-orange-500 text-white rounded-xl hover:from-green-600 hover:to-orange-600 transition-all duration-200 font-medium shadow-lg"
+              >
+                Add HOSTEL & MESS Payment
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Submit Button */}
         <div className="flex gap-4">
