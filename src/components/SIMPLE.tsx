@@ -1,3 +1,7 @@
+yes, and also ab Hostel Rent amount main paise hai 3000 but abhi bhi Student #1 ka amount read mode mai hi hai  jab bhi Hostel rent Amount main paise 0 se  jayada matlad student #1 ka amount main aap ab value enter kar sakte ho (readmode only se hat jaye ga phir) and yaha 2 button banaye hai jabki ek hi button chahiye Add to group payment wala hat kar Jo Add to hostel payment hai wahi button yaha rahe as  ( Add hostel group payment) button uski jagah and same messke liye bhi apply ho
+
+
+
 <div>
   <label className="block text-gray-300 text-sm font-medium mb-2">
     Student Name *
