@@ -2597,23 +2597,7 @@ for (const payment of currentPayments) {
                               setGroupPaymentDate(formatted);
                               if (errors.groupPaymentDate) setErrors({ ...errors, groupPaymentDate: '' });
                             }}
-                            onFocus={() => {
-    // 🔧 ADDITIONAL FIX: Prevent focus events in readOnly mode
-    if (paymentFieldsReadOnly) {
-      console.log("🔧 UTR field is readOnly - preventing focus interactions");
-      // Blur the field immediately to prevent any interactions
-      setTimeout(() => {
-        if (document.activeElement) {
-          document.activeElement.blur();
-        }
-      }, 0);
-    }
-  }}
-  className={`w-full p-3 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-    paymentFieldsReadOnly 
-      ? 'bg-slate-800 border-slate-600 cursor-not-allowed opacity-75' 
-      : 'bg-slate-700 border-white/30'
-  }`}
+                            className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="DD.MM.YYYY"
                             maxLength={10}
                           />
@@ -2637,23 +2621,7 @@ for (const payment of currentPayments) {
                                 setErrors(prev => ({ ...prev, groupAmount: '' }));
                               }
                             }}
-                            onFocus={() => {
-    // 🔧 ADDITIONAL FIX: Prevent focus events in readOnly mode
-    if (paymentFieldsReadOnly) {
-      console.log("🔧 UTR field is readOnly - preventing focus interactions");
-      // Blur the field immediately to prevent any interactions
-      setTimeout(() => {
-        if (document.activeElement) {
-          document.activeElement.blur();
-        }
-      }, 0);
-    }
-  }}
-  className={`w-full p-3 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-    paymentFieldsReadOnly 
-      ? 'bg-slate-800 border-slate-600 cursor-not-allowed opacity-75' 
-      : 'bg-slate-700 border-white/30'
-  }`}
+                            className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Enter online amount (optional)"
                           />
                           {errors.groupAmount && !groupOnlineAmount && !groupOfflineAmount && (
@@ -2675,23 +2643,7 @@ for (const payment of currentPayments) {
                               const value = e.target.value.replace(/\D/g, '');
                               setGroupOfflineAmount(value);
                             }}
-                            onFocus={() => {
-    // 🔧 ADDITIONAL FIX: Prevent focus events in readOnly mode
-    if (paymentFieldsReadOnly) {
-      console.log("🔧 UTR field is readOnly - preventing focus interactions");
-      // Blur the field immediately to prevent any interactions
-      setTimeout(() => {
-        if (document.activeElement) {
-          document.activeElement.blur();
-        }
-      }, 0);
-    }
-  }}
-  className={`w-full p-3 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-    paymentFieldsReadOnly 
-      ? 'bg-slate-800 border-slate-600 cursor-not-allowed opacity-75' 
-      : 'bg-slate-700 border-white/30'
-  }`}
+                            className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Enter offline amount (optional)"
                           />
                         </div>
@@ -2727,24 +2679,7 @@ for (const payment of currentPayments) {
                                 
                                 if (errors.groupUtrId) setErrors({ ...errors, groupUtrId: '' });
                               }}
-                              
-                             onFocus={() => {
-    // 🔧 ADDITIONAL FIX: Prevent focus events in readOnly mode
-    if (paymentFieldsReadOnly) {
-      console.log("🔧 UTR field is readOnly - preventing focus interactions");
-      // Blur the field immediately to prevent any interactions
-      setTimeout(() => {
-        if (document.activeElement) {
-          document.activeElement.blur();
-        }
-      }, 0);
-    }
-  }}
-  className={`w-full p-3 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-    paymentFieldsReadOnly 
-      ? 'bg-slate-800 border-slate-600 cursor-not-allowed opacity-75' 
-      : 'bg-slate-700 border-white/30'
-  }`}
+                              className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                               placeholder="Enter 12-digit UTR/UPI ID"
                               maxLength={12}
                             />
@@ -2769,18 +2704,6 @@ for (const payment of currentPayments) {
                                 if (errors.groupReceiptNo) setErrors({ ...errors, groupReceiptNo: '' });
                               }}
                               onBlur={() => {
-                                 // 🔧 CRITICAL FIX: Don't trigger duplicate check if field is readOnly
-    if (paymentFieldsReadOnly) {
-      console.log("🔧 Skipping duplicate check - field is in readOnly mode");
-      return;
-    }
-    
-    // Don't trigger duplicate check if currently processing group entry
-    if (isProcessingGroupEntry) {
-      console.log("🔧 Skipping duplicate modal (processing)");
-      return;
-    }
-    
                                 if (groupReceiptNo.trim() !== "") {
                                   const duplicate = findDuplicatePaymentWithAllMembers(undefined, groupReceiptNo.trim());
                                   if (duplicate) {
@@ -2796,23 +2719,7 @@ for (const payment of currentPayments) {
                                   return;
                                 }
                               }}
-                               onFocus={() => {
-    // 🔧 ADDITIONAL FIX: Prevent focus events in readOnly mode
-    if (paymentFieldsReadOnly) {
-      console.log("🔧 Field is readOnly - preventing focus interactions");
-      // Blur the field immediately to prevent any interactions
-      setTimeout(() => {
-        if (document.activeElement) {
-          document.activeElement.blur();
-        }
-      }, 0);
-    }
-  }}
-                             className={`w-full p-3 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-    paymentFieldsReadOnly 
-      ? 'bg-slate-800 border-slate-600 cursor-not-allowed opacity-75' 
-      : 'bg-slate-700 border-white/30'
-  }`}
+                              className="w-full p-3 bg-slate-700 border border-white/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                               placeholder="Enter receipt number"
                             />
                             {errors.groupReceiptNo && <p className="text-red-400 text-sm mt-1">{errors.groupReceiptNo}</p>}
@@ -2859,17 +2766,17 @@ console.log("🔍 DEBUG - savedUnpaidAmount:", savedUnpaidAmount);
 
   
     if (amountNum > formData.courseFee) {
-      window.alert(`Payment amount exceeds Course Fee! Maximum allowed: ₹${formData.courseFee.toLocaleString()}`);
+      window.alert(`Amount cannot be more than ₹${formData.courseFee.toLocaleString()}`);
       return;
     }
 
     if (amountNum > totalGroupPayment) {
-      window.alert(`Payment amount exceeds Total Group Payment! Maximum allowed: ₹${totalGroupPayment.toLocaleString()}`);
+      window.alert(`Amount cannot be more than total group payment ₹${totalGroupPayment.toLocaleString()}`);
       return;
     }
     if(amountNum > calculatedUnpaidAmount)
     {
-      window.alert(`Payment amount exceeds Unpaid Member Remaining Amount From Total Group Payment! ₹${calculatedUnpaidAmount.toLocaleString()}`);
+      window.alert(`Amount cannot be more than UnPaid Member payment ₹${calculatedUnpaidAmount.toLocaleString()}`);
       return;
     }
 
