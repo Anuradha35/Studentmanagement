@@ -1,3 +1,4 @@
+```typescript
 import React, { useState, useEffect, useRef  } from 'react';
 import { ArrowLeft, User, Phone, Mail, GraduationCap, Calendar, DollarSign, CreditCard, Receipt, Users, Plus, X, Home, Utensils } from 'lucide-react';
 import { AppData, Student, Payment } from '../types';
@@ -206,6 +207,46 @@ const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Prefill selection and lock states
   const [hostelPrefillSelection, setHostelPrefillSelection] = useState<PrefillSelection>('none');
+
+  // Initialize form data with editing student data
+  useEffect(() => {
+    if (editingStudent) {
+      console.log("🔄 Populating form with editing student data:", editingStudent);
+      
+      setFormData({
+        studentName: editingStudent.studentName || '',
+        fatherName: editingStudent.fatherName || '',
+        gender: editingStudent.gender || 'Male',
+        mobileNo: editingStudent.mobileNo || '',
+        email: editingStudent.email || '',
+        category: editingStudent.category || 'GEN',
+        hostler: editingStudent.hostler || 'No',
+        collegeName: editingStudent.collegeName || '',
+        branch: editingStudent.branch || '',
+        courseDuration: editingStudent.courseDuration || '',
+        startDate: editingStudent.startDate || '',
+        endDate: editingStudent.endDate || '',
+        registrationDate: editingStudent.registrationDate || '',
+        courseFee: editingStudent.courseFee || 0,
+        totalPaid: editingStudent.totalPaid || 0,
+        remainingFee: editingStudent.remainingFee || 0,
+        hostelStartDate: editingStudent.hostelStartDate || '',
+        hostelEndDate: editingStudent.hostelEndDate || ''
+      });
+
+      // Clear any existing payments/errors when editing
+      setPayments([]);
+      setGroupPayments([]);
+      setDynamicGroupEntries([]);
+      setErrors({});
+      
+      console.log("✅ Form populated with student data");
+    } else {
+      // Reset form for new student
+      resetFormToCleanState();
+    }
+  }, [editingStudent]);
+
   const [messPrefillSelection, setMessPrefillSelection] = useState<PrefillSelection>('none');
   const [hostelLockDate, setHostelLockDate] = useState(false);
   const [hostelLockReceipt, setHostelLockReceipt] = useState(false);
@@ -426,7 +467,9 @@ const resetFormToCleanState = () => {
     registrationDate: '',   // ✅ NEW FIELD
     courseFee: fee,
     totalPaid: 0,
-    remainingFee: fee
+    remainingFee: fee,
+    hostelStartDate: '',
+    hostelEndDate: ''
   });
 
   // Clear payment fields
@@ -489,7 +532,7 @@ const validateGroupEntries = () => {
   for (let i = 0; i < dynamicGroupEntries.length; i++) {
     if (!dynamicGroupEntries[i].studentName?.trim()) {
       alert(`Student Name #${i + 1} cannot be blank`);
-      document.getElementById(`studentName-${i}`).focus();
+      document.getElementById(`studentName-${i}`)?.focus();
       return false;
     }
   }
@@ -938,10 +981,207 @@ useEffect(() => {
   // Current payments se existingPayments Set rebuild karo
   const newExistingPayments = {
     utrIds: new Set(),
-    receiptNos: new Set()
+    receiptNos: new Set(),
+    details: []
   };
   
   // Individual payments se add karo
   payments.forEach(payment => {
     if (payment.paymentMode === 'online' && payment.utrId) {
-      newExistingPayments.utrIds.add(payment
+      newExistingPayments.utrIds.add(payment.utrId);
+    }
+    if (payment.paymentMode === 'offline' && payment.receiptNo) {
+      newExistingPayments.receiptNos.add(payment.receiptNo);
+    }
+  });
+  
+  // Group payments se add karo
+  groupPayments.forEach(groupPayment => {
+    if (groupPayment.utrId) {
+      newExistingPayments.utrIds.add(groupPayment.utrId);
+    }
+    if (groupPayment.receiptNo) {
+      newExistingPayments.receiptNos.add(groupPayment.receiptNo);
+    }
+  });
+  
+  setExistingPayments(newExistingPayments);
+}, [payments, groupPayments]);
+
+useEffect(() => {
+  if (paymentType === 'single') {
+    setPaymentMode('offline');
+  } else if (paymentType === 'group') {
+    setPaymentMode('offline');
+  }
+}, [paymentType]);
+  const [calculatedUnpaidAmount, setCalculatedUnpaidAmount] = useState(0);
+
+useEffect(() => {
+  if (duplicateInfo?.paymentType === 'group') {
+    const existingPaymentMembers = duplicateInfo.allGroupMembers || [];
+    const currentPaidMemberNames = existingPaymentMembers.map(
+      m => m.studentInfo.studentName.trim()
+    );
+
+    const allMembers = duplicateInfo.existingPayment.groupStudents
+      ? duplicateInfo.existingPayment.groupStudents.split(', ').map(name => name.trim())
+      : [];
+
+    const actualTotal = duplicateInfo.existingPayment.totalGroupAmount || 0;
+    const actualPaid = existingPaymentMembers.reduce(
+      (sum, m) => sum + (m.existingPayment.amount || 0), 0
+    );
+
+    const remaining = actualTotal - actualPaid;
+    setCalculatedUnpaidAmount(remaining);
+  }
+}, [duplicateInfo]);
+
+  // Update course fee when duration changes
+  useEffect(() => {
+    const fee = getCourseFee();
+    setFormData(prev => ({
+      ...prev,
+      courseFee: fee,
+      remainingFee: fee - prev.totalPaid
+    }));
+  }, [formData.courseDuration, selectedCourse, appData.courseFees]);
+
+useEffect(() => {
+  console.log("👀 Should Render Dynamic Group Inputs?");
+  console.log("✅ paymentType:", paymentType);
+  console.log("✅ groupCount:", groupCount);
+  console.log("✅ dynamicGroupEntries.length:", dynamicGroupEntries.length);
+}, [paymentType, groupCount, dynamicGroupEntries]);
+
+useEffect(() => {
+  console.log("👀 useEffect watching dynamicGroupEntries:", dynamicGroupEntries);
+}, [dynamicGroupEntries]);
+
+  // Calculate end date based on start date and duration
+  useEffect(() => {
+    if (formData.startDate && formData.courseDuration) {
+      const [day, month, year] = formData.startDate.split('.');
+      const startDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      const durationDays = parseInt(formData.courseDuration.replace(' Days', ''));
+      
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + durationDays - 1); // Include start date in calculation
+      
+      const endDay = endDate.getDate().toString().padStart(2, '0');
+      const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
+      const endYear = endDate.getFullYear();
+      
+      setFormData(prev => ({
+        ...prev,
+        endDate: `${endDay}.${endMonth}.${endYear}`
+      }));
+    }
+  }, [formData.startDate, formData.courseDuration]);
+
+   useEffect(() => {
+    if (paymentType === 'group') {
+      setGroupCount(0);
+      setShowGroupModal(true);
+    }
+  }, [paymentType]);
+
+useEffect(() => {
+  if (showGroupModal) {
+    const timer = setTimeout(() => {
+      if (groupInputRef.current) {
+        groupInputRef.current.focus();
+        groupInputRef.current.select();
+      }
+    }, 100);
+    return () => clearTimeout(timer);
+  }
+}, [showGroupModal]);
+
+ useEffect(() => {
+    const totalGroupPayment =
+      (parseInt(groupOnlineAmount || '0') || 0) +
+      (parseInt(groupOfflineAmount || '0') || 0);
+
+    setDynamicGroupEntries(prevEntries => {
+      const updated = [...prevEntries];
+      updated[0] = { ...updated[0], amount: '' };
+      return updated;
+    });
+    
+    setFormData(prev => ({
+      ...prev,
+      totalPaid: 0,
+      remainingFee: prev.courseFee
+    }));
+  }, [groupOnlineAmount, groupOfflineAmount]);
+
+
+  useEffect(() => {
+    if (hostelGroupEntries.length > 0 && formData.studentName) {
+      const updated = [...hostelGroupEntries];
+      updated[0].studentName = formData.studentName.toUpperCase();
+      setHostelGroupEntries(updated);
+    }
+  }, [formData.studentName, hostelGroupEntries.length]);
+  
+  useEffect(() => {
+    if (messGroupEntries.length > 0 && formData.studentName) {
+      const updated = [...messGroupEntries];
+      updated[0].studentName = formData.studentName.toUpperCase();
+      setMessGroupEntries(updated);
+    }
+  }, [formData.studentName, messGroupEntries.length]);
+  
+  useEffect(() => {
+    if (dynamicGroupEntries.length > 0 && formData.studentName) {
+      const updated = [...dynamicGroupEntries];
+      updated[0].studentName = formData.studentName.toUpperCase();
+      setDynamicGroupEntries(updated);
+    }
+  }, [dynamicGroupEntries.length, formData.studentName]);
+
+  useEffect(() => {
+    if (showGroupModal) {
+      const timer = setTimeout(() => {
+        if (groupInputRef.current) {
+          groupInputRef.current.focus();
+          groupInputRef.current.select();
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [showGroupModal]);
+
+  useEffect(() => {
+  // Add safety check for dynamicGroupEntries
+  if (dynamicGroupEntries.length > 0 && paymentType === 'group') {
+    if (groupCount !== dynamicGroupEntries.length) {
+      setGroupCount(dynamicGroupEntries.length);
+      console.log("🔄 Updated group count to match entries:", dynamicGroupEntries.length);
+    }
+    
+    // 🔧 SAFETY CHECK: Ensure first entry exists before accessing studentName
+    if (dynamicGroupEntries[0] && formData.studentName) {
+      const currentStudentName = formData.studentName.toUpperCase();
+      
+      // Check if the studentName property exists and is different
+      if (dynamicGroupEntries[0].studentName !== currentStudentName) {
+        const updatedEntries = [...dynamicGroupEntries];
+        
+        // 🔧 SAFETY: Ensure the entry object exists before updating
+        if (updatedEntries[0]) {
+          updatedEntries[0] = {
+            ...updatedEntries[0],
+            studentName: currentStudentName
+          };
+          setDynamicGroupEntries(updatedEntries);
+          console.log("🔄
+
+
+
+
+
+
+ 
