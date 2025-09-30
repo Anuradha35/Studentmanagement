@@ -188,8 +188,60 @@ function App() {
     student: Student
   ) => {
     const newData = { ...appData };
-    if (newData.years[year]?.[courseName]?.[batchName]) {
+    
+    if (!newData.years[year]?.[courseName]?.[batchName]) {
+      console.error("❌ Batch not found:", { year, courseName, batchName });
+      return;
+    }
+
+    // Check if this is an update (student has existing ID in the batch)
+    const existingIndex = newData.years[year][courseName][batchName].students.findIndex(
+      s => s.id === student.id
+    );
+
+    if (existingIndex !== -1) {
+      // Update existing student
+      console.log("🔄 Updating existing student:", student.studentName);
+      newData.years[year][courseName][batchName].students[existingIndex] = student;
+    } else {
+      // Add new student
+      console.log("➕ Adding new student:", student.studentName);
       newData.years[year][courseName][batchName].students.push(student);
+    }
+    
+    saveData(newData);
+  };
+
+  const updateStudent = (
+    year: string,
+    courseName: string,
+    batchName: string,
+    updatedStudent: Student
+  ) => {
+    const newData = { ...appData };
+    
+    // Find and update the student across all years/courses/batches
+    let studentFound = false;
+    
+    Object.keys(newData.years).forEach(yearKey => {
+      Object.keys(newData.years[yearKey]).forEach(courseKey => {
+        Object.keys(newData.years[yearKey][courseKey]).forEach(batchKey => {
+          const studentIndex = newData.years[yearKey][courseKey][batchKey].students.findIndex(
+            s => s.id === updatedStudent.id
+          );
+          
+          if (studentIndex !== -1) {
+            newData.years[yearKey][courseKey][batchKey].students[studentIndex] = updatedStudent;
+            studentFound = true;
+            console.log("✅ Student updated:", updatedStudent.studentName);
+          }
+        });
+      });
+    });
+    
+    if (!studentFound) {
+      console.error("❌ Student not found for update:", updatedStudent.id);
+    } else {
       saveData(newData);
     }
   };

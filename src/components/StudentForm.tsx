@@ -388,12 +388,6 @@ const checkForAllStudentEnrollments = (studentName: string, fatherName: string) 
 
   return enrollments;
 };
-const student: Student = {
-  id: Date.now().toString(),
-  ...formData,
-  createdAt: new Date().toISOString()
-};
-
 
 // ✅ GLOBAL PAYMENT DUPLICATE CHECK (across all courses)
 const isPaymentDuplicateGlobal = (utrId?: string, receiptNo?: string) => {
@@ -1181,30 +1175,524 @@ useEffect(() => {
       }
     }
   }
-}, [dynamicGroupEntries, formData.studentName, paymentType, groupCount]);
+}, [dynamicGroupEntries.length, formData.studentName, paymentType, groupCount]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleInputChange = (field: string, value: string | number) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({
+        ...prev,
+        [field]: ''
+      }));
+    }
+  };
+
+  const handleAddCollegeName = () => {
+    if (newCollegeName.trim()) {
+      onAddCollegeName(newCollegeName.trim());
+      setFormData(prev => ({ ...prev, collegeName: newCollegeName.trim() }));
+      setNewCollegeName('');
+      setShowNewCollegeInput(false);
+    }
+  };
+
+  const handleAddBranch = () => {
+    if (newBranch.trim()) {
+      onAddBranch(newBranch.trim());
+      setFormData(prev => ({ ...prev, branch: newBranch.trim() }));
+      setNewBranch('');
+      setShowNewBranchInput(false);
+    }
+  };
+
+  const handleAddCourseDuration = () => {
+    if (formData.courseDuration && !appData.courseDurations?.includes(formData.courseDuration)) {
+      onAddCourseDuration(formData.courseDuration);
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!formData.studentName.trim()) newErrors.studentName = 'Student name is required';
+    if (!formData.fatherName.trim()) newErrors.fatherName = 'Father name is required';
+    if (!formData.mobileNo.trim()) newErrors.mobileNo = 'Mobile number is required';
+    if (!formData.collegeName.trim()) newErrors.collegeName = 'College name is required';
+    if (!formData.branch.trim()) newErrors.branch = 'Branch is required';
+    if (!formData.courseDuration) newErrors.courseDuration = 'Course duration is required';
+    if (!formData.startDate) newErrors.startDate = 'Start date is required';
+
+    return newErrors;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log("🚀 Form submission started", { editingStudent: !!editingStudent });
+    console.log("🚀 Form submission started");
     
-    // ✅ STEP 1: Check for duplicate student enrollments (only for new students)
-    if (!editingStudent) {
-      const enrollments = checkForAllStudentEnrollments(formData.studentName, formData.fatherName);
-      
-      if (enrollments.length > 0) {
-        console.log("⚠️ Found existing enrollments:", enrollments);
-        
-        setDuplicateStudentInfo({
-          existingEnrollments: enrollments,
-          currentStudent: {
-            name: formData.studentName,
-            fatherName: formData.fatherName,
-            course: selectedCourse,
-            year: selectedYear
-          }
-        });
-        setDuplicateStudentModal(true);
-        return;
-      }
+    // Validate form
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
     }
+
+    // Create or update student object
+    const student: Student = editingStudent ? {
+      ...editingStudent, // Keep original ID and creation date
+      ...formData, // Update with new form data
+    } : {
+      id: Date.now().toString(),
+      ...formData,
+      createdAt: new Date().toISOString()
+    };
+
+    console.log("👤 Student object:", { isEdit: !!editingStudent, student });
+
+    // Add student to the selected batch
+    onAddStudent(selectedYear, selectedCourse, selectedBatch, student);
+
+    // Process payments if any
+    if (paymentType === 'single' && (paymentAmount || payments.length > 0)) {
+      // Handle single payments
+      payments.forEach(payment => {
+        onAddPayment(student.id, {
+          ...payment,
+          type: 'single',
+          paymentCategory: 'course'
+        });
+      });
+    } else if (paymentType === 'group' && groupPayments.length > 0) {
+      // Handle group payments
+      const groupId = uuidv4();
+      groupPayments.forEach(payment => {
+        onAddPayment(student.id, {
+          ...payment,
+          type: 'group',
+          groupId,
+          paymentCategory: 'course'
+        });
+      });
+    }
+
+    // Reset form and go back
+    resetFormToCleanState();
+    onBack();
+  };
+
+  // Get unique college names and branches
+  const collegeNames = appData.collegeNames || [];
+  const branches = appData.branches || [];
+  const courseDurations = appData.courseDurations || [];
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <div className="flex items-center gap-4 mb-4">
+            <button
+              onClick={onBack}
+              className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              Back
+            </button>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {editingStudent ? 'Edit Student' : 'Add New Student'}
+              </h1>
+              <p className="text-gray-600">
+                {selectedYear} • {selectedCourse} • {selectedBatch}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Personal Information */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <User className="w-5 h-5 text-blue-600" />
+              <h2 className="text-lg font-semibold text-gray-900">Personal Information</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Student Name *
+                </label>
+                <input
+                  ref={studentNameRef}
+                  type="text"
+                  value={formData.studentName}
+                  onChange={(e) => handleInputChange('studentName', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.studentName ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Enter student name"
+                />
+                {errors.studentName && (
+                  <p className="text-red-500 text-sm mt-1">{errors.studentName}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Father's Name *
+                </label>
+                <input
+                  type="text"
+                  value={formData.fatherName}
+                  onChange={(e) => handleInputChange('fatherName', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.fatherName ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Enter father's name"
+                />
+                {errors.fatherName && (
+                  <p className="text-red-500 text-sm mt-1">{errors.fatherName}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Gender
+                </label>
+                <select
+                  value={formData.gender}
+                  onChange={(e) => handleInputChange('gender', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Mobile Number *
+                </label>
+                <input
+                  type="tel"
+                  value={formData.mobileNo}
+                  onChange={(e) => handleInputChange('mobileNo', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.mobileNo ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Enter mobile number"
+                />
+                {errors.mobileNo && (
+                  <p className="text-red-500 text-sm mt-1">{errors.mobileNo}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter email address"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Category
+                </label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => handleInputChange('category', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="GEN">General</option>
+                  <option value="SC">SC</option>
+                  <option value="ST">ST</option>
+                  <option value="PH">PH</option>
+                  <option value="MINORITY">Minority</option>
+                  <option value="W">Women</option>
+                  <option value="OBC">OBC</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Hostler
+                </label>
+                <select
+                  value={formData.hostler}
+                  onChange={(e) => handleInputChange('hostler', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="No">No</option>
+                  <option value="Yes">Yes</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Registration Date
+                </label>
+                <input
+                  type="date"
+                  value={formData.registrationDate}
+                  onChange={(e) => handleInputChange('registrationDate', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Academic Information */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <GraduationCap className="w-5 h-5 text-blue-600" />
+              <h2 className="text-lg font-semibold text-gray-900">Academic Information</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  College Name *
+                </label>
+                <div className="flex gap-2">
+                  <select
+                    value={formData.collegeName}
+                    onChange={(e) => {
+                      if (e.target.value === 'add_new') {
+                        setShowNewCollegeInput(true);
+                      } else {
+                        handleInputChange('collegeName', e.target.value);
+                      }
+                    }}
+                    className={`flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.collegeName ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  >
+                    <option value="">Select college</option>
+                    {collegeNames.map((college, index) => (
+                      <option key={index} value={college}>{college}</option>
+                    ))}
+                    <option value="add_new">+ Add New College</option>
+                  </select>
+                </div>
+                {showNewCollegeInput && (
+                  <div className="flex gap-2 mt-2">
+                    <input
+                      type="text"
+                      value={newCollegeName}
+                      onChange={(e) => setNewCollegeName(e.target.value)}
+                      placeholder="Enter new college name"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddCollegeName}
+                      className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    >
+                      Add
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowNewCollegeInput(false)}
+                      className="px-3 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+                {errors.collegeName && (
+                  <p className="text-red-500 text-sm mt-1">{errors.collegeName}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Branch *
+                </label>
+                <div className="flex gap-2">
+                  <select
+                    value={formData.branch}
+                    onChange={(e) => {
+                      if (e.target.value === 'add_new') {
+                        setShowNewBranchInput(true);
+                      } else {
+                        handleInputChange('branch', e.target.value);
+                      }
+                    }}
+                    className={`flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      errors.branch ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  >
+                    <option value="">Select branch</option>
+                    {branches.map((branch, index) => (
+                      <option key={index} value={branch}>{branch}</option>
+                    ))}
+                    <option value="add_new">+ Add New Branch</option>
+                  </select>
+                </div>
+                {showNewBranchInput && (
+                  <div className="flex gap-2 mt-2">
+                    <input
+                      type="text"
+                      value={newBranch}
+                      onChange={(e) => setNewBranch(e.target.value)}
+                      placeholder="Enter new branch name"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddBranch}
+                      className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    >
+                      Add
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowNewBranchInput(false)}
+                      className="px-3 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+                {errors.branch && (
+                  <p className="text-red-500 text-sm mt-1">{errors.branch}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Course Duration *
+                </label>
+                <select
+                  value={formData.courseDuration}
+                  onChange={(e) => handleInputChange('courseDuration', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.courseDuration ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                >
+                  <option value="">Select duration</option>
+                  {courseDurations.map((duration, index) => (
+                    <option key={index} value={duration}>{duration}</option>
+                  ))}
+                </select>
+                {errors.courseDuration && (
+                  <p className="text-red-500 text-sm mt-1">{errors.courseDuration}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Start Date *
+                </label>
+                <input
+                  type="text"
+                  value={formData.startDate}
+                  onChange={(e) => handleInputChange('startDate', e.target.value)}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.startDate ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="DD.MM.YYYY"
+                  readOnly
+                />
+                {errors.startDate && (
+                  <p className="text-red-500 text-sm mt-1">{errors.startDate}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  End Date
+                </label>
+                <input
+                  type="text"
+                  value={formData.endDate}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                  readOnly
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Course Fee
+                </label>
+                <input
+                  type="number"
+                  value={formData.courseFee}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                  readOnly
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Hostel Dates */}
+          {formData.hostler === 'Yes' && (
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Home className="w-5 h-5 text-blue-600" />
+                <h2 className="text-lg font-semibold text-gray-900">Hostel Information</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Hostel Start Date
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.hostelStartDate}
+                    onChange={(e) => handleInputChange('hostelStartDate', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Hostel End Date
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.hostelEndDate}
+                    onChange={(e) => handleInputChange('hostelEndDate', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <div className="flex justify-end gap-4">
+            <button
+              type="button"
+              onClick={onBack}
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              {editingStudent ? 'Update Student' : 'Add Student'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default StudentForm;
