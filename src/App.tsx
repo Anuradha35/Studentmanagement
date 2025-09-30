@@ -6,18 +6,30 @@ import { AppData, Student, Course, Batch, CourseFee, Payment } from './types';
 import CourseFeeManager from './components/CourseFeeManager';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState<'dashboard' | 'course-batches' | 'student-form' | 'course-fees'>('dashboard');
-  
-  // ✅ UPDATED: Add payments array to initial state
+  const [currentPage, setCurrentPage] = useState<
+    'dashboard' | 'course-batches' | 'student-form' | 'course-fees'
+  >('dashboard');
+
   const [appData, setAppData] = useState<AppData>({
     years: {},
-    collegeNames: ['RGPV', 'VIT University', 'Amity University', 'Lovely Professional University'],
-    branches: ['Computer Science', 'Information Technology', 'Electronics', 'Mechanical', 'Civil'],
+    collegeNames: [
+      'RGPV',
+      'VIT University',
+      'Amity University',
+      'Lovely Professional University',
+    ],
+    branches: [
+      'Computer Science',
+      'Information Technology',
+      'Electronics',
+      'Mechanical',
+      'Civil',
+    ],
     courseDurations: ['15 Days', '30 Days', '45 Days', '60 Days', '90 Days'],
     courseFees: [],
-    payments: []  // ✅ ADD THIS LINE
+    payments: [], // ✅ initialize payments
   });
-  
+
   const [selectedYear, setSelectedYear] = useState<string>('2025');
   const [selectedCourse, setSelectedCourse] = useState<string>('');
   const [selectedBatch, setSelectedBatch] = useState<string>('');
@@ -31,7 +43,6 @@ function App() {
     const savedData = localStorage.getItem('studentManagementData');
     if (savedData) {
       const parsedData = JSON.parse(savedData);
-      // ✅ UPDATED: Ensure payments array exists in loaded data
       if (!parsedData.payments) {
         parsedData.payments = [];
       }
@@ -46,7 +57,6 @@ function App() {
 
   const addCourseFee = (courseName: string, courseDuration: string, fee: number) => {
     const newData = { ...appData };
-    // ✅ Fix: Ensure courseFees is initialized
     if (!newData.courseFees) {
       newData.courseFees = [];
     }
@@ -55,7 +65,7 @@ function App() {
       courseName,
       courseDuration,
       fee,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
     newData.courseFees.push(newCourseFee);
     saveData(newData);
@@ -63,7 +73,7 @@ function App() {
 
   const updateCourseFee = (id: string, fee: number) => {
     const newData = { ...appData };
-    const courseFeeIndex = newData.courseFees.findIndex(cf => cf.id === id);
+    const courseFeeIndex = newData.courseFees.findIndex((cf) => cf.id === id);
     if (courseFeeIndex !== -1) {
       newData.courseFees[courseFeeIndex].fee = fee;
       saveData(newData);
@@ -72,59 +82,64 @@ function App() {
 
   const deleteCourseFee = (id: string) => {
     const newData = { ...appData };
-    newData.courseFees = newData.courseFees.filter(cf => cf.id !== id);
+    newData.courseFees = newData.courseFees.filter((cf) => cf.id !== id);
     saveData(newData);
   };
 
-  // ✅ UPDATED: Replace the simple addPayment with comprehensive payment handler
-  const handleAddPayment = (studentId: string, payment: Omit<Payment, 'id' | 'studentId' | 'createdAt'>) => {
+  // ✅ FINAL FIXED handleAddPayment (single + group supported)
+  const handleAddPayment = (
+    studentId: string,
+    payment: Omit<Payment, 'id' | 'studentId' | 'createdAt'>
+  ) => {
     const newPayment: Payment = {
       id: `payment_${Date.now()}_${Math.random()}`,
       studentId,
       createdAt: new Date().toISOString(),
-      ...payment
+      ...payment,
     };
 
-    setAppData(prev => ({
-      ...prev,
-      payments: [...(prev.payments || []), newPayment]
-    }));
+    // Step 1: Add payment
+    setAppData((prev) => {
+      const newData = {
+        ...prev,
+        payments: [...(prev.payments || []), newPayment],
+      };
 
-    // Update student's payment summary if it's a single payment
-    if (payment.type === 'single') {
-      setAppData(prev => {
+      localStorage.setItem('studentManagementData', JSON.stringify(newData));
+      return newData;
+    });
+
+    // Step 2: Update student's summary (single + group main student only)
+    if (payment.type === 'single' || payment.type === 'group') {
+      setAppData((prev) => {
         const newData = { ...prev };
-        
-        // Find and update the student
-        Object.keys(newData.years).forEach(year => {
-          Object.keys(newData.years[year]).forEach(course => {
-            Object.keys(newData.years[year][course]).forEach(batch => {
-              const studentIndex = newData.years[year][course][batch].students
-                .findIndex(s => s.id === studentId);
-              
+
+        Object.keys(newData.years).forEach((year) => {
+          Object.keys(newData.years[year]).forEach((course) => {
+            Object.keys(newData.years[year][course]).forEach((batch) => {
+              const studentIndex = newData.years[year][course][batch].students.findIndex(
+                (s) => s.id === studentId
+              );
+
               if (studentIndex !== -1) {
-                const student = newData.years[year][course][batch].students[studentIndex];
-                const newTotalPaid =  payment.amount;
-                
+                const student =
+                  newData.years[year][course][batch].students[studentIndex];
+                const newTotalPaid = (student.totalPaid || 0) + (payment.amount || 0);
+
                 newData.years[year][course][batch].students[studentIndex] = {
                   ...student,
                   totalPaid: newTotalPaid,
-                  remainingFee: student.courseFee - newTotalPaid
+                  remainingFee: student.courseFee - newTotalPaid,
                 };
               }
             });
           });
         });
-        
+
+        localStorage.setItem('studentManagementData', JSON.stringify(newData));
         return newData;
       });
     }
-
-    // Save to localStorage after payment is added
-    setTimeout(() => {
-      const updatedData = { ...appData, payments: [...(appData.payments || []), newPayment] };
-      localStorage.setItem('studentManagementData', JSON.stringify(updatedData));
-    }, 100);
   };
 
   const addCourse = (year: string, courseName: string) => {
@@ -138,28 +153,39 @@ function App() {
     saveData(newData);
   };
 
-  const addBatch = (year: string, courseName: string, batchNumber: number, startDate: string, courseDurations: string[]) => {
+  const addBatch = (
+    year: string,
+    courseName: string,
+    batchNumber: number,
+    startDate: string,
+    courseDurations: string[]
+  ) => {
     const newData = { ...appData };
     const batchName = `B${batchNumber}`;
-    
+
     if (!newData.years[year]) {
       newData.years[year] = {};
     }
     if (!newData.years[year][courseName]) {
       newData.years[year][courseName] = {};
     }
-    
+
     newData.years[year][courseName][batchName] = {
       batchName,
       startDate,
       courseDurations,
-      students: []
+      students: [],
     };
-    
+
     saveData(newData);
   };
 
-  const addStudent = (year: string, courseName: string, batchName: string, student: Student) => {
+  const addStudent = (
+    year: string,
+    courseName: string,
+    batchName: string,
+    student: Student
+  ) => {
     const newData = { ...appData };
     if (newData.years[year]?.[courseName]?.[batchName]) {
       newData.years[year][courseName][batchName].students.push(student);
@@ -203,11 +229,16 @@ function App() {
     setCurrentPage('student-form');
   };
 
-  // ✅ UPDATED: Enhanced safety check including payments
-  if (!appData || !Array.isArray(appData.courseFees) || !appData.years || !Array.isArray(appData.payments)) {
+  if (
+    !appData ||
+    !Array.isArray(appData.courseFees) ||
+    !appData.years ||
+    !Array.isArray(appData.payments)
+  ) {
     return (
       <div className="text-white p-6">
-        ⚠️ App data is not ready or is incomplete. Please reload or check local storage.
+        ⚠️ App data is not ready or is incomplete. Please reload or check local
+        storage.
       </div>
     );
   }
@@ -229,7 +260,7 @@ function App() {
           onNavigateToCourseFees={() => setCurrentPage('course-fees')}
         />
       )}
-      
+
       {currentPage === 'course-batches' && (
         <CourseBatches
           appData={appData}
@@ -244,7 +275,7 @@ function App() {
           onNavigateToCourseFees={navigateToCourseFees}
         />
       )}
-      
+
       {currentPage === 'student-form' && (
         <StudentForm
           appData={appData}
@@ -257,11 +288,11 @@ function App() {
           onAddCollegeName={addCollegeName}
           onAddBranch={addBranch}
           onAddCourseDuration={addCourseDuration}
-          onAddPayment={handleAddPayment}  // ✅ UPDATED: Use new payment handler
+          onAddPayment={handleAddPayment}
           onBack={() => setCurrentPage('course-batches')}
         />
       )}
-      
+
       {currentPage === 'course-fees' && (
         <CourseFeeManager
           appData={appData}
