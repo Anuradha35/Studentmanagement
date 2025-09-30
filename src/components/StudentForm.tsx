@@ -446,7 +446,7 @@ const resetFormToCleanState = () => {
     const endDay = endDate.getDate().toString().padStart(2, '0');
     const endMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
     const endYear = endDate.getFullYear();
-    calculatedEndDate = `${endDay}.${endMonth}.${endYear}`;
+    calculatedEndDate = \`${endDay}.${endMonth}.${endYear}`;
   }
 
   // Reset form data
@@ -531,8 +531,8 @@ const paymentDateRef = useRef(null);
 const validateGroupEntries = () => {
   for (let i = 0; i < dynamicGroupEntries.length; i++) {
     if (!dynamicGroupEntries[i].studentName?.trim()) {
-      alert(`Student Name #${i + 1} cannot be blank`);
-      document.getElementById(`studentName-${i}`)?.focus();
+      alert(\`Student Name #${i + 1} cannot be blank`);
+      document.getElementById(\`studentName-${i}`)?.focus();
       return false;
     }
   }
@@ -1075,7 +1075,7 @@ useEffect(() => {
       
       setFormData(prev => ({
         ...prev,
-        endDate: `${endDay}.${endMonth}.${endYear}`
+        endDate: \`${endDay}.${endMonth}.${endYear}`
       }));
     }
   }, [formData.startDate, formData.courseDuration]);
