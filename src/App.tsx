@@ -36,6 +36,7 @@ function App() {
   const [selectedCourseName, setSelectedCourseName] = useState<string>('');
   const [preSelectedDuration, setPreSelectedDuration] = useState<string>('');
   const [preSelectedStartDate, setPreSelectedStartDate] = useState<string>('');
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
 
   const navigateToCourseFees = () => setCurrentPage('course-fees');
 
@@ -224,8 +225,16 @@ function App() {
   };
 
   const navigateToForm = (courseDuration?: string, startDate?: string) => {
+    setEditingStudent(null); // Clear editing mode for new student
     setPreSelectedDuration(courseDuration || '');
     setPreSelectedStartDate(startDate || '');
+    setCurrentPage('student-form');
+  };
+
+  const navigateToEditStudent = (student: Student) => {
+    setEditingStudent(student);
+    setPreSelectedDuration('');
+    setPreSelectedStartDate('');
     setCurrentPage('student-form');
   };
 
@@ -257,6 +266,7 @@ function App() {
           onAddCourse={addCourse}
           onAddBatch={addBatch}
           onNavigateToCourse={navigateToCourse}
+          onNavigateToEditStudent={navigateToEditStudent}
           onNavigateToCourseFees={() => setCurrentPage('course-fees')}
         />
       )}
@@ -271,6 +281,7 @@ function App() {
           setSelectedBatch={setSelectedBatch}
           onAddBatch={addBatch}
           onNavigateToForm={navigateToForm}
+          onNavigateToEditStudent={navigateToEditStudent}
           onBack={() => setCurrentPage('dashboard')}
           onNavigateToCourseFees={navigateToCourseFees}
         />
@@ -284,6 +295,7 @@ function App() {
           selectedBatch={selectedBatch}
           preSelectedDuration={preSelectedDuration}
           preSelectedStartDate={preSelectedStartDate}
+          editingStudent={editingStudent}
           onAddStudent={addStudent}
           onAddCollegeName={addCollegeName}
           onAddBranch={addBranch}

@@ -8,7 +8,7 @@ interface ViewStudentsProps {
   groupPayments?: any[];
   hostelPayments?: any[];
   messPayments?: any[];
-  onEditStudent: (studentId: string) => void;
+  onEditStudent: (student: any) => void;
   onBack: () => void;
 }
 
@@ -615,7 +615,7 @@ const ViewStudents: React.FC<ViewStudentsProps> = ({
                   </div>
 
                   <button
-                    onClick={() => onEditStudent(student.id)}
+                    onClick={() => onEditStudent(student)}
                     className="p-2 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors"
                     title="Edit student"
                   >

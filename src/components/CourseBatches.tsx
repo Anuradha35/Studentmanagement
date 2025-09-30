@@ -13,6 +13,7 @@ interface CourseBatchesProps {
   setSelectedBatch: (batch: string) => void;
   onAddBatch: (year: string, courseName: string, batchNumber: number, startDate: string, courseDurations: string[]) => void;
   onNavigateToForm: (courseDuration?: string, startDate?: string) => void;
+  onNavigateToEditStudent: (student: Student) => void;
   onBack: () => void;
   onNavigateToCourseFees: () => void;
 }
@@ -26,6 +27,7 @@ const CourseBatches: React.FC<CourseBatchesProps> = ({
   setSelectedBatch,
   onAddBatch,
   onNavigateToForm,
+  onNavigateToEditStudent,
   onBack,
   onNavigateToCourseFees
 }) => {
@@ -119,12 +121,7 @@ if (viewMode === "viewStudents") {
       payments={singlePayments}
       groupPayments={groupPayments}
       onBack={() => setViewMode("default")}
-      onEditStudent={(studentId) => {
-        const student = students.find(s => s.id === studentId);
-        if (student) {
-          onNavigateToForm(student.courseDuration, student.startDate);
-        }
-      }}
+      onEditStudent={onNavigateToEditStudent}
     />
   );
 }

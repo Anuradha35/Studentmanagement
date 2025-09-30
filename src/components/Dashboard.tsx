@@ -15,6 +15,7 @@ interface DashboardProps {
   onAddCourse: (year: string, courseName: string) => void;
   onAddBatch: (year: string, courseName: string, batchNumber: number, startDate: string, courseDurations: string[]) => void;
   onNavigateToCourse: (courseName: string) => void;
+  onNavigateToEditStudent: (student: Student) => void;
   onNavigateToCourseFees: () => void;
 }
 
@@ -29,6 +30,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   onAddCourse,
   onAddBatch,
   onNavigateToCourse,
+  onNavigateToEditStudent,
   onNavigateToCourseFees
 }) => {
   const [showCourseDialog, setShowCourseDialog] = useState(false);

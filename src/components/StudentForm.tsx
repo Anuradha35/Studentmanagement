@@ -12,6 +12,7 @@ interface StudentFormProps {
   selectedBatch: string;
   preSelectedDuration: string;
   preSelectedStartDate: string;
+  editingStudent?: Student | null;
   onAddStudent: (year: string, courseName: string, batchName: string, student: Student) => void;
   onAddCollegeName: (collegeName: string) => void;
   onAddBranch: (branchName: string) => void;
@@ -27,6 +28,7 @@ const StudentForm: React.FC<StudentFormProps> = ({
   selectedBatch,
   preSelectedDuration,
   preSelectedStartDate,
+  editingStudent = null,
   onAddStudent,
   onAddCollegeName,
   onAddBranch,
